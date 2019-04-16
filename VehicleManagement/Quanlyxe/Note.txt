@@ -1,0 +1,34 @@
+
+
+https://facebook.github.io/react-native/docs/getting-started
+Node, Python2, JDK
+  choco install -y nodejs.install python2 jdk8
+The React Native CLI
+  npm install -g react-native-cli
+
+Install Android Studio
+
+Creating a new application
+  react-native init Quanlyxe
+
+Running your React Native application
+ cd Quanlyxe
+ react-native run-android
+
+
+add A Calendar Picker Component for React Native
+  npm install --save react-native-calendar-picker
+Use npm to install react-moment along with its peer dependency, moment.
+  npm install --save moment react-moment
+Timezone Support
+ npm install --save moment-timezone
+
+Mini Badge
+//npm install --save react-native-icon-badge
+Install react-native-elements
+npm i react-native-elements --save
+Install react-native-vector-icons
+npm i --save react-native-vector-icons
+
+
+npm install express body-parser pg

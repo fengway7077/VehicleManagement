@@ -1,0 +1,55 @@
+
+
+
+
+CREATE TABLE customer(
+   customercode       SERIAL PRIMARY KEY,
+   lastname            TEXT      NOT NULL,
+   fristname           TEXT      NOT NULL,
+   age                 INT       NOT NULL,
+   address             CHAR(100),
+   phone               INT NOT NULL,
+   email	             TEXT      NOT NULL,
+   gender              bool,
+   nationality         TEXT      NOT NULL,
+   flag                CHAR(1),         
+);
+
+
+
+
+
+vehicledetails
+
+vehiclecode
+carnumber
+typevehicle
+vehiclecolor
+purchaseprice
+rentalprice
+registrationnumber
+managementnumber
+status
+vehicleshape
+describe
+flagdelete
+
+
+vehiclerentalhistory
+
+vehiclecode
+customercode
+rentdate
+payday
+rentalprice
+
+
+
+
+vehiclerepairhistory
+
+vehiclerepaircode
+vehiclecode
+customercode
+damagedday
+amountfixed
