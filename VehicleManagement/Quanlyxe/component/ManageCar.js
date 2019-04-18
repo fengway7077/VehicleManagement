@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
-import {TextInput,View,Text,StyleSheet,Picker,Image,TouchableOpacity,ScrollView } from 'react-native';
-import { DELETE_IMAGE,INSERT_IMAGE,UPDATE_IMAGE  } from "./imageExport.js";
+import {TextInput,View,Text,StyleSheet,Picker,Image,TouchableOpacity,ScrollView,Platform} from 'react-native';
+import { DELETE_IMAGE,INSERT_IMAGE,UPDATE_IMAGE,NO_IMAGE} from "./imageExport.js";
+import { Dropdown } from 'react-native-material-dropdown';
+var ImagePicker = require('react-native-image-picker');
 export default class ManageCar extends Component{
     constructor(props) {
         super(props);
@@ -15,11 +17,44 @@ export default class ManageCar extends Component{
             priceVehicle:'',
             imageVehicle:'',
             description:'',
-            language:'Trạng Thái'
+            language:'Trạng Thái',
+            filePath: {uri: ''},
         };
     }
     
+    chooseFile = () => {
+        var options = {
+            title: 'Select Image',
+            storageOptions: {
+                skipBackup: true,
+                path: 'images',
+            },
+        };
+        ImagePicker.showImagePicker(options, response => {
+            console.log('Response = ', response);
+        
+            if (response.didCancel) {
+                console.log('User cancelled image picker');
+            } else if (response.error) {
+                console.log('ImagePicker Error: ', response.error);
+            } 
+            else {
+                let source = response;
+                this.setState({
+                filePath: source,
+                });
+            }
+        });
+    };
+    
     render() {
+        let data = [{
+            value: 'Trống',
+        }, {
+            value: 'Cho Thuê',
+        }, {
+            value: 'Bảo Trì',
+        }];
         return (
             <ScrollView style={styles.mainContainer}>  
                 {/* <View sytle={styles.headerContent}>
@@ -62,15 +97,10 @@ export default class ManageCar extends Component{
                         <View style={styles.flexBodyView}>
                             <View style={styles.flexBodyViewLeft}>
                                 <View style={styles.pickerContent}>
-                                    <Picker
-                                        selectedValue={this.state.language}
-                                        onValueChange={(itemValue, itemIndex) =>
-                                            this.setState({language: itemValue})
-                                        }>
-                                        <Picker.Item label="Trạng Thái" value="trangthai" />
-                                        <Picker.Item label="Trống" value="trong" />
-                                        <Picker.Item label="Đang Thuê" value="thue" />
-                                    </Picker>
+                                    <Dropdown
+                                        label='Trạng Thái'
+                                        data={data}
+                                    />
                                 </View>
                                 <TextInput
                                     style={styles.inputStyle}
@@ -86,10 +116,11 @@ export default class ManageCar extends Component{
                                 />
                             </View>
                             <View style={styles.imageBodyView}>
-                                <TouchableOpacity onPress={() => {this.popupDialogA.openDialog();}}>
-                                    <Image style={styles.imageStyle}
-                                        source={{uri: 'https://static.independent.co.uk/s3fs-public/thumbnails/image/2017/09/12/11/naturo-monkey-selfie.jpg?w968h681'}}
-                                    />
+                                <TouchableOpacity style={styles.touchableContentImage} onPress={this.chooseFile.bind(this)} >
+                                    {this.state.filePath.uri != '' && <Image style={styles.imageStyle}
+                                        source={{ uri:this.state.filePath.uri}}
+                                    /> }
+                                    {this.state.filePath.uri == '' && <Image style={styles.noImageStyle} source={NO_IMAGE} /> }
                                 </TouchableOpacity>
                             </View>
                         </View>
@@ -142,11 +173,12 @@ export default class ManageCar extends Component{
 
 const styles = StyleSheet.create({
     mainContainer: {
+        marginTop:20,
         flex: 1,
     },
     headerContent:
     {
-
+        alignItems:'center',
     },
     bodyContent:
     {
@@ -192,7 +224,8 @@ const styles = StyleSheet.create({
         height:30
     },
     imageBodyView:{
-        width:'50%'
+        width:'50%',
+        alignItems:'center'
     },
     inputStyleFull: {
         height: 40,
@@ -226,6 +259,15 @@ const styles = StyleSheet.create({
     imageStyle: {
         height:140,
         width:'100%',
+    },
+    noImageStyle: {
+        height:140,
+        width:150,
+    },
+    touchableContentImage:{
+        width:'100%',
+        justifyContent:'center',
+        alignItems:'center'
     },
     textStyle: {
         width:'100%',

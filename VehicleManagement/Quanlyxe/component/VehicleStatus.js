@@ -2,28 +2,79 @@ import React, { Component } from 'react';
 import {View,Text,StyleSheet,Image,FlatList,TextInput,Picker,TouchableOpacity} from 'react-native';
 import { ScrollView} from 'react-native-gesture-handler';
 import {SEARCH_IMAGE} from './imageExport.js'
+import { Dropdown } from 'react-native-material-dropdown';
+import {LinkVehicleStatus,LinkSearchVehicleStatus} from '../constLink/linkService.js'
 export default class VehicleStatus extends Component{
     constructor(props) {
         super(props);
         this.state = { 
+            isLoading: true,
             imageVehicle: '' ,
             vehicleName: '',
             price:'',
-            status:'',
+            status:'Trống',
             search: '',
         };
     }
+
+    componentDidMount(){
+        return fetch(LinkVehicleStatus)
+        .then((response) => response.json())
+        .then((responseJson) => {
+            console.log(responseJson);
+        this.setState({
+            isLoading: false,
+            dataSource: responseJson,
+        }, function(){
+
+        });
+
+        })
+        .catch((error) =>{
+        console.error(error);
+        });
+    }    
+
+    searchVehicleStatus(){
+        fetch(LinkSearchVehicleStatus, {
+            method: "POST",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                "vehicletype": this.state.search,
+                "status": this.state.status
+            }),
+        }).then((response) => response.json())
+        .then((responseJson) => {
+            this.setState({
+                isLoading: false,
+                dataSource: responseJson,
+            });
+        })
+        .catch((error) => {
+            console.error(error);
+        });
+    }
+    
     updateSearch = search => {
-        this.setState({ search });
+        this.setState({ search },this.searchVehicleStatus.bind(this));
     };
     render(){
+        let data = [{
+            value: 'Trống',
+        }, {
+            value: 'Cho Thuê',
+        }, {
+            value: 'Đang Sửa',
+        }];
         const { search } = this.state;
+        const { navigate } = this.props.navigation;
         return(
             <ScrollView style={styles.mainContainer}>
-                {/* <View style={styles.headerContent}>
-                    <Text style={styles.textStyle}>Manage Car Repair History</Text>
-                </View> */}
                 <View style={styles.contentSearch}>
+                <Text>{this.state.status}</Text>
                     <View style={styles.contentChildSearch}>
                         <Image style={styles.iconInputSearch} source={SEARCH_IMAGE}/>
                         <TextInput
@@ -35,52 +86,24 @@ export default class VehicleStatus extends Component{
                     </View>
                     <View style={styles.pickerContent}>
                         <View style={styles.pickerContentChild}>
-                            <Picker
-                                selectedValue={this.state.language}
-                                onValueChange={(itemValue, itemIndex) =>
-                                    this.setState({language: itemValue})
-                                }>
-                                <Picker.Item label="Trạng Thái" value="trangthai" />
-                                <Picker.Item label="Trống" value="trong" />
-                                <Picker.Item label="Đang Thuê" value="thue" />
-                            </Picker>
+                            <Dropdown
+                                label='Trạng Thái'
+                                data={data}
+                                onChangeText={(status) => this.setState({status})}
+                            />
                         </View>
                         <Text style={styles.spaceRight}></Text>
                     </View>
+                    
                 </View>
                
                 <View style={styles.bodyContent}>
                     <FlatList
                         style={styles.flatStyle}
-                        data={[
-                            {status:'qwe',price:'128000',vehicleName:'sad',key: 'Jackson22'},
-                            {status:'ewq',price:'127000',vehicleName:'123',key: 'Devin3'},
-                            {status:'cc',price:'120600',vehicleName:'gfd',key: 'James6'},    
-                            {status:'cc',price:'120500',vehicleName:'ád',key: 'Joel0'},
-                            {status:'AAA',price:'122000',vehicleName:'ád',key: 'John9'},
-                            {status:'cCCCc',price:'120000',vehicleName:'sf',key: 'Jillian8'},
-                            {status:'WWW',price:'120000',vehicleName:'Bni',key: 'Jimmy7'},
-                            {status:'QQQ',price:'127000',vehicleName:'Phong cui',key: 'Julie6'},
-                            {status:'qwe',price:'128000',vehicleName:'sad',key: 'Jackson5'},
-                            {status:'ewq',price:'127000',vehicleName:'123',key: 'Devin4'},
-                            {status:'cc',price:'120600',vehicleName:'gfd',key: 'James3'},    
-                            {status:'cc',price:'120500',vehicleName:'ád',key: 'Joel2'},
-                            {status:'AAA',price:'122000',vehicleName:'ád',key: 'John1'},
-                            {status:'cCCCc',price:'120000',vehicleName:'sf',key: '9Jillian'},
-                            {status:'WWW',price:'120000',vehicleName:'Bni',key: '8Jimmy'},
-                            {status:'QQQ',price:'127000',vehicleName:'Phong cui',key: 'Julie'},
-                            {status:'qwe',price:'128000',vehicleName:'sad',key: '7Jackson'},
-                            {status:'ewq',price:'127000',vehicleName:'123',key: '6Devin'},
-                            {status:'cc',price:'120600',vehicleName:'gfd',key: '5James'},    
-                            {status:'cc',price:'120500',vehicleName:'ád',key: '4Joel'},
-                            {status:'AAA',price:'122000',vehicleName:'ád',key: '3John'},
-                            {status:'cCCCc',price:'120000',vehicleName:'sf',key: '2Jillian'},
-                            {status:'WWW',price:'120000',vehicleName:'Bni',key: '1Jimmy'},
-                            {status:'QQQ',price:'127000',vehicleName:'Phong cui',key: '1213'},
-                        ]}
+                        data={this.state.dataSource}
                         renderItem={({item}) =>
                             <TouchableOpacity style={styles.touchableStyle}
-                            onPress={() => this.props.navigation.navigate('RepairCarHistory')}>
+                            onPress={() => item.status === 'Đang Sửa' ? navigate('RepairCarHistory', {item: item}):navigate('RentalHistory',{item: item})}>
                                 <View style={styles.bodyListView}>
                                     <View style={styles.listViewChild}>
                                         <View style={styles.listViewChildLeft}>
@@ -89,14 +112,15 @@ export default class VehicleStatus extends Component{
                                             />
                                         </View>
                                         <View style={styles.listViewChildRight}>
-                                            <Text style={styles.generalStyle}>Tên Xe : {item.vehicleName}</Text>
-                                            <Text style={styles.generalStyle}>Giá : {item.price}</Text>
-                                            <Text style={styles.generalStyle}>Trạng Thái : {item.status}</Text>
+                                            <Text style={styles.generalStyle}>Tên Xe : {item.vehiclename}</Text>
+                                            <Text style={styles.generalStyle}>Giá : {item.rentalprice}</Text>
+                                            <Text style={styles.generalStyle}>Trạng Thái : {item.status==='0'?'Trống':item.status==='1'?'Cho Thuê':'Đang Sửa'}</Text>
                                         </View>
                                         </View>
                                 </View>
                             </TouchableOpacity>
                         }
+                        keyExtractor={({customercode}, index) => customercode}
                     />
                 </View>
             </ScrollView>
@@ -106,6 +130,7 @@ export default class VehicleStatus extends Component{
 
 const styles = StyleSheet.create({
     mainContainer: {
+        marginTop: 20,
         flex: 1,
     },
     headerContent:
@@ -201,16 +226,5 @@ const styles = StyleSheet.create({
     imageStyle: {
         height:100,
         width:'100%',
-    },
-    textStyle: {
-        width:'100%',
-        textAlign: 'center',
-        color: 'white',
-        marginBottom: 5,
-        backgroundColor:'green',
-        textAlignVertical: "center",
-        fontSize:20,
-        height:50,
-        marginBottom:20
     },
 })

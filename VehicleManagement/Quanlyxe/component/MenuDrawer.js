@@ -1,13 +1,16 @@
 import React, { Component } from 'react';
 import {StyleSheet, View,TouchableOpacity,Image,Text} from 'react-native';
 import {createDrawerNavigator, createStackNavigator, createAppContainer,DrawerItems, SafeAreaView,ScrollView } from 'react-navigation';
-import { DRAWER_IMAGE ,MOTOBIKE_IMAGE,CUSTOMER_IMAGE,RENTAL_IMAGE,REPAIR_IMAGE, MESSAGE_IMAGE, CLOCK_IMAGE,ICONMENU_IMAGE} from './imageExport.js';
+import { DRAWER_IMAGE ,MOTOBIKE_IMAGE,CUSTOMER_IMAGE,RENTAL_IMAGE,REPAIR_IMAGE, MESSAGE_IMAGE, CLOCK_IMAGE,ICONMENU_IMAGE,CALENDAR_IMAGE} from './imageExport.js';
 import ManageCar from './ManageCar.js';
 import ManageCustomer from './ManageCustomer.js';
 import RentalHistory from './RentalHistory.js';
-import RepairCarHistory from './RepairCarHistory';
-import VehicleFees from './VehicleFees';
-import VehicleStatus from './VehicleStatus';
+import RepairCarHistory from './RepairCarHistory.js';
+import VehicleFees from './VehicleFees.js';
+import VehicleStatus from './VehicleStatus.js';
+import ListVehicle from './ListVehicle.js';
+import ListCustomer from './ListCustomer.js';
+import CalendarPickerContent from './CalendarPickerContent.js';
 class MenuDrawer extends Component {
   toggleDrawer = () => {
     this.props.navigationProps.toggleDrawer();
@@ -36,23 +39,6 @@ const ManageCar_Screen = createStackNavigator({
       headerStyle: {
         backgroundColor: '#FF9800',
         textAlignVertical: "center",
-        marginBottom:20
-      },
-      headerTintColor: 'white',
-    }),
-  },
-});
-
-const ManageCustomer_Screen = createStackNavigator({
-  Second: {
-    screen: ManageCustomer,
-    navigationOptions: ({ navigation }) => ({
-      title: 'Customer Information Management',
-      headerLeft: <MenuDrawer navigationProps={navigation} />,
-      headerStyle: {
-        backgroundColor: '#FF9800',
-        textAlignVertical: "center",
-        marginBottom:20
       },
       headerTintColor: 'white',
     }),
@@ -68,7 +54,6 @@ const RentalHistory_Screen = createStackNavigator({
       headerStyle: {
         backgroundColor:'#FF9800',
         textAlignVertical: "center",
-        marginBottom:20
     },
       headerTintColor: 'white',
     }),
@@ -84,12 +69,74 @@ const RepairCarHistory_Screen = createStackNavigator({
       headerStyle: {
         backgroundColor: '#FF9800',
         textAlignVertical: "center",
-        marginBottom:20
       },
       headerTintColor: 'white',
     }),
   },
 });
+
+const ListVehicle_Screen = createStackNavigator({
+  Five: {
+    screen: ListVehicle,
+    navigationOptions: ({ navigation }) => ({
+      title: 'ListVehicle',
+      headerLeft: <MenuDrawer navigationProps={navigation} />,
+      headerStyle: {
+        backgroundColor:'#FF9800',
+        textAlignVertical: "center",
+      },
+      headerTintColor: 'white',
+    }),
+  },
+});
+
+const ListCustomer_Screen = createStackNavigator({
+  ListCustomer: {
+    screen: ListCustomer,
+    navigationOptions:{
+      header:null
+    }
+    // navigationOptions: ({ navigation }) => ({
+    //   title: 'ListCustomer',
+    //   headerLeft: <TouchableOpacity
+    //   onPress={() => navigation.navigate('MenuDrawer')} ><Text>Go</Text></TouchableOpacity>,
+    //   headerStyle: {
+    //     backgroundColor:'#FF9800',
+    //     textAlignVertical: "center",
+    //   },
+    //   headerTintColor: 'white',
+    // }),
+  },
+//   ManageCustomer: {
+//     screen: ManageCustomer,
+//     navigationOptions: ({ navigation }) => ({
+//       title: 'ManageCustomer',
+//       headerLeft: <TouchableOpacity
+//       onPress={() => navigation.navigate('ListCustomer')} ><Text>Back</Text></TouchableOpacity>,
+//       headerStyle: {
+//         backgroundColor:'#FF9800',
+//         textAlignVertical: "center",
+//       },
+//       headerTintColor: 'white',
+//     }),
+//   },
+//   MenuDrawer: {
+//     screen: ManageCar,
+//     navigationOptions: ({ navigation }) => ({
+//         title: 'Vehicle Information Management',
+//         headerLeft: <MenuDrawer navigationProps={navigation} />,
+//         headerStyle: {
+//           backgroundColor: '#FF9800',
+//           textAlignVertical: "center",
+//         },
+//         headerTintColor: 'white',
+//       }),
+// },
+},
+// {
+//     initialRouteName: 'ListCustomer',
+// }
+);
 
 const VehicleFees_Screen = createStackNavigator({
   Five: {
@@ -100,7 +147,6 @@ const VehicleFees_Screen = createStackNavigator({
       headerStyle: {
         backgroundColor:'#FF9800',
         textAlignVertical: "center",
-        marginBottom:20
       },
       headerTintColor: 'white',
     }),
@@ -116,7 +162,21 @@ const VehicleStatus_Screen = createStackNavigator({
       headerStyle: {
         backgroundColor:'#FF9800',
         textAlignVertical: "center",
-        marginBottom:20
+      },
+      headerTintColor: 'white',
+    }),
+  },
+});
+
+const CalendarPickerContent_Screen = createStackNavigator({
+  Six: {
+    screen: CalendarPickerContent,
+    navigationOptions: ({ navigation }) => ({
+      title: 'CalendarPicker',
+      headerLeft: <MenuDrawer navigationProps={navigation} />,
+      headerStyle: {
+        backgroundColor:'#FF9800',
+        textAlignVertical: "center",
       },
       headerTintColor: 'white',
     }),
@@ -127,21 +187,13 @@ const headerMenuDrawer =(props) =>(
   <SafeAreaView style={styles.areaMenuView}>
     <View style={styles.menuView}>
         <Image source={ICONMENU_IMAGE} style={styles.iconMenu}/>
-        <Text>Dịch Vụ Cho Thuê Xe</Text>
+        <Text style={styles.textHeader}>Dịch Vụ Cho Thuê Xe</Text>
     </View>
     <ScrollView>
       <DrawerItems {...props} />
     </ScrollView>
   </SafeAreaView>
 )
-
-// const headerMenuDrawer = props => (
-//   <ScrollView>
-//     <SafeAreaView style={styles.container} forceInset={{ top: 'always', horizontal: 'never' }}>
-//       <DrawerItems {...props} />
-//     </SafeAreaView>
-//   </ScrollView>
-// );
 
 const DrawerNavigator_Screen = createDrawerNavigator({
   ManageCar: {
@@ -157,18 +209,18 @@ const DrawerNavigator_Screen = createDrawerNavigator({
     },
   },
 
-  ManageCustomer: {
-    screen: ManageCustomer_Screen,
-    navigationOptions: {
-      drawerLabel: 'ManageCustomer',
-      drawerIcon: ({ tintColor }) => (
-        <Image
-          source={CUSTOMER_IMAGE}
-          style={[styles.icon, {tintColor: tintColor}]}
-        />
-      ),
-    },
-  },
+  // ManageCustomer: {
+  //   screen: ManageCustomer_Screen,
+  //   navigationOptions: {
+  //     drawerLabel: 'ManageCustomer',
+  //     drawerIcon: ({ tintColor }) => (
+  //       <Image
+  //         source={CUSTOMER_IMAGE}
+  //         style={[styles.icon, {tintColor: tintColor}]}
+  //       />
+  //     ),
+  //   },
+  // },
 
   RentalHistory: {
     screen: RentalHistory_Screen,
@@ -196,6 +248,32 @@ const DrawerNavigator_Screen = createDrawerNavigator({
     },
   },
 
+  ListVehicle: {
+    screen: ListVehicle_Screen,
+    navigationOptions: {
+      drawerLabel: 'ListVehicle',
+      drawerIcon: ({ tintColor }) => (
+        <Image
+          source={MOTOBIKE_IMAGE}
+          style={[styles.icon, {tintColor: tintColor}]}
+        />
+      ),  
+    },
+  },
+
+  ListCustomer: {
+    screen: ListCustomer_Screen,
+    navigationOptions: {
+      drawerLabel: 'ListCustomer',
+      drawerIcon: ({ tintColor }) => (
+        <Image
+          source={CUSTOMER_IMAGE}
+          style={[styles.icon, {tintColor: tintColor}]}
+        />
+      ),  
+    },
+  },
+
   VehicleFees: {
     screen: VehicleFees_Screen,
     navigationOptions: {
@@ -216,6 +294,19 @@ const DrawerNavigator_Screen = createDrawerNavigator({
       drawerIcon: ({ tintColor }) => (
         <Image
           source={MESSAGE_IMAGE}
+          style={[styles.icon, {tintColor: tintColor}]}
+        />
+      ),  
+    },
+  },
+
+  CalendarPickerContent: {
+    screen: CalendarPickerContent_Screen,
+    navigationOptions: {
+      drawerLabel: 'CalendarPicker',
+      drawerIcon: ({ tintColor }) => (
+        <Image
+          source={CALENDAR_IMAGE}
           style={[styles.icon, {tintColor: tintColor}]}
         />
       ),  
@@ -254,6 +345,9 @@ const styles = StyleSheet.create({
     height:150,
     alignItems:'center',
     justifyContent:'center',
-    backgroundColor:'green'
+    backgroundColor:'#FF9800'
+  },
+  textHeader:{
+    fontSize:18,
   }
 })

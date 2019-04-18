@@ -3,28 +3,68 @@ import {View,Text,StyleSheet,Image,FlatList,TextInput,Button, TouchableOpacity} 
 import { ScrollView} from 'react-native-gesture-handler';
 import { createAppContainer, createStackNavigator } from 'react-navigation';
 import RentalHistory from './RentalHistory';
-import {SEARCH_IMAGE} from './imageExport.js'
+import {SEARCH_IMAGE} from './imageExport'
+import {LinkVehicleFees,LinkSearchVehicleFees} from '../constLink/linkService'
 export default class VehicleFees extends Component{
     constructor(props) {
         super(props);
         this.state = { 
-            imageVehicle: '' ,
-            customerName: '',
+            isloading:true,
+            imageVehicle:'' ,
+            customerName:'',
             phone:'',
             dateTime:'',
-            search: '',
+            search:'',
         };
     }
+
+    componentDidMount(){
+        return fetch(LinkVehicleFees)
+        .then((response) => response.json())
+        .then((responseJson) => {
+        this.setState({
+            isLoading: false,
+            dataSource: responseJson,
+        }, function(){
+
+        });
+
+        })
+        .catch((error) =>{
+        console.error(error);
+        });
+    }   
+    
+    seacrchVehicleFees(){
+        fetch(LinkSearchVehicleFees, {
+            method: "POST",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                "firstname": this.state.search,
+                "lastname": this.state.search
+            }),
+        }).then((response) => response.json())
+        .then((responseJson) => {
+            this.setState({
+                isLoading: false,
+                dataSource: responseJson,
+            });
+        })
+        .catch((error) => {
+        console.error(error);
+        });
+    }
+
     updateSearch = search => {
-        this.setState({ search });
+        this.setState({ search },this.seacrchVehicleFees.bind(this));
     };
     render(){
         const { search } = this.state;
         return(
             <ScrollView style={styles.mainContainer}>
-                {/* <View style={styles.headerContent}>
-                    <Text style={styles.textStyle}>List Of Vehicles Coming Soon To Get Money</Text>
-                </View> */}
                 <View style={styles.contentSearch}>
                     <View style={styles.contentChildSearch}>
                         <Image style={styles.iconInputSearch} source={SEARCH_IMAGE}/>
@@ -40,35 +80,10 @@ export default class VehicleFees extends Component{
                 <View style={styles.bodyContent}>
                     <FlatList
                         style={styles.flatStyle}
-                        data={[
-                            {customerName:'qwe',phone:'128000',dateTime:'2019/2/12',key: '1Jackson'},
-                            {customerName:'ewq',phone:'127000',dateTime:'2019/2/12',key: '2Devin'},
-                            {customerName:'csc',phone:'120600',dateTime:'2016/2/12',key: '3James'},    
-                            {customerName:'ccf',phone:'120500',dateTime:'2015/2/12',key: '4Joel'},
-                            {customerName:'AAA',phone:'122000',dateTime:'2014/2/12',key: '5John'},
-                            {customerName:'cCc',phone:'120000',dateTime:'2012/2/12',key: '6Jillian'},
-                            {customerName:'WWW',phone:'120000',dateTime:'2019/3/12',key: '7Jimmy'},
-                            {customerName:'QQQ',phone:'127000',dateTime:'2019/4/12',key: '8Julie'},
-                            {customerName:'qwe',phone:'128000',dateTime:'2019/6/12',key: '9Jackson'},
-                            {customerName:'ewq',phone:'127000',dateTime:'2019/7/12',key: '10Devin'},
-                            {customerName:'cca',phone:'120600',dateTime:'2019/2/22',key: 'James1'},    
-                            {customerName:'csc',phone:'120500',dateTime:'2019/2/14',key: 'Joel2'},
-                            {customerName:'AAA',phone:'122000',dateTime:'2019/2/15',key: 'John3'},
-                            {customerName:'cCc',phone:'120000',dateTime:'2019/2/11',key: 'Jillian4'},
-                            {customerName:'WWW',phone:'120000',dateTime:'2019/2/12',key: 'Jimmy5'},
-                            {customerName:'QQQ',phone:'127000',dateTime:'2019/3/16',key: 'Julie6'},
-                            {customerName:'qwe',phone:'128000',dateTime:'2019/1/12',key: 'Jackson7'},
-                            {customerName:'ewq',phone:'127000',dateTime:'2019/6/12',key: 'Devin8'},
-                            {customerName:'gcc',phone:'120600',dateTime:'2019/7/12',key: 'James9'},    
-                            {customerName:'acc',phone:'120500',dateTime:'2019/1/12',key: 'Joel9'},
-                            {customerName:'AAA',phone:'122000',dateTime:'2019/2/22',key: 'John8'},
-                            {customerName:'cCc',phone:'120000',dateTime:'2019/2/12',key: 'Jillian7'},
-                            {customerName:'WWW',phone:'120000',dateTime:'2019/2/14',key: 'Jimmy6'},
-                            {customerName:'QQQ',phone:'127000',dateTime:'2019/2/16',key: '1213'},
-                        ]}
+                        data={this.state.dataSource}
                         renderItem={({item}) =>
                             <TouchableOpacity style={styles.touchableStyle}
-                            onPress={() => this.props.navigation.navigate('RentalHistory')}>
+                            onPress={() => this.props.navigation.navigate('RentalHistory', {item: item})}>
                                 <View style={styles.bodyListView}>
                                     <View style={styles.listViewChild}>
                                         <View style={styles.listViewChildLeft}>
@@ -77,14 +92,15 @@ export default class VehicleFees extends Component{
                                             />
                                         </View>
                                         <View style={styles.listViewChildRight}>
-                                            <Text style={styles.generalStyle}>Tên KH : {item.customerName}</Text>
+                                            <Text style={styles.generalStyle}>Tên KH : {item.fullname}</Text>
                                             <Text style={styles.generalStyle}>SDT : {item.phone}</Text>
-                                            <Text style={styles.generalStyle}>Ngày Thu Tiền : {item.dateTime}</Text>
+                                            <Text style={styles.generalStyle}>Ngày Thu Tiền : {item.payday}</Text>
                                         </View>
                                         </View>
                                 </View>
                             </TouchableOpacity>
                         }
+                        keyExtractor={({vehiclecode}, index) => vehiclecode}
                     />
                 </View>
             </ScrollView>
@@ -146,6 +162,7 @@ export default class VehicleFees extends Component{
 
 const styles = StyleSheet.create({
     mainContainer: {
+        marginTop: 20,
         flex: 1,
     },
     headerContent:
@@ -222,16 +239,5 @@ const styles = StyleSheet.create({
     imageStyle: {
         height:100,
         width:'100%',
-    },
-    textStyle: {
-        width:'100%',
-        textAlign: 'center',
-        color: 'white',
-        marginBottom: 5,
-        backgroundColor:'green',
-        textAlignVertical: "center",
-        fontSize:20,
-        height:50,
-        marginBottom:20
     },
 })

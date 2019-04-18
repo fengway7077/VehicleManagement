@@ -1,0 +1,20 @@
+dependencies: \
+  /Users/cv10001m/Desktop/thienle/QuanLyXe/node_modules/react-native/React/Modules/RCTDevSettings.mm \
+  /Users/cv10001m/Desktop/thienle/QuanLyXe/node_modules/react-native/React/Modules/RCTDevSettings.h \
+  /Users/cv10001m/Desktop/thienle/QuanLyXe/node_modules/react-native/React/Base/RCTBridge.h \
+  /Users/cv10001m/Desktop/thienle/QuanLyXe/node_modules/react-native/React/Base/RCTBridgeDelegate.h \
+  /Users/cv10001m/Desktop/thienle/QuanLyXe/node_modules/react-native/React/Base/RCTJavaScriptLoader.h \
+  /Users/cv10001m/Desktop/thienle/QuanLyXe/node_modules/react-native/React/Base/RCTDefines.h \
+  /Users/cv10001m/Desktop/thienle/QuanLyXe/node_modules/react-native/React/Base/RCTBridgeModule.h \
+  /Users/cv10001m/Desktop/thienle/QuanLyXe/node_modules/react-native/React/Base/RCTFrameUpdate.h \
+  /Users/cv10001m/Desktop/thienle/QuanLyXe/node_modules/react-native/React/Base/RCTInvalidating.h \
+  /Users/cv10001m/Desktop/thienle/QuanLyXe/node_modules/react-native/React/Base/RCTBridge+Private.h \
+  /Users/cv10001m/Desktop/thienle/QuanLyXe/node_modules/react-native/React/Base/RCTEventDispatcher.h \
+  /Users/cv10001m/Desktop/thienle/QuanLyXe/node_modules/react-native/React/Base/RCTLog.h \
+  /Users/cv10001m/Desktop/thienle/QuanLyXe/node_modules/react-native/React/Base/RCTAssert.h \
+  /Users/cv10001m/Desktop/thienle/QuanLyXe/node_modules/react-native/React/Base/RCTUtils.h \
+  /Users/cv10001m/Desktop/thienle/QuanLyXe/node_modules/react-native/React/Profiler/RCTProfile.h \
+  /Users/cv10001m/Desktop/thienle/QuanLyXe/node_modules/react-native/React/DevSupport/RCTPackagerClient.h \
+  /Users/cv10001m/Desktop/thienle/QuanLyXe/node_modules/react-native/React/DevSupport/RCTPackagerConnection.h \
+  /Users/cv10001m/Desktop/thienle/QuanLyXe/node_modules/react-native/React/DevSupport/RCTInspectorDevServerHelper.h \
+  /Users/cv10001m/Desktop/thienle/QuanLyXe/node_modules/react-native/React/Inspector/RCTInspectorPackagerConnection.h

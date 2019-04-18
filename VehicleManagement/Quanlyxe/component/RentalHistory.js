@@ -5,6 +5,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 export default class RentalHistory extends Component{
     constructor(props) {
         super(props);
+      if((item = this.props.navigation.getParam('item', null)) === null){
         this.state = { 
             vehicleID: '' ,
             vehicleName: '',
@@ -17,6 +18,12 @@ export default class RentalHistory extends Component{
             collectionDate:''
         };
     }
+   else{
+       
+    
+    }
+  }
+
     render(){
         return(
             <ScrollView style={styles.mainContainer}>
@@ -135,11 +142,12 @@ export default class RentalHistory extends Component{
 
 const styles = StyleSheet.create({
     mainContainer: {
+        marginTop: 20,
         flex: 1,
     },
     headerContent:
     {
-
+        alignItems:'center',
     },
     bodyContent:
     {

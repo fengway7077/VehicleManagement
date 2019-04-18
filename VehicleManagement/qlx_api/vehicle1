@@ -1,0 +1,21 @@
+                 SELECT  vd.vehiclecode
+                     	 , vd.vehicletype
+                          , vd.vehiclename
+                          , ct.customercode
+                          , ct.lastname ||' ' || ct.fristname AS fullname
+                          , ct.phone
+                          , vph.damagedday                        
+                      FROM  vehiclerepairhistory vph
+                      LEFT JOIN vehicledetails vd
+                        ON  vph.vehiclecode = vd.vehiclecode
+                      LEFT JOIN customer ct
+                        ON ct.customercode = vph.customercode 
+						
+						
+				  SELECT * FROM vehicledetails
+                    WHERE vehicletype Like '%h%'
+					
+					SELECT * FROM customer
+                    WHERE  firstname ILIKE '%'
+	                  OR lastname ILIKE '%$tn%'  
+					

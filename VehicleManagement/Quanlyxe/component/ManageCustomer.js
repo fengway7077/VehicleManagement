@@ -2,31 +2,126 @@ import React, { Component } from 'react';
 import {TextInput,View,Text,StyleSheet,Image,TouchableOpacity} from 'react-native';
 import { DELETE_IMAGE,INSERT_IMAGE,UPDATE_IMAGE  } from "./imageExport.js";
 import { ScrollView } from 'react-native-gesture-handler';
+import { LinkInsertCustomer ,LinkUpdateCustomer,LinkRemoveCustomer } from '../constLink/linkService.js'
 export default class ManageCustomer extends Component{
     constructor(props) {
         super(props);
-        this.state = { 
-            lastName: '' ,
-            firstName: '',
-            address:'',
-            phone:'',
-            email:'',
-            status: '',
-            idCard:'',
-            nationnality:'',
-            checked: true
-        };
+        if((item = this.props.navigation.getParam('item', null)) === null){
+            this.state ={ 
+                lastName: '',
+                firstName: '',
+                address: '',
+                phone: '',
+                email: '',
+                gender: '',
+                idCard: '',
+                nationality: '',
+                checked: true,
+            };
+        }
+        else
+        {
+            this.state = { 
+                customerCode: item.customercode,
+                lastName: item.lastname,
+                firstName: item.firstname,
+                address: item.address,
+                phone: item.phone,
+                email: item.email,
+                gender: item.gender,
+                idCard: item.idcard,    
+                nationality: item.nationality,
+                checked: true,
+            };
+        }
     }
+
+    insertCustomer(){
+        console.log('response');
+        fetch(LinkInsertCustomer, {
+            method: "POST",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+               // "customercode": this.state.customerCode,
+                "lastname"   : this.state.lastName,
+                "firstname"  : this.state.firstName,
+                "address"    : this.state.address,
+                "phone"      : this.state.phone,
+                "email"      : this.state.email,
+                "gender"     : this.state.gender,
+                "idcard"     : this.state.idCard,    
+                "nationality": this.state.nationality,
+                "checked"    : 1,
+            }),
+        }).then((response) => response.json())
+        .then((responseJson) => {
+            return JSON.parse(responseJson);
+        })
+        .catch((error) => {
+            console.error(error);
+        });
+    };
+
+    updateCustomer(){
+        fetch(LinkUpdateCustomer,{
+            method: "POST",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                "customercode": this.state.customerCode,
+                "lastname"   : this.state.lastName,
+                "firstname"  : this.state.firstName,
+                "address"    : this.state.address,
+                "phone"      : this.state.phone,
+                "email"      : this.state.email,
+                "gender"     : this.state.gender,
+                "idcard"     : this.state.idCard,    
+                "nationality": this.state.nationality,
+             //   "checked"    : 1,
+           
+          }),
+        }).then((response) => response.json())
+        .then((responseJson) => {
+           console.log(responseJson);
+            return responseJson;
+        })
+        .catch((error) => {
+            console.error(error);
+      });   
+    };
+
+    removeCustomer(){
+        fetch(LinkRemoveCustomer,{
+            method: "POST",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+             "customercode": this.state.customerCode,
+            }),
+        }).then((response) => response.json())
+        .then((responseJson) => {      
+            return responseJson;
+        })
+        .catch((error) => {
+            console.error(error);
+      });   
+    };
+
     render(){
         return(
             <ScrollView style={styles.mainContainer}>
-                {/* <View style={styles.headerContent}>
-                    <Text style={styles.textStyle}>Customer Information Management</Text>
-                </View> */}
                 <View style={styles.bodyContent}>
                     <View style={styles.bodyView}>
                         <TextInput
                             style={styles.inputStyleFull}
+                            // onChangeText={(lastName) => this.setState({...item, lastName})}
                             onChangeText={(lastName) => this.setState({lastName})}
                             placeholder ='Họ Khách Hàng...'
                             value={this.state.lastName}
@@ -69,7 +164,7 @@ export default class ManageCustomer extends Component{
                             <View style={styles.radioHorizion}>
                                 <View style={styles.radiobuttonMain}>
                                     <TouchableOpacity onPress={() => {
-                                        this.setState({ checked: !this.state.checked })
+                                        this.setState({ checked: !this.state.checked , gender:1})
                                     }}>
                                         <View style={styles.radiobuttonSub}>
                                             <View style={{
@@ -91,7 +186,7 @@ export default class ManageCustomer extends Component{
                             <View style={styles.radioHorizion}>
                                 <View style={styles.radiobuttonMain}>
                                     <TouchableOpacity onPress={() => {
-                                        this.setState({ checked: !this.state.checked })
+                                        this.setState({ checked: !this.state.checked ,gender:0 })
                                     }}>
                                         <View style={styles.radiobuttonSub}>
                                             <View style={{
@@ -130,7 +225,7 @@ export default class ManageCustomer extends Component{
                 </View>
                 <View style={styles.footerContent}>
                     <View style={styles.flexControl}>
-                        <TouchableOpacity style={styles.touchableContent}>
+                        <TouchableOpacity style={styles.touchableContent} onPress={this.insertCustomer.bind(this)}>
                             <View>
                                 <Image
                                     style={styles.iconControl}
@@ -139,7 +234,7 @@ export default class ManageCustomer extends Component{
                                 <Text>Thêm</Text>
                             </View>
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.touchableContent}>
+                        <TouchableOpacity style={styles.touchableContent} onPress={this.removeCustomer.bind(this)}>
                             <View>
                                 <Image
                                     style={styles.iconControl}
@@ -148,7 +243,7 @@ export default class ManageCustomer extends Component{
                                 <Text>Xóa</Text>
                             </View>
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.touchableContent}>
+                        <TouchableOpacity style={styles.touchableContent} onPress={this.updateCustomer.bind(this)} >
                             <View>
                                 <Image
                                     style={styles.iconControl}
@@ -166,11 +261,12 @@ export default class ManageCustomer extends Component{
 
 const styles = StyleSheet.create({
     mainContainer: {
+        marginTop: 20,
         flex: 1,
     },
     headerContent:
     {
-
+        alignItems:'center',
     },
     bodyContent:
     {
@@ -193,7 +289,7 @@ const styles = StyleSheet.create({
         width:'85%',
     },
     radioHorizion:{
-        width:'25%',
+        width:'27%',
         flexDirection:"row",
     },
     radioHorizionMain:{

@@ -1,0 +1,44 @@
+
+SELECT 
+     vd.vehiclecode
+    , vd.vehiclename
+    , ct.customercode
+    , ct.lastname ||' ' || ct.fristname AS fullname
+    , ct.phone
+    , vrh.rentaldate
+    , vrh.payday
+    , vrh.rentalprice
+FROM  vehiclerentalhistory vrh
+LEFT JOIN vehicledetails vd
+  ON  vrh.vehiclecode = vd.vehiclecode
+LEFT JOIN customer ct
+  ON ct.customercode = vrh.customercode
+  
+  
+  ALTER TABLE vehicledetails ALTER COLUMN rentalprice TYPE numeric USING rentalprice::numeric
+  
+  
+  SELECT *
+  FROM vehicledetails
+  WHERE vehicletype = 'honda'
+  OR  status ='1'
+  
+  
+  SELECT 
+     vd.vehiclecode
+    , vd.vehiclename
+    , ct.customercode
+    , ct.lastname ||' ' || ct.fristname AS fullname
+    , ct.phone
+    , vrh.rentaldate
+    , vrh.payday
+    , vrh.rentalprice
+FROM  vehiclerentalhistory vrh
+LEFT JOIN vehicledetails vd
+  ON  vrh.vehiclecode = vd.vehiclecode
+LEFT JOIN customer ct
+  ON ct.customercode = vrh.customercode
+  
+  
+  
+  

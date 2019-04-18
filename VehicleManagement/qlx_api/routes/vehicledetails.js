@@ -3,7 +3,8 @@ var router = express.Router();
 var pool = require('../common/database')
 
 var app = express()
-
+var bodyParser = require('body-parser')
+var urlencodedParser = bodyParser.urlencoded({ extended: false })
 
 //var vehiclecode = req.params.vehiclecode;
 /* Get Vehicle information listing. */
@@ -23,7 +24,7 @@ router.get('/getVehicle', function(req, res, next) {
       }
       //res.render("trangchu",{dangxem:vehiclecode,hinh:result.rows[0].vehiclecolor});
          console.log(result.rows[1].vehiclenumber);
-          var vehicle = res.json(result)
+           res.json(result.rows)
      //  res.send('Vehicle information : ' + vehicle );
     });
   });
@@ -31,12 +32,22 @@ router.get('/getVehicle', function(req, res, next) {
 });
 
 
-
 /* Update a Vehicle information . */
-router.get('/editVehicle', function(req, res, next) {
+router.post('/editVehicle',urlencodedParser, function(req, res, next) {
 
-  var vehiclecode = 1 ;//req.params.vehiclecode;
-  var vehiclenumber = '50U 87987' ;//req.params.vehiclenumber;
+  var vehiclecode = req.body.vehiclecode;
+  var vehiclenumber = req.body.vehiclenumber;
+  var vehicletype = req.body.vehicletype;
+  var vehiclecolor = req.body.vehiclecolor;
+  var purchaseprice = Number(req.body.purchaseprice);
+  var rentalprice  = Number(req.body.rentalprice);
+  var registrationnumber = req.body.registrationnumber;
+  var managementnumber = req.body.managementnumber;
+  var status  =  '$';//req.body.status; //
+  var vehicleimage = req.body.vehicleimage;
+  var describe  = req.body.describe;
+  var flagdelete =  '$';//req.body.flagdelete; //
+  var vehiclename = req.body.vehiclename;
 
   pool.connect(function(err, client, done) {
     if(err) {
@@ -44,20 +55,33 @@ router.get('/editVehicle', function(req, res, next) {
     }
    
     //use the client for executing the query
-      client.query('UPDATE vehicledetails SET ' 
-                                            + ' vehiclenumber =' + vehiclenumber
-                                            // + ' "vehicletype" ='   + vehicletype
-                                            // + ' "vehiclecolor" = ' + vehiclecolor
-                                            // + ' "purchaseprice" =' + purchaseprice
-                                            // + ' "rentalprice"  ='  + rentalprice
-                                            // + ' "registrationnumber" =' + registrationnumber
-                                            // + ' "managementnumber" =' + managementnumber
-                                            // + ' "status" =' + status
-                                            // + ' "vehicleimage" = ' + vehicleimage
-                                            // + ' "describe" =' + describe
-                                            // + ' "flagdelete" = ' +flagdelete    
-                                            + 'WHERE vehiclecode =' + vehiclecode,  function(err, result) {
-      //call `done(err)` to release the client back to the pool (or destroy it if there is an error)
+      // client.query('UPDATE vehicledetails SET ' 
+      //                                       + ' vehiclenumber =' + vehiclenumber
+      //                                       // + ' "vehicletype" ='   + vehicletype
+      //                                       // + ' "vehiclecolor" = ' + vehiclecolor
+      //                                       // + ' "purchaseprice" =' + purchaseprice
+      //                                       // + ' "rentalprice"  ='  + rentalprice
+      //                                       // + ' "registrationnumber" =' + registrationnumber
+      //                                       // + ' "managementnumber" =' + managementnumber
+      //                                       // + ' "status" =' + status
+      //                                       // + ' "vehicleimage" = ' + vehicleimage
+      //                                       // + ' "describe" =' + describe
+      //                                       // + ' "flagdelete" = ' +flagdelete    
+      //                                       + 'WHERE vehiclecode =' + vehiclecode,  function(err, result) {
+         //use the client for executing the query
+        client.query(`UPDATE vehicledetails SET vehiclenumber = '${vehiclenumber}'       
+                                              , vehicletype = '${vehicletype}'
+                                              , vehiclecolor = '${ vehiclecolor}'
+                                              , purchaseprice ='${ purchaseprice}'
+                                              , rentalprice  ='${rentalprice}'
+                                              , registrationnumber = '${ registrationnumber}'
+                                              , managementnumber ='${ managementnumber}'
+                                              , status  = '${status}'
+                                              , vehicleimage = '${ vehicleimage}'
+                                              , describe  ='${describe}'
+                                              , flagdelete = '${flagdelete }'
+                                              , vehiclename = '${vehiclename}'               
+                                            WHERE vehiclecode = '${vehiclecode}' `,  function(err, result) {   
       done(err);
       if(err) {
         return console.error('error running query', err);
@@ -67,6 +91,144 @@ router.get('/editVehicle', function(req, res, next) {
     });
   });
 });
+
+/*Search Vehicle information */
+router.post('/searchVehicle',urlencodedParser,function(req, res, next) {
+  var  vehicletype =  req.body.vehicletype
+  pool.connect(function(err, client, done) {
+    if(err) {
+      return console.error('error fetching client from pool', err);
+    }  
+    client.query(` SELECT * FROM vehicledetails
+                    WHERE vehicletype ILIKE '%${vehicletype}%'          
+                      `,  function(err, result) {
+     done(err);
+      if(err) {
+        return console.error('error running query', err);
+      }
+       res.json(result.rows)
+   //  res.send('Searching is a Vehicle information ');
+  });
+  });
+ });
+
+/* Add a Vehicle information . */
+  router.post('/createVehicle', function(req, res, next) {
+        // console.log(req.body);
+        // return;
+     // var vehiclecode = req.body.vehiclecode;
+      var vehiclenumber = req.body.vehiclenumber;
+      var vehicletype = req.body.vehicletype;
+      var vehiclecolor = req.body.vehiclecolor;
+      var purchaseprice = Number(req.body.purchaseprice);
+      var rentalprice  = Number(req.body.rentalprice);
+      var registrationnumber = req.body.registrationnumber;
+      var managementnumber = req.body.managementnumber;
+      var status  =  '1';//req.body.status; //
+      var vehicleimage = req.body.vehicleimage;
+      var describe  = req.body.describe;
+      var flagdelete = '0' ;//req.body.flagdelete; //
+      var vehiclename = req.body.vehiclename;
+    pool.connect(function(err, client, done) {
+      if(err) {
+        return console.error('error fetching client from pool', err);
+      }
+      
+      client.query(`INSERT INTO vehicledetails (vehiclenumber
+                                              , vehicletype 
+                                              , vehiclecolor
+                                              , purchaseprice 
+                                              , rentalprice 
+                                              , registrationnumber
+                                              , managementnumber
+                                              , status 
+                                              , vehicleimage
+                                              , describe 
+                                              , flagdelete 
+                                              , vehiclename 
+                                              )  VALUES(  '${vehiclenumber}'       
+                                                        , '${vehicletype}'
+                                                        , '${vehiclecolor}'
+                                                        , '${purchaseprice}'
+                                                        , '${rentalprice}'
+                                                        , '${registrationnumber}'
+                                                        , '${managementnumber}'
+                                                        , '${status}'
+                                                        , '${vehicleimage}'
+                                                        , '${describe}'
+                                                        , '${flagdelete }'
+                                                        , '${vehiclename}' 
+                                                        )
+                                            `,  function(err, result) {   
+      done(err);
+      if(err) {
+         return console.error('error running query', err);
+         }
+        res.json(result)
+        //  console.log("Creating");         
+        // res.send('Creating is a Vehicle information ');
+    });
+   });
+  });
+
+  /*Remove records from  a Vehicle information */
+router.post('/removeVehicle',urlencodedParser,function(req, res, next) {
+  var  vehiclecode =  req.body.vehiclecode
+  pool.connect(function(err, client, done) {
+    if(err) {
+      return console.error('error fetching client from pool', err);
+    }  
+    client.query(` DELETE FROM  vehicledetails
+                    WHERE vehiclecode = '${vehiclecode}'          
+                      `,  function(err, result) {
+     done(err);
+      if(err) {
+        return console.error('error running query', err);
+      }
+        console.log("Romeving");
+     res.send('Removing is a record from Vehicle information ');
+  });
+  });
+ });
+
+  /*Get  records from  a Vehicle information */
+router.get('/getVehicleStatus',urlencodedParser,function(req, res, next) {
+ // var  vehiclecode =  req.body.vehiclecode
+  pool.connect(function(err, client, done) {
+    if(err) {
+      return console.error('error fetching client from pool', err);
+    }  
+    client.query(`   SELECT  vd.vehiclecode
+                            , vd.vehicletype
+                            , vd.vehiclename
+                            , vd.status
+                            , ct.customercode
+                            , ct.lastname ||' ' || ct.firstname AS fullname
+                            , ct.phone
+                            , vrh.rentaldate
+                            , vrh.payday
+                            , vrh.rentalprice
+                            , vrh1.amountfixed
+                        FROM  vehicledetails vd
+                        LEFT JOIN vehiclerentalhistory vrh
+                          ON vd.vehiclecode = vrh.vehiclecode 
+                        LEFT JOIN vehiclerepairhistory vrh1
+                          ON vd.vehiclecode = vrh1.vehiclecode
+                        AND vrh1.customercode = vrh.customercode
+                        LEFT JOIN customer ct
+                          ON ct.customercode = vrh.customercode         
+                      `,  function(err, result) {
+     done(err);
+      if(err) {
+        return console.error('error running query', err);
+      }
+      res.json(result.rows)
+      //  console.log("GET");
+     // res.send('Vehicle information ');
+  });
+  });
+ });
+
 
 
 module.exports = router;
