@@ -7,3 +7,8 @@ Express application generator
 npm install express-generator -g
 
 npm install
+
+
+
+https://aboutreact.com/example-of-react-native-autocomplete-input/
+npm install react-native-autocomplete-input --save

@@ -75,20 +75,106 @@ router.post('/searchListVehiclestatus',urlencodedParser,function(req, res, next)
                           , vd.status                       
                       FROM  vehiclerepairhistory vph
                       LEFT JOIN vehicledetails vd
-                      ON  vph.vehiclecode = vd.vehiclecode
+                        ON  vph.vehiclecode = vd.vehiclecode
                       LEFT JOIN customer ct
-                      ON ct.customercode = vph.customercode                       
-                    WHERE vd.vehicletype ILIKE '%${vehicletype}%' 
-                     OR   vd.status ILIKE '%${status}%'        
+                        ON ct.customercode = vph.customercode                       
+                      WHERE vd.vehicletype ILIKE '%${vehicletype}%' 
+                         AND   vd.status::text LIKE '%${status}%'     
                       `,  function(err, result) {
      done(err);
       if(err) {
         return console.error('error running query', err);
       }
-       res.json(result.rows)
+       res.json(result)
   });
   });
  });
+
+/*Update vehicle repair history information   */
+router.post('/editVehiclerepair',urlencodedParser,function(req, res, next) {
+  // console.log(req.body);
+  //   return;
+  var  vehiclecode =  req.body.vehiclecode
+  var  customercode =  req.body.customercode
+  var  amountfixed =  req.body.amountfixed 
+  var  damagedday =  req.body.damagedday  
+  pool.connect(function(err, client, done) {
+    if(err) {
+      return console.error('error fetching client from pool', err);
+    }  
+    client.query(` UPDATE vehiclerepairhistory  SET  amountfixed = '${amountfixed}'                                              
+                                                WHERE vehiclecode = '${vehiclecode}'  
+                                                  AND  customercode = '${customercode}' 
+                                                  AND damagedday =  '${damagedday}'  
+                                              `,  function(err, result) {
+     done(err);
+      if(err) {
+        return console.error('error running query', err);
+      }
+      res.json(result)
+    // res.send('Updating is a Vehicle repair history  information ');
+  });
+  });
+ });
+
+ /*Adding vehicle rental history information  */
+router.post('/addVehiclerepair',urlencodedParser,function(req, res, next) {
+  // console.log(req.body);
+  // return;
+  var  vehiclecode =  req.body.vehiclecode
+  var  customercode =  req.body.customercode
+  var  amountfixed =  req.body.amountfixed 
+  var  damagedday =  req.body.damagedday  
+  pool.connect(function(err, client, done) {
+    if(err) {
+      return console.error('error fetching client from pool', err);
+    }  
+    client.query(` INSERT INTO vehiclerepairhistory( 
+                                                   vehiclecode
+                                                  , customercode
+                                                  , amountfixed
+                                                  , damagedday)
+                                              VALUES (
+                                                 '${vehiclecode}'
+                                                , '${customercode}'
+                                                , '${amountfixed}'
+                                                , '${damagedday}'
+                                                );                    
+                      `,  function(err, result) {
+     done(err);
+      if(err) {
+        return console.error('error running query', err);
+      }
+       res.json(result)
+   //  res.send('Adding is a Vehicle information ');
+  });
+  });
+ });
+
+    /*Remove vehicle repair history information  */
+    router.post('/removeVehiclerepair',urlencodedParser,function(req, res, next) {
+      var  damagedday =  req.body.damagedday  
+      var  vehiclecode =  req.body.vehiclecode
+      var  customercode =  req.body.customercode
+      pool.connect(function(err, client, done) {
+        if(err) {
+          return console.error('error fetching client from pool', err);
+        }  
+        client.query(` DELETE FROM  vehiclerepairhistory
+                              WHERE damagedday =  '${damagedday}'   
+                                 AND  vehiclecode = '${vehiclecode}'  
+                                 AND  customercode =   '${customercode}'         
+                          `,  function(err, result) {
+         done(err);
+          if(err) {
+            return console.error('error running query', err);
+          }
+            console.log("Removing");
+           res.json(result);
+         // res.send('Removing is a record from vehicle repair history information : ' + customercode);
+      });
+      });
+     });
 
 module.exports = router;
 

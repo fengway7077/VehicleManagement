@@ -43,10 +43,10 @@ router.post('/editVehicle',urlencodedParser, function(req, res, next) {
   var rentalprice  = Number(req.body.rentalprice);
   var registrationnumber = req.body.registrationnumber;
   var managementnumber = req.body.managementnumber;
-  var status  =  '$';//req.body.status; //
+  var status  =  req.body.status; //
   var vehicleimage = req.body.vehicleimage;
   var describe  = req.body.describe;
-  var flagdelete =  '$';//req.body.flagdelete; //
+  var flagdelete =  '0';//req.body.flagdelete; //
   var vehiclename = req.body.vehiclename;
 
   pool.connect(function(err, client, done) {
@@ -86,8 +86,8 @@ router.post('/editVehicle',urlencodedParser, function(req, res, next) {
       if(err) {
         return console.error('error running query', err);
       }
-         console.log("test");         
-       res.send('Updating is a Vehicle information ');
+       res.json(result);   
+      // res.send('Updating is a Vehicle information ');
     });
   });
 });
@@ -120,11 +120,11 @@ router.post('/searchVehicle',urlencodedParser,function(req, res, next) {
       var vehiclenumber = req.body.vehiclenumber;
       var vehicletype = req.body.vehicletype;
       var vehiclecolor = req.body.vehiclecolor;
-      var purchaseprice = Number(req.body.purchaseprice);
-      var rentalprice  = Number(req.body.rentalprice);
+      var purchaseprice = Number(req.body.purchaseprice) == NaN ? 0 : Number(req.body.purchaseprice) ;
+      var rentalprice  = Number(req.body.rentalprice) == NaN ? 0 : Number(req.body.rentalprice)  ; 
       var registrationnumber = req.body.registrationnumber;
       var managementnumber = req.body.managementnumber;
-      var status  =  '1';//req.body.status; //
+      var status  =  req.body.status; //
       var vehicleimage = req.body.vehicleimage;
       var describe  = req.body.describe;
       var flagdelete = '0' ;//req.body.flagdelete; //
@@ -185,8 +185,9 @@ router.post('/removeVehicle',urlencodedParser,function(req, res, next) {
       if(err) {
         return console.error('error running query', err);
       }
-        console.log("Romeving");
-     res.send('Removing is a record from Vehicle information ');
+       // console.log("Romving");
+       res.json(result)
+   //   res.send('Removing is a record from Vehicle information ');
   });
   });
  });
@@ -207,7 +208,7 @@ router.get('/getVehicleStatus',urlencodedParser,function(req, res, next) {
                             , ct.phone
                             , vrh.rentaldate
                             , vrh.payday
-                            , vrh.rentalprice
+                            , vd.rentalprice
                             , vrh1.amountfixed
                         FROM  vehicledetails vd
                         LEFT JOIN vehiclerentalhistory vrh
@@ -229,6 +230,46 @@ router.get('/getVehicleStatus',urlencodedParser,function(req, res, next) {
   });
  });
 
+  /*Check records from  a Vehicle information */
+  router.post('/checkVehicle',function(req, res, next) { 
+    // console.log(req.body);
+    // return;
+    var  vehiclecode =  req.body.vehiclecode
+    pool.connect(function(err, client, done) {
+      if(err) {
+        return console.error('error fetching client from pool', err);
+      }  
+      client.query(` SELECT vehiclecode ,vehiclename FROM  vehicledetails  WHERE vehiclecode = '${vehiclecode}'                           
+                        `,  function(err, result) {
+       done(err);
+        if(err) {
+          return console.error('error running query', err);
+        }        
+          res.json(result.rows);  
+    });
+    });
+   });
+
+   /*Flag records from  a Vehicle information */
+  router.post('/flagVehicle',function(req, res, next) { 
+    var  vehiclecode =  req.body.vehiclecode
+    var flagdelete = req.body.flagdelete
+    pool.connect(function(err, client, done) {
+      if(err) {
+        return console.error('error fetching client from pool', err);
+      }  
+      client.query(` UPDATE vehicledetails SET flagdelete = '${flagdelete}'
+                        WHERE vehiclecode = '${vehiclecode}'                           
+                        `,  function(err, result) {
+       done(err);
+        if(err) {
+          return console.error('error running query', err);
+        }        
+         // res.json(result.rows);  
+          res.send('Vehicle information ');
+    });
+    });
+   });
 
 
 module.exports = router;
