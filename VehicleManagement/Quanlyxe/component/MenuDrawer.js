@@ -5,7 +5,7 @@ import { DRAWER_IMAGE ,MOTOBIKE_IMAGE,CUSTOMER_IMAGE,RENTAL_IMAGE,REPAIR_IMAGE, 
 import ManageVehicle from './ManageVehicle.js';
 import ManageCustomer from './ManageCustomer.js';
 import RentalHistory from './RentalHistory.js';
-import RepairCarHistory from './RepairCarHistory.js';
+import RepairVehicleHistory from './RepairVehicleHistory.js';
 import VehicleFees from './VehicleFees.js';
 import VehicleStatus from './VehicleStatus.js';
 import ListVehicle from './ListVehicle.js';
@@ -20,7 +20,6 @@ class MenuDrawer extends Component {
     return (
       <View style={{ flexDirection: 'row' }}>
         <TouchableOpacity onPress={this.toggleDrawer.bind(this)}>
-         
           <Image
             source={DRAWER_IMAGE}
             style={{ width: 25, height: 25, marginLeft: 5 }}
@@ -61,9 +60,9 @@ const RentalHistory_Screen = createStackNavigator({
   },
 });
 
-const RepairCarHistory_Screen = createStackNavigator({
+const RepairVehicleHistory_Screen = createStackNavigator({
   Four: {
-    screen: RepairCarHistory,
+    screen: RepairVehicleHistory,
     navigationOptions: ({ navigation }) => ({
       title: 'Manage Car Repair History',
       headerLeft: <MenuDrawer navigationProps={navigation} />,
@@ -236,10 +235,10 @@ const DrawerNavigator_Screen = createDrawerNavigator({
     },
   },
 
-  RepairCarHistory: {
-    screen: RepairCarHistory_Screen,
+  RepairVehicleHistory: {
+    screen: RepairVehicleHistory_Screen,
     navigationOptions: {
-      drawerLabel: 'RepairCarHistory',
+      drawerLabel: 'RepairVehicleHistory',
       drawerIcon: ({ tintColor }) => (
         <Image
           source={REPAIR_IMAGE}

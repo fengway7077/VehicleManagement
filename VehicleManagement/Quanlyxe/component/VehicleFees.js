@@ -10,51 +10,15 @@ class VehicleFees extends Component{
         super(props);
         this.state = { 
             isloading:true,
-            imageVehicle:'' ,
-            customerName:'',
-            phone:'',
-            dateTime:'',
             search:'',
         };
-        params = this.props.navigation.getParam('params', null);
-        if(params === null){
-            this.state ={ 
-                customerCode : '',
-                lastName     : '',
-                firstName    : '',
-                age          : '',
-                address      : '',
-                phone        : '',
-                email        : '',
-                gender       : '',
-                idCard       : '',
-                nationality  : '',
-                checked      : false
-            };
-        }
-        else
-        {
-            item = params.item
-            this.state = { 
-                customerCode : item.customercode,
-                lastName     : item.lastname,
-                firstName    : item.firstname,
-                age          : item.age.toString(),
-                address      : item.address,
-                phone        : item.phone,
-                email        : item.email,
-                gender       : item.gender,
-                idCard       : item.idcard,    
-                nationality  : item.nationality,
-                checked      : item.gender === 1 ? true:false
-            };
-        }
     }
 
     getDataVehicleFees(){
         return fetch(LinkVehicleFees)
         .then((response) => response.json())
         .then((responseJson) => {
+            console.log(responseJson)
         this.setState({
             isLoading: false,
             dataSource: responseJson,
@@ -81,10 +45,12 @@ class VehicleFees extends Component{
             },
             body: JSON.stringify({
                 "firstname": this.state.search,
-                "lastname": this.state.search
+                "lastname" : this.state.search,
+                "fullname" : this.state.search
             }),
         }).then((response) => response.json())
         .then((responseJson) => {
+            console.log(responseJson)
             this.setState({
                 isLoading: false,
                 dataSource: responseJson,
@@ -107,7 +73,7 @@ class VehicleFees extends Component{
                         <Image style={styles.iconInputSearch} source={SEARCH_IMAGE}/>
                         <TextInput
                             style={styles.searchStyle}
-                            placeholder="Nhập Loại Xe Muốn Tìm Kiếm..."
+                            placeholder="Nhập Tên Khách Hàng Muốn Tìm Kiếm..."
                             onChangeText={this.updateSearch}
                             value={search}
                         />
@@ -138,13 +104,14 @@ class VehicleFees extends Component{
                                         <View style={styles.listViewChildRight}>
                                             <Text style={styles.generalStyle}>Tên KH : {item.fullname}</Text>
                                             <Text style={styles.generalStyle}>SDT : {item.phone}</Text>
-                                            <Text style={styles.generalStyle}>Ngày Thu Tiền : {item.payday}</Text>
+                                            <Text style={styles.generalStyle}>Ngày Thu Tiền : {item.payday.replace(/T/, ' ').replace(/\..+/, '')}</Text>
                                         </View>
                                         </View>
                                 </View>
                             </TouchableOpacity>
                         }
-                        keyExtractor={({vehiclecode}, index) => vehiclecode.toString()}
+                        keyExtractor={({vehiclecode}, index) => vehiclecode.toString()
+                    }
                     />
                 </View>
             </ScrollView>
@@ -262,7 +229,7 @@ const styles = StyleSheet.create({
         width: '85%',
         borderWidth:1,
         marginBottom:8,
-        borderRadius:10,
+        borderRadius:1,
         borderColor:'black',
     },
     iconInputSearch:{

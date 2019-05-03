@@ -204,8 +204,8 @@ export default class ManageVehicle extends Component{
                             inputStyle={styles.input}
                             style={styles.formInput}
                             onBlur={this.onBlur}
-                            onChangeText={(registrationNumber) => this.setState({registrationNumber})}
-                            value={this.state.registrationNumber}
+                            onChangeText={(managementNumber) => this.setState({managementNumber})}
+                            value={this.state.managementNumber}
                         >Số Quản Lý</FloatingLabel>
                         {/* <TextInput
                             style={styles.inputStyleFull}
@@ -249,6 +249,7 @@ export default class ManageVehicle extends Component{
                             <View style={styles.flexBodyViewLeft}>
                                 <View style={styles.pickerContent}>
                                     <Dropdown
+                                        inputContainerStyle={{ borderBottomColor: 'transparent'}}
                                         label='Trạng Thái'
                                         data={data}
                                         value = {this.state.status === 0 ?'Trống':this.state.status=== 1 ?'Cho Thuê':this.state.status=== 2 ?'Bảo Trì':''}
@@ -408,7 +409,7 @@ const styles = StyleSheet.create({
     },
     input: {
         borderColor: 'green',  
-        borderRadius:10,
+        borderRadius:1,
         borderWidth: 1
     },
     touchableContent:{
@@ -435,7 +436,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         marginBottom:10,
-        borderRadius:10
+        borderRadius:1
     },
     inputStyle: {
         height: 40,
@@ -445,14 +446,16 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         marginBottom:10,
-        borderRadius:10
+        borderRadius:1
     },
     pickerContent:{
+        paddingLeft:7,
+        paddingBottom:30,
         height: 40,
         width:'100%',
         borderWidth:1,
         justifyContent: 'center',
-        borderRadius:8,
+        borderRadius:1,
         borderColor: 'green',
     },
     imageStyle: {

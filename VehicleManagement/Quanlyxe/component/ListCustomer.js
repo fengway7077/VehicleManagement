@@ -2,9 +2,9 @@ import React, { Component } from 'react';
 import { View,Text,StyleSheet,Image,FlatList,TextInput,Picker,TouchableOpacity } from 'react-native';
 import { createAppContainer, createStackNavigator } from 'react-navigation';
 import { ScrollView } from 'react-native-gesture-handler';
-import { SEARCH_IMAGE,MenuDrawer } from './imageExport.js'
+import { SEARCH_IMAGE } from './imageExport.js'
 import ManageCustomer from './ManageCustomer.js'
-import { LinkListCustomer } from '../constLink/linkService.js'
+import { LinkListCustomer, LinkSearchListCustomer } from '../constLink/linkService.js'
 class ListCustomer extends Component{
     constructor(props) {
         super(props);
@@ -36,7 +36,29 @@ class ListCustomer extends Component{
     }   
     
     UpdateSearch = search => {
-        this.setState({ search });
+        this.setState({ search },() => {
+            fetch(LinkSearchListCustomer, {
+                method: "POST",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    "lastname"  : this.state.search,
+                    "firstname" : this.state.search,
+                    "fullname"  : this.state.search
+                }),
+            }).then((response) => response.json())
+            .then((responseJson) => {
+                this.setState({
+                    isLoading: false,
+                    dataSource: responseJson,
+                });
+            })
+            .catch((error) => {
+              console.error(error);
+            });
+        });
     };
     render(){
         const { search } = this.state;
@@ -81,7 +103,7 @@ class ListCustomer extends Component{
                                             />
                                         </View>
                                         <View style={styles.listViewChildRight} id={item.customercode}>
-                                            <Text style={styles.generalStyle}>Tên Xe : {item.lastname}</Text>
+                                            <Text style={styles.generalStyle}>Người Thuê : {item.fullname}</Text>
                                             <Text style={styles.generalStyle}>Giá : {item.phone}</Text>
                                             <Text style={styles.generalStyle}>Trạng Thái : {item.address}</Text>
                                         </View>
@@ -199,7 +221,7 @@ const styles = StyleSheet.create({
         width: '85%',
         borderWidth:1,
         marginBottom:8,
-        borderRadius:10,
+        borderRadius:1,
         borderColor:'black',
     },
     iconInputSearch:{
@@ -224,7 +246,7 @@ const styles = StyleSheet.create({
         justifyContent:'center',
         height:40,
         width:'50%',
-        borderRadius:5,
+        borderRadius:1,
         borderColor:'black',
         borderWidth:1,
         marginBottom:8

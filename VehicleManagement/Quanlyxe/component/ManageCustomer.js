@@ -3,6 +3,7 @@ import {TextInput,View,Text,StyleSheet,Image,TouchableOpacity} from 'react-nativ
 import { DELETE_IMAGE,INSERT_IMAGE,UPDATE_IMAGE  } from "./imageExport.js";
 import { ScrollView } from 'react-native-gesture-handler';
 import { LinkInsertCustomer , LinkUpdateCustomer } from '../constLink/linkService.js';
+
 export default class ManageCustomer extends Component{
     constructor(props) {
         super(props);
@@ -335,7 +336,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         marginBottom:10,
-        borderRadius: 10
+        borderRadius: 1
     },
     textStyle: {
         width:'100%',

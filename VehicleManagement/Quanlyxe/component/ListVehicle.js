@@ -5,7 +5,6 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { SEARCH_IMAGE } from './imageExport.js'
 import ManageVehicle from './ManageVehicle.js'
 import { LinkListVehicle,LinkSearchListVehicle } from '../constLink/linkService.js'
-import AutocompleteSuggest from './AutocompleteSuggest.js';
 
 class ListVehicle extends Component{
     constructor(props) {
@@ -71,7 +70,7 @@ class ListVehicle extends Component{
                         <Image style={styles.iconInputSearch} source={SEARCH_IMAGE}/>
                         <TextInput
                             style={styles.searchStyle}
-                            placeholder="Nhập Tên Xe Muốn Tìm Kiếm..."
+                            placeholder="Nhập Loại Xe Muốn Tìm Kiếm..."
                             onChangeText={this.updateSearch}
                             value={search}
                         />
@@ -221,7 +220,7 @@ const styles = StyleSheet.create({
         width: '85%',
         borderWidth:1,
         marginBottom:8,
-        borderRadius:10,
+        borderRadius:11,
         borderColor:'black',
     },
     iconInputSearch:{
@@ -247,7 +246,7 @@ const styles = StyleSheet.create({
         justifyContent:'center',
         height:40,
         width:'50%',
-        borderRadius:5,
+        borderRadius:1,
         borderColor:'black',
         borderWidth:1,
     },

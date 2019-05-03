@@ -1,10 +1,18 @@
 import React, { Component } from 'react';
-import {TextInput,View,Text,StyleSheet,Image,TouchableOpacity} from 'react-native';
-import { DELETE_IMAGE,INSERT_IMAGE,UPDATE_IMAGE  } from "./imageExport.js";
+import { TextInput,View,Text,StyleSheet,Image,TouchableOpacity } from 'react-native';
+import { DELETE_IMAGE,INSERT_IMAGE,UPDATE_IMAGE } from "./imageExport.js";
 import { ScrollView } from 'react-native-gesture-handler';
-import {LinkCheckDataCustomer,LinkCheckDataVehicle,LinkListVehicle,LinkListCustomer} from '../constLink/linkService.js';
-import AutocompleteSuggest from './AutocompleteSuggest.js';
-export default class RentalHistory extends Component{
+import { LinkCheckDataCustomer,
+         LinkCheckDataVehicle,
+         LinkListVehicle,
+         LinkListCustomer,
+         LinkInsertRentalHistory,
+         LinkUpdateRentalHistory } from '../constLink/linkService.js';
+import AutoCompleteCustomer from '../customize/AutoCompleteCustomer.js';
+import AutoCompleteVehicle from '../customize/AutoCompleteVehicle';
+import DatePicker from '../customize/DatePicker'
+import { callbackify } from 'util';
+export default class RentalHistory extends Component {
     constructor(props) {
         super(props);
         params = this.props.navigation.getParam('params', null);
@@ -19,7 +27,8 @@ export default class RentalHistory extends Component{
                 rentDate       : '',
                 payDate        : '',
                 collectionDate : '',
-                vehicleSuggest : ''
+                vehicleSuggest : '',
+                rentalCheck    : false,
             };
         }
         else
@@ -35,13 +44,14 @@ export default class RentalHistory extends Component{
                 phone          : item.phone,
                 price          : item.rentalprice,
                 rentDate       : item.rentaldate,
-                payDate        : item.payday,
-                collectionDate : (payDate.getUTCDate()- nowDate.getUTCDate()).toString(),      
+                payDate        : item.payday.replace(/T/, ' ').replace(/\..+/, ''),
+                collectionDate : (payDate.getUTCDate()- nowDate.getUTCDate()).toString(),    
+                rentalCheck    : false,  
             };
         }
     }
 
-    checkDataVehicle(){
+    checkDataVehicle(query){
         fetch(LinkCheckDataVehicle, {
             method: "POST",
             headers: {
@@ -49,17 +59,21 @@ export default class RentalHistory extends Component{
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                "vehiclecode" : this.state.vehicleCode,
+                "vehiclecode" : query,
             }),
             
         }).then((response) => response.json())
         .then((responseJson) => {
             if(responseJson.length === 1){
                 this.setState({
-                    vehicleName : responseJson[0].vehiclename
+                    vehicleName : responseJson[0].vehiclename,
+                    vehicleCode : query
                 });
             }
             else{
+                this.setState({
+                    vehicleCode : ''
+                })
                 alert("Mã Xe Không Tồn Tại");
             }
             return;
@@ -70,7 +84,6 @@ export default class RentalHistory extends Component{
     }
 
     checkDataCustomer(query){
-        console.log(query);
         fetch(LinkCheckDataCustomer, {
             method: "POST",
             headers: {
@@ -78,17 +91,21 @@ export default class RentalHistory extends Component{
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                // "customercode" : this.state.customerCode,
                 "customercode" : query,
             }),
         }).then((response) => response.json())
         .then((responseJson) => {
             if(responseJson.length === 1){
+                console.log(responseJson)
                 this.setState({
-                    customerName : responseJson[0].fullname
+                    customerName : responseJson[0].fullname,
+                    customerCode : query
                 });
             }
             else{
+                this.setState({
+                    customerCode : ''
+                })
                 alert("Mã Khách Hàng Không Tồn Tại");
             }
             return;
@@ -98,25 +115,150 @@ export default class RentalHistory extends Component{
         });
     }
 
-    checkVehicleCode = () => {
-        this.checkDataVehicle();
-    };
+    checkDataRental(callBack){
+        fetch(LinkCheckDataCustomer, {
+            method: "POST",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                "customercode" : this.state.customerCode,
+                "vehiclecode"  : this.state.vehicleCode,
+                "rentaldate"   : this.state.rentDate,
+            }),
+        }).then((response) => response.json())
+        .then((responseJson) => {
+            if(responseJson.length === 1){
+                console.log(responseJson)
+                this.setState({
+                    rentalCheck : true
+                }, () => {
+                    if (callBack) {
+                        console.log(this.state.customerCode)
+                        callBack()
+                    }
+                });
+            }
+        })
+        .catch((error) => {
+            console.error(error);
+        });
+    }
 
-    checkCustomerCode = () => {
-        this.checkDataCustomer();
-    };
+    update(){
+        this.checkDataRental(this.updateRentalHistory.bind(this))
+    }
+
+    updateRentalHistory(){
+        if(this.state.customerCode === '' || this.state.vehicleCode === ''){
+            alert("Vui lòng kiểm tra lại mã code");
+        }
+        else 
+        {
+            console.log(this.state.rentDate)
+            console.log(this.state.payDate)
+            if(this.state.rentalCheck === true){
+                fetch(LinkUpdateRentalHistory, {
+                    method: "POST",
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        "vehiclecode"    : parseInt(this.state.vehicleCode),
+                        "customercode"   : parseInt(this.state.customerCode),
+                        "rentaldate"     : this.state.rentDate,
+                        "payday"         : this.state.payDate,    
+                    }),
+                }).then((response) => response.json())
+                .then((responseJson) => {
+                    console.log(responseJson)
+                    if(responseJson.rowCount === 1){
+                        if(params.reFetchVehicleStatus){
+                            alert("Sửa Thành Công",params.reFetchVehicleStatus(),this.props.navigation.navigate('VehicleStatus'));
+                        }
+                        else if(params.reFetchVehicleFees)
+                        {
+                            alert("Sửa Thành Công",params.reFetchVehicleFees(),this.props.navigation.navigate('VehicleFees'));
+                        }
+                    }
+                    else
+                    {
+                        alert("Nhập lại dữ liệu sửa")
+                    }
+                    return;
+                })
+                .catch((error) => {
+                    console.error(error);
+                });
+            }
+            else
+            {
+                alert("Nhập lại dữ liệu sửa")
+            }
+        }
+    }
+
+    insert(){
+        this.checkDataRental(this.insertRentalHistory.bind(this))
+    }
+
+    insertRentalHistory(){
+        if(this.state.customerCode === '' || this.state.vehicleCode === ''){
+            alert("Vui lòng kiểm tra lại mã code");
+        }
+        else
+        {
+            if(this.state.rentalCheck === false){
+                fetch(LinkInsertRentalHistory, {
+                    method: "POST",
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        "vehiclecode"    : this.state.vehicleCode,
+                        "customercode"   : this.state.customerCode,
+                        "rentaldate"     : this.state.rentDate,
+                        "payday"         : this.state.payDate,  
+                    }),
+                }).then((response) => response.json())
+                .then((responseJson) => {
+                    console.log(responseJson)
+                    if(responseJson.rowCount === 1){
+                        if(params.reFetchVehicleStatus){
+                            alert("Thêm Thành Công",params.reFetchVehicleStatus(),this.props.navigation.navigate('VehicleStatus'));
+                        }
+                        else if(params.reFetchVehicleFees)
+                        {
+                            alert("Thêm Thành Công",params.reFetchVehicleFees(),this.props.navigation.navigate('VehicleFees'));
+                        }
+                    }
+                return;
+                })
+                .catch((error) => {
+                    console.error(error);
+                });
+            }                
+            else
+            {
+                alert("Trùng Dữ liệu thêm")
+            }
+        }
+    }
 
     render(){
         return(
             <ScrollView style={styles.mainContainer}>
                 <View style={styles.bodyContent}>
                     <View style={styles.bodyView}>
-                        <AutocompleteSuggest
-                            value="customercode"
-                            link={LinkListCustomer}
+                        <AutoCompleteVehicle
+                            value={this.state.vehicleCode}
+                            link={LinkListVehicle}
                             checkCode={
                                 ((code) => {
-                                    this.checkDataCustomer(code)
+                                    this.checkDataVehicle(code)
                                 }).bind(this)
                             }
                         />
@@ -130,7 +272,7 @@ export default class RentalHistory extends Component{
                     </View>
                     <View style={styles.bodyView}>
                         <TextInput
-                            style={styles.inputStyleGuess}
+                            style={styles.inputStyleGuessVehicle}
                             onChangeText={(vehicleName) => this.setState({vehicleName})}
                             placeholder ='Tên Xe...'
                             value={this.state.vehicleName}
@@ -138,12 +280,14 @@ export default class RentalHistory extends Component{
                         />
                     </View>
                     <View style={styles.bodyView}>
-                        <TextInput
-                            style={styles.inputStyleFull}
-                            onChangeText={(customerCode) => this.setState({customerCode})}
-                            placeholder ='Mã Khách Hàng...'
+                        <AutoCompleteCustomer
                             value={this.state.customerCode}
-                            onBlur={this.checkCustomerCode}
+                            link={LinkListCustomer}
+                            checkCode={
+                                ((code) => {
+                                    this.checkDataCustomer(code)
+                                }).bind(this)
+                            }
                         />
                     </View>
                     <View style={styles.bodyView}>
@@ -152,7 +296,7 @@ export default class RentalHistory extends Component{
                             onChangeText={(customerName) => this.setState({customerName})}
                             placeholder ='Tên Khách Hàng...'
                             value={this.state.customerName}
-                            editable={false} selectTextOnFocus={false}
+                            editable={false} 
                         />
                     </View>
                     <View style={styles.bodyView}>
@@ -188,6 +332,18 @@ export default class RentalHistory extends Component{
                             value={this.state.rentDate}
                         />
                     </View>
+                    <View style={styles.bodyViewDatePicker}>
+                        <View style={styles.bodyViewChildDatePicker}>
+                            <DatePicker
+                                valueRentDate = {this.state.rentDate}
+                            />
+                        </View>
+                        <View style={styles.bodyViewChildDatePicker}>
+                            <DatePicker
+                                valuePayDate = {this.state.payDate}
+                            />
+                        </View>
+                    </View>
                     <View style={styles.bodyView}>
                         <TextInput
                             style={styles.inputStyleFull}
@@ -199,7 +355,7 @@ export default class RentalHistory extends Component{
                 </View>
                 <View style={styles.footerContent}>
                     <View style={styles.flexControl}>
-                        <TouchableOpacity style={styles.touchableContent}>
+                        <TouchableOpacity style={styles.touchableContent} onPress={this.insert.bind(this)}>
                             <View>
                                 <Image
                                     style={styles.iconControl}
@@ -217,7 +373,7 @@ export default class RentalHistory extends Component{
                                 <Text>Xóa</Text>
                             </View>
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.touchableContent}>
+                        <TouchableOpacity style={styles.touchableContent} onPress={this.update.bind(this)}>
                             <View>
                                 <Image
                                     style={styles.iconControl}
@@ -259,6 +415,15 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent:'center',
     },
+    bodyViewDatePicker:{
+        width:'85%',
+        justifyContent:'space-between',
+        flexDirection:'row',
+        marginBottom:10,
+    },
+    bodyViewChildDatePicker:{
+        width:'47%',
+    },
     bodyViewChild:{
         width:'100%',
         flexDirection:'row',
@@ -266,23 +431,23 @@ const styles = StyleSheet.create({
     },
     inputStylePrice:{
         height: 40,
-        width:'45%',
+        width:'47%',
         borderWidth:1,
         borderColor: '#428AF8',
         justifyContent: 'center',
         alignItems: 'center',
         marginBottom:10,
-        borderRadius:10
+        borderRadius:1
     },
     inputStyleCollection:{
-        width:'50%',
+        width:'47%',
         height: 40,
         borderWidth:1,
         borderColor: '#228b22',
         justifyContent: 'center',
         alignItems: 'center',
         marginBottom:10,
-        borderRadius:10
+        borderRadius:1
     },
     flexControl:{
         width:'85%',
@@ -310,7 +475,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         marginBottom:10,
-        borderRadius:10
+        borderRadius:1
     },
     inputStyleGuess: {
         height: 40,
@@ -320,7 +485,16 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         marginBottom:10,
-        borderRadius:10
+        borderRadius:1
+    },
+    inputStyleGuessVehicle: {
+        height: 40,
+        width:'100%',
+        borderWidth:1,
+        borderColor: '#228b22',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius:1
     },
     textStyle: {
         width:'100%',

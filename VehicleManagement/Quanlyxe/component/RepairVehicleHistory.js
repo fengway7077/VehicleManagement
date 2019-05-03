@@ -2,74 +2,262 @@ import React, { Component } from 'react';
 import {TextInput,View,Text,StyleSheet,Image,TouchableOpacity} from 'react-native';
 import { DELETE_IMAGE,INSERT_IMAGE,UPDATE_IMAGE  } from "./imageExport.js";
 import { ScrollView } from 'react-native-gesture-handler';
+import {LinkInsertRepairHistory,LinkUpdateRepairHistory,LinkDeleteRepairHistory,LinkListVehicle,LinkListCustomer} from '../constLink/linkService.js';
+import AutoCompleteCustomer from '../customize/AutoCompleteCustomer.js';
+import AutoCompleteVehicle from '../customize/AutoCompleteVehicle.js';
+import Moment from 'moment';
 export default class RepairVehicleHistory extends Component{
     constructor(props) {
         super(props);
         params = this.props.navigation.getParam('params', null);
-        if(params === null){
+        console.log(params);
+       if(params === null){
             this.state ={ 
-                vehicleID    : '',
-                vehicleName  : '',
-                customerID   : '',
-                customerName : '',
-                phone        : '',
-                status       : '',
-                price        : '',
+                vehicleCode    : '',
+                vehicleName    : '',
+                customerCode   : '',
+                customerName   : '',
+                phone          : '',
+                fixDate        : '',
+                price          : '',
             };
         }
         else
         {
             item = params.item
+            var toDay = new Date(Date.now());
+      //      var temp =  toDay.toLocaleString().slice(0, 19).replace(/,/, ' ');
+              var dd = toDay.getDate();
+              var mm = toDay.getMonth()+1;//January is 0!
+              var yyyy = toDay.getFullYear();
+                if(dd<10){dd='0'+dd}
+                if(mm<10){mm='0'+mm}
+                var hms = toDay.toTimeString().slice(0, 8);
+                var day  = yyyy + '-'+ mm + '-'+dd + ' ' + hms
+
             this.state = { 
-                vehicleID    : item.vehiclecode,
+                vehicleCode  : item.vehiclecode, 
                 vehicleName  : item.vehiclename,
-                customerID   : item.customercode,
+                customerCode : item.customercode,
                 customerName : item.fullname,
                 phone        : item.phone,
-                status       : item.status,
-                price        : item.vehiclecode,
+                fixDate      : item.damagedday.replace(/T/, ' ').replace(/\..+/, ''), 
+                price        : item.price,
+                nowDate      : day ,//toDay.toLocaleString("yyyy-mm-dd HH:MM:SS").slice(0, 19).replace(/,/, ' '),//toDay.toISOString().replace(/T/, ' ').substr(0, 19), //.slice(0, 19)//2019-04-26 02:38:46.943=>2019-04-26 02:38:46
             };
         }
     }
 
+    insertRepairHistory(){
+        //console.log(day);
+        fetch(LinkInsertRepairHistory, {
+            method: "POST",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                "vehiclecode"    : this.state.vehicleCode,
+                "customercode"   : this.state.customerCode,
+                "amountfixed"    : this.state.price,
+                "damagedday"     :  this.state.nowDate,
+            }),
+        }).then((response) => response.json())
+        .then((responseJson) => {
+            console.log(responseJson)
+            if(responseJson.rowCount === 1){
+                console.log(this.nowDate)
+                alert("Thêm Thành Công",params.reFetchVehicleStatus(),this.props.navigation.navigate('VehicleStatus'));
+            }
+            else
+            {
+                alert("Trùng Dữ liệu thêm");
+            }
+            return;
+        })
+        .catch((error) => {
+            console.error(error);
+            alert(" Thông tin lỗi :" + error);
+        });
+    }
+
+    updateRepairHistory(){
+     console.log(this.state.fixDate);
+         fetch(LinkUpdateRepairHistory, {
+             method: "POST",
+             headers: {
+                 'Accept': 'application/json',
+                 'Content-Type': 'application/json',
+             },
+             body: JSON.stringify({
+                 "vehiclecode"    : this.state.vehicleCode,
+                 "customercode"   : this.state.customerCode,
+                 "amountfixed"    : this.state.price,
+                 "damagedday"     :  this.state.fixDate, 
+             }),
+         }).then((response) => response.json())
+         .then((responseJson) => {
+             console.log(responseJson)
+             if(responseJson.rowCount === 1){
+                 alert("Sửa Thành Công",params.reFetchVehicleStatus(),this.props.navigation.navigate('VehicleStatus'));
+             }
+             else
+             {
+                 alert("Dữ liệu sửa không tồn tại");
+             }
+             return;
+         })
+         .catch((error) => {
+             console.error(error);
+             alert(" Thông tin lỗi :" + error);
+         });
+     }
+
+     deleteRepairHistory(){
+        console.log("this.state.fixDate");
+            fetch(LinkDeleteRepairHistory, {
+                method: "POST",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    "vehiclecode"    : this.state.vehicleCode,
+                    "customercode"   : this.state.customerCode,               
+                    "damagedday"     :  this.state.fixDate, 
+                }),
+            }).then((response) => response.json())
+            .then((responseJson) => {
+                console.log(responseJson)
+                if(responseJson.rowCount === 1){
+                    alert("Xóa Thành Công",params.reFetchVehicleStatus(),this.props.navigation.navigate('VehicleStatus'));
+                }
+                else
+                {
+                    alert("Dữ liệu sửa không được xóa");
+                }
+                return;
+            })
+            .catch((error) => {
+                console.error(error);
+                alert(" Thông tin lỗi :" + error);
+            });
+        }
+
+        checkDataVehicle(query){
+            fetch(LinkCheckDataVehicle, {
+                method: "POST",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    "vehiclecode" : query,
+                }),
+                
+            }).then((response) => response.json())
+            .then((responseJson) => {
+                if(responseJson.length === 1){
+                    this.setState({
+                        vehicleName : responseJson[0].vehiclename,
+                        vehicleCode : query
+                    });
+                }
+                else{
+                    alert("Mã Xe Không Tồn Tại");
+                }
+                return;
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+        }
+    
+        checkDataCustomer(query){
+            fetch(LinkCheckDataCustomer, {
+                method: "POST",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    "customercode" : query,
+                }),
+            }).then((response) => response.json())
+            .then((responseJson) => {
+                if(responseJson.length === 1){
+                    this.setState({
+                        customerName : responseJson[0].fullname,
+                        customerCode : query
+                    });
+                }
+                else{
+                    alert("Mã Khách Hàng Không Tồn Tại");
+                }
+                return;
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+        }
+
     render(){
         return(
             <ScrollView style={styles.mainContainer}>
-                {/* <View style={styles.headerContent}>
-                    <Text style={styles.textStyle}>Manage Car Repair History</Text>
-                </View> */}
                 <View style={styles.bodyContent}>
                     <View style={styles.bodyView}>
-                        <TextInput
-                            style={styles.inputStyleFull}
-                            onChangeText={(vehicleID) => this.setState({vehicleID})}
-                            placeholder ='Mã Xe...'
-                            value={this.state.vehicleID}
+                        <AutoCompleteVehicle
+                            value={this.state.vehicleCode}
+                            link={LinkListVehicle}
+                            checkCode={
+                                ((code) => {
+                                    this.checkDataVehicle(code)
+                                }).bind(this)
+                            }
                         />
+                        {/* <TextInput
+                            style={styles.inputStyleFull}
+                            onChangeText={(vehicleCode) => this.setState({vehicleCode})}
+                            placeholder ='Mã Xe...'
+                            value={this.state.vehicleCode}
+                        /> */}
                     </View>
                     <View style={styles.bodyView}>
                         <TextInput
-                            style={styles.inputStyleGuess}
+                            style={styles.inputStyleGuessVehicle}
                             onChangeText={(vehicleName) => this.setState({vehicleName})}
                             placeholder ='Tên Xe...'
                             value={this.state.vehicleName}
+                            editable ={false}
                         />
+                        
                     </View>
                     <View style={styles.bodyView}>
-                        <TextInput
+                       <AutoCompleteCustomer
+                            value={this.state.customerCode}
+                            link={LinkListCustomer}
+                            checkCode={
+                                ((code) => {
+                                    this.checkDataCustomer(code)
+                                }).bind(this)
+                            }
+                        />
+                        {/* <TextInput
                             style={styles.inputStyleFull}
-                            onChangeText={(customerID) => this.setState({customerID})}
+                            onChangeText={(customerCode) => this.setState({customerCode})}
                             placeholder ='Mã Khách Hàng...'
-                            value={this.state.customerID}
-                        />
+                            value={this.state.customerCode}
+                        /> */}
                     </View>
                     <View style={styles.bodyView}>
                         <TextInput
-                            style={styles.inputStyleGuess}
+                            style={styles.inputStyleGuessVehicle}
                             onChangeText={(customerName) => this.setState({customerName})}
                             placeholder ='Tên Khách Hàng...'
                             value={this.state.customerName}
+                            editable ={false}
                         />
+
                     </View>
                     <View style={styles.bodyView}>
                         <TextInput
@@ -82,9 +270,10 @@ export default class RepairVehicleHistory extends Component{
                     <View style={styles.bodyView}>
                         <TextInput
                             style={styles.inputStyleFull}
-                            onChangeText={(status) => this.setState({status})}
-                            placeholder ='Tình Trạng...'
-                            value={this.state.status}
+                            onChangeText={(fixDate) => this.setState({fixDate})}
+                            placeholder ='Ngày Sửa...'
+                            value={this.state.fixDate}
+                            editable ={false}
                         />
                     </View>
                     <View style={styles.bodyView}>
@@ -98,7 +287,7 @@ export default class RepairVehicleHistory extends Component{
                 </View>
                 <View style={styles.footerContent}>
                     <View style={styles.flexControl}>
-                        <TouchableOpacity style={styles.touchableContent}>
+                        <TouchableOpacity style={styles.touchableContent} onPress={this.insertRepairHistory.bind(this)}>
                             <View>
                                 <Image
                                     style={styles.iconControl}
@@ -107,7 +296,7 @@ export default class RepairVehicleHistory extends Component{
                                 <Text>Thêm</Text>
                             </View>
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.touchableContent}>
+                        <TouchableOpacity style={styles.touchableContent} onPress={this.deleteRepairHistory.bind(this)}>
                             <View>
                                 <Image
                                     style={styles.iconControl}
@@ -116,7 +305,7 @@ export default class RepairVehicleHistory extends Component{
                                 <Text>Xóa</Text>
                             </View>
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.touchableContent}>
+                        <TouchableOpacity style={styles.touchableContent} onPress={this.updateRepairHistory.bind(this)}>
                             <View>
                                 <Image
                                     style={styles.iconControl}
@@ -130,7 +319,10 @@ export default class RepairVehicleHistory extends Component{
             </ScrollView>
         );
     }
+//
+
 }
+
 
 const styles = StyleSheet.create({
     mainContainer: {
@@ -218,6 +410,15 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         marginBottom:10
+    },
+    inputStyleGuessVehicle: {
+        height: 40,
+        width:'100%',
+        borderWidth:1,
+        borderColor: '#228b22',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius:1
     },
     textStyle: {
         width:'100%',

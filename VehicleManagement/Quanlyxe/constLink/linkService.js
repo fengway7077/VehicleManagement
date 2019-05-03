@@ -1,33 +1,31 @@
 const linkService = 'http://192.168.11.129:3333/'
+//GetData
 export const LinkListCustomer = linkService + 'customer/getcustomer'
-export const LinkSearchListCustomer = linkService + 'customer/getcustomer'
 export const LinkListVehicle = linkService + 'vehicledetails/getVehicle'
-export const LinkSearchListVehicle = linkService + 'vehicledetails/searchVehicle'
-
 export const LinkVehicleFees = linkService + 'vehiclerentalhistory/getListVehiclerental'
-export const LinkSearchVehicleFees = linkService + 'vehiclerentalhistory/searchListVehiclerental'
 export const LinkVehicleStatus = linkService + 'vehiclerentalhistory/getListVehiclerental'
-export const LinkSearchVehicleStatus = linkService + 'Vehiclerepairhistory/searchListVehiclestatus'
-
-//Add customer
+//export const LinkVehicleList = linkService + 'Vehiclerepairhistory/getListVehiclerepair'
+//Search
+export const LinkSearchListCustomer = linkService + 'customer/searchCustomer'
+export const LinkSearchListVehicle = linkService + 'vehicledetails/searchVehicle'
+export const LinkSearchVehicleFees = linkService + 'vehiclerentalhistory/searchListVehiclerental'
+export const LinkSearchVehicleStatus = linkService + 'vehiclerepairhistory/searchListVehiclestatus'
+//Insert
 export const LinkInsertCustomer = linkService + 'customer/createCustomer'
-//Edit customer
-export const LinkUpdateCustomer = linkService + 'customer/editCustomer'
-
-//Remove customer
-export const LinkRemoveCustomer = linkService + 'customer/removeCustomer'
-
-//Add Vehicle
 export const LinkInsertVehicle = linkService + 'vehicledetails/createVehicle'
-//Edit Vehicle
+export const LinkInsertRentalHistory = linkService + 'vehiclerentalhistory/addVehiclerental'
+export const LinkInsertRepairHistory = linkService + 'vehiclerepairhistory/addVehiclerepair'
+//Update
+export const LinkUpdateCustomer = linkService + 'customer/editCustomer'
 export const LinkUpdateVehicle = linkService + 'vehicledetails/editVehicle'
+export const LinkUpdateRentalHistory = linkService + 'vehiclerentalhistory/editVehiclerental'
+export const LinkUpdateRepairHistory = linkService + 'vehiclerepairhistory/editVehiclerepair'
 
-// Add Vehicle rental history
-export const LinkInsertVehiclerental = linkService + 'vehiclerentalhistory/addVehiclerental'
+//Delete
+export const LinkDeleteRepairHistory = linkService + 'vehiclerepairhistory/removeVehiclerepair'
+export const LinkDeleteRentalHistory = linkService + 'vehiclerentalhistory/removeVehiclerental'
 
-//Check vehicle
-export const LinkCheckDataVehicle = linkService + 'vehicledetails/checkVehicle'
-
-// Check vehicle
+//CheckData
 export const LinkCheckDataCustomer = linkService + 'customer/checkCustomer'
-
+export const LinkCheckDataVehicle = linkService + 'vehicledetails/checkVehicle'
+export const LinkCheckVehicleRental = linkService + 'vehiclerentalhistory/checkVehiclerental'

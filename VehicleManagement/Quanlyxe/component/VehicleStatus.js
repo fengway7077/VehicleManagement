@@ -13,13 +13,16 @@ class VehicleStatus extends Component{
         this.state = { 
             isLoading: true,
             search: '',
+            vehicleCode:'',
         };
+        //
     }
 
     getDataVehicleStatus(){
         return fetch(LinkVehicleStatus)
         .then((response) => response.json())
         .then((responseJson) => {
+            console.log(responseJson)
         this.setState({
             isLoading: false,
             dataSource: responseJson,
@@ -38,6 +41,7 @@ class VehicleStatus extends Component{
     }    
 
     SearchVehicleStatus(){
+        console.log("test");
         fetch(LinkSearchVehicleStatus, {
             method: "POST",
             headers: {
@@ -286,7 +290,7 @@ const styles = StyleSheet.create({
         width: '85%',
         borderWidth:1,
         marginBottom:8,
-        borderRadius:10,
+        borderRadius:1,
         borderColor:'black',
     },
     iconInputSearch:{
@@ -312,7 +316,7 @@ const styles = StyleSheet.create({
         justifyContent:'center',
         height:40,
         width:'50%',
-        borderRadius:5,
+        borderRadius:1,
         borderColor:'black',
         borderWidth:1,
     },
