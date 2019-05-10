@@ -1,21 +1,45 @@
 import React, { Component } from 'react';
-import {StyleSheet, View } from 'react-native';
+import {StyleSheet, View,FlatList } from 'react-native';
 import CalendarPicker from 'react-native-calendar-picker/CalendarPicker';
 import Moment from 'react-moment';
 import 'moment-timezone';
 import { Calendar, CalendarList, Agenda } from 'react-native-calendars';
 import {LocaleConfig} from 'react-native-calendars';
-
+import {LinkVehicleFees} from '../constLink/linkService'
 export default class CalendarPickerContent extends Component {
   constructor(props) {
       super(props);
       this.state = {
+        isloading:true,
+    //    datetmp: '2019-05-13',
         selectedStartDate: null,
         selectedEndDate: null,
       };
       this.onDateChange = this.onDateChange.bind(this);
     }
   
+    getDataVehicleFees(){
+      return fetch(LinkVehicleFees)
+      .then((response) => response.json())
+      .then((responseJson) => {
+          console.log(responseJson)
+      this.setState({
+          isLoading: false,
+          dataSource: responseJson,
+      }, function(){
+
+      });
+
+      })
+      .catch((error) =>{
+      console.error(error);
+      });
+  }
+
+  componentDidMount(){
+      this.getDataVehicleFees();
+  }   
+
     onDateChange(date, type) {
       if (type === 'END_DATE') {
         this.setState({
@@ -67,9 +91,10 @@ export default class CalendarPickerContent extends Component {
       var month  = 1;  // month of year (1-12)
       var year  = 2017; // year
       var timestamp;   // UTC timestamp representing 00:00 AM of this date
-      var dateString  ='2016-05-13' ;// date formatted as 'YYYY-MM-DD' string
-        
-
+      var dateString  ='2019-05-13' ;// date formatted as 'YYYY-MM-DD' string
+      var datetmp = '2019-05-13';
+   
+    
      LocaleConfig.locales['vn'] = {
       monthNames: ['Tháng 1','Tháng 2','Tháng 3','Tháng 4 ','Tháng 5','Tháng 6','Tháng 7','Tháng 8','Tháng 9','Tháng 10','Tháng 11','Tháng 12'],
       monthNamesShort: ['Thg 1 ', 'Thg 2 ', 'Thg 3 ', 'Thg 4 ', 'Thg 5 ', 'Thg 6 ', 'Thg 7 ', 'Thg 8 ', 'Thg 9 ', 'Thg 10 ', 'Thg 11 ', 'Thg 12 '],
@@ -84,7 +109,9 @@ export default class CalendarPickerContent extends Component {
      //
     return (
       <View style={styles.container}>
-        <CalendarList
+        <CalendarList 
+              
+
       // Initially visible month. Default = Date()
       current={current}
       // Minimum date that can be selected, dates before minDate will be grayed out. Default = undefined
@@ -138,7 +165,7 @@ export default class CalendarPickerContent extends Component {
         // pagingEnabled={true}
         // // Set custom calendarWidth.
         // calendarWidth={420}     
-
+       
         // //Agenda
         // // the list of items that have to be displayed in agenda. If you want to render item as empty date
         // // the value of date key kas to be an empty array []. If there exists no value for date key it is
@@ -209,7 +236,7 @@ export default class CalendarPickerContent extends Component {
 //
  // Collection of dates that have to be marked. Default = {}
  markedDates={{
-  '2019-05-13': {selected: true, marked: true, selectedColor: 'red'},
+  datetmp: {selected: true, marked: true, selectedColor: 'red'},
   '2019-05-14': {marked: true},
   '2019-05-15': {marked: true, dotColor: 'red', activeOpacity: 0},
   '2019-05-16': {disabled: true, disableTouchEvent: true},
@@ -261,7 +288,9 @@ export default class CalendarPickerContent extends Component {
     textDayHeaderFontSize: 16
   }}
 
-    />
+
+/>
+
       </View>
       
     );

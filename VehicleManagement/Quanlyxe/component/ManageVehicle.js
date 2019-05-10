@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import {TextInput,View,Text,StyleSheet,Image,TouchableOpacity,ScrollView} from 'react-native';
 import { DELETE_IMAGE,INSERT_IMAGE,UPDATE_IMAGE,NO_IMAGE} from "./imageExport.js";
 import { Dropdown } from 'react-native-material-dropdown';
-import { LinkInsertVehicle ,LinkUpdateVehicle } from '../constLink/linkService.js';
+import { LinkInsertVehicle ,LinkUpdateVehicle,LinkDeleteVehicle } from '../constLink/linkService.js';
 var FloatingLabel = require('react-native-floating-labels');
 var ImagePicker = require('react-native-image-picker');
 
@@ -70,7 +70,7 @@ export default class ManageVehicle extends Component{
                 "managementnumber"   : this.state.managementNumber,
                 "status"             : this.state.status,
                 "vehiclecolor"       : this.state.vehicleColor,    
-                "purchaseprice"      : this.state.nationality,
+                "purchaseprice"      : this.state.purchasePrice,
                 "vehicleimage"       : this.state.filePath,
                 "describe"           : this.state.describe,
             }),
@@ -106,7 +106,7 @@ export default class ManageVehicle extends Component{
                 "managementnumber"   : this.state.managementNumber,
                 "status"             : this.state.status,
                 "vehiclecolor"       : this.state.vehicleColor,    
-                "purchaseprice"      : this.state.nationality,
+                "purchaseprice"      : this.state.purchasePrice,
                 "vehicleimage"       : this.state.filePath,
                 "describe"           : this.state.describe,
             }),
@@ -121,6 +121,34 @@ export default class ManageVehicle extends Component{
             console.error(error);
         });
     }
+
+    DeleteVihicle(){
+            fetch(LinkDeleteVehicle, {
+                method: "POST",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    "vehiclecode"    : this.state.vehicleCode,
+                }),
+            }).then((response) => response.json())
+            .then((responseJson) => {
+                console.log(responseJson)
+                if(responseJson.rowCount === 1){
+                    alert("Xóa Thành Công",params.reFetchVehicle(),this.props.navigation.navigate('ListVehicle'));
+                }
+                else
+                {
+                    alert("Dữ liệu sửa không được xóa");
+                }
+                return;
+            })
+            .catch((error) => {
+                console.error(error);
+                alert(" Thông tin lỗi :" + error);
+            });
+        }
 
     chooseFile = () => {
         var options = {
@@ -332,7 +360,7 @@ export default class ManageVehicle extends Component{
                                 <Text>Thêm</Text>
                             </View>
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.touchableContent}>
+                        <TouchableOpacity style={styles.touchableContent} onPress={this.DeleteVihicle.bind(this)}>
                             <View>
                                 <Image
                                     style={styles.iconControl}

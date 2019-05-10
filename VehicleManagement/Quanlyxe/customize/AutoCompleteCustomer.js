@@ -36,7 +36,7 @@ class AutoCompleteCustomer extends Component {
     let { customersArray } = this.state;
     const regex = new RegExp(`${query.toString().trim()}`, 'i');
     customersArray = customersArray.filter(customer => {
-      return (!isSearching) ? customer["customercode"] === query : customer["customercode"].toString().search(regex) >= 0 
+      return (!isSearching) ? customer["customercode"] === query || customer["firstname"] === query : customer["customercode"].toString().search(regex) >= 0 || customer["firstname"] != ""
     }) 
     return customersArray
   }

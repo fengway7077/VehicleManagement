@@ -26,7 +26,7 @@ export default class RepairVehicleHistory extends Component{
         {
             item = params.item
             var toDay = new Date(Date.now());
-      //      var temp =  toDay.toLocaleString().slice(0, 19).replace(/,/, ' ');
+      //    var temp =  toDay.toLocaleString().slice(0, 19).replace(/,/, ' ');
               var dd = toDay.getDate();
               var mm = toDay.getMonth()+1;//January is 0!
               var yyyy = toDay.getFullYear();

@@ -22,6 +22,8 @@ export const LinkUpdateRentalHistory = linkService + 'vehiclerentalhistory/editV
 export const LinkUpdateRepairHistory = linkService + 'vehiclerepairhistory/editVehiclerepair'
 
 //Delete
+export const LinkDeleteCustomer = linkService + 'customer/removeCustomer'
+export const LinkDeleteVehicle = linkService + 'vehicledetails/removeVehicle'
 export const LinkDeleteRepairHistory = linkService + 'vehiclerepairhistory/removeVehiclerepair'
 export const LinkDeleteRentalHistory = linkService + 'vehiclerentalhistory/removeVehiclerental'
 
@@ -29,3 +31,5 @@ export const LinkDeleteRentalHistory = linkService + 'vehiclerentalhistory/remov
 export const LinkCheckDataCustomer = linkService + 'customer/checkCustomer'
 export const LinkCheckDataVehicle = linkService + 'vehicledetails/checkVehicle'
 export const LinkCheckVehicleRental = linkService + 'vehiclerentalhistory/checkVehiclerental'
+
+//export const images = linkService + ''

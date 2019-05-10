@@ -35,7 +35,7 @@ class AutoCompleteVehicle extends Component {
     let { vehiclesArray } = this.state;
     const regex = new RegExp(`${query.toString().trim()}`, 'i');
     vehiclesArray = vehiclesArray.filter(vehicle => {
-      return !isSearching ? vehicle["vehiclecode"] === query : vehicle["vehiclecode"].toString().search(regex) >= 0 
+      return !isSearching ? vehicle["vehiclecode"] === query || vehicle["vehicletype"] === query : vehicle["vehiclecode"].toString().search(regex) >= 0 ||  vehicle["vehiclecode"].toString().search(regex) != ""
     }) 
     return vehiclesArray
   }

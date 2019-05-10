@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import {TextInput,View,Text,StyleSheet,Image,TouchableOpacity} from 'react-native';
 import { DELETE_IMAGE,INSERT_IMAGE,UPDATE_IMAGE  } from "./imageExport.js";
 import { ScrollView } from 'react-native-gesture-handler';
-import { LinkInsertCustomer , LinkUpdateCustomer } from '../constLink/linkService.js';
+import { LinkInsertCustomer , LinkUpdateCustomer,LinkDeleteCustomer } from '../constLink/linkService.js';
 
 export default class ManageCustomer extends Component{
     constructor(props) {
@@ -13,7 +13,7 @@ export default class ManageCustomer extends Component{
                 customerCode : '',
                 lastName     : '',
                 firstName    : '',
-                age          : '',
+                birthday     : '',
                 address      : '',
                 phone        : '',
                 email        : '',
@@ -26,11 +26,15 @@ export default class ManageCustomer extends Component{
         else
         {
             item = params.item
+                    // var toDay = new Date(Date.now());
+                    // var dd = toDay.getDate();
+                    // var mm = toDay.getMonth()+1;//January is 0!
+                    // var yyyy = toDay.getFullYear();
             this.state = { 
                 customerCode : item.customercode,
                 lastName     : item.lastname,
                 firstName    : item.firstname,
-                age          : item.age.toString(),
+                birthday     : item.birthday, //item.age.toString(),
                 address      : item.address,
                 phone        : item.phone,
                 email        : item.email,
@@ -53,7 +57,7 @@ export default class ManageCustomer extends Component{
                 "customercode" : this.state.customerCode,
                 "lastname"     : this.state.lastName,
                 "firstname"    : this.state.firstName,
-                "age"          : this.state.age,
+                "birthday"     : this.state.birthday,
                 "address"      : this.state.address,
                 "phone"        : this.state.phone,
                 "email"        : this.state.email,
@@ -70,6 +74,7 @@ export default class ManageCustomer extends Component{
         })
         .catch((error) => {
             console.error(error);
+            alert(" Thông tin lỗi :" + error);
         });
     }
 
@@ -83,7 +88,7 @@ export default class ManageCustomer extends Component{
             body: JSON.stringify({
                 "lastname"    : this.state.lastName,
                 "firstname"   : this.state.firstName,
-                "age"         : this.state.age,
+                "birthday"    : this.state.birthday,
                 "address"     : this.state.address,
                 "phone"       : this.state.phone,
                 "email"       : this.state.email,
@@ -94,7 +99,7 @@ export default class ManageCustomer extends Component{
         }).then((response) => response.json())
         .then((responseJson) => {
             if(responseJson.rowCount === 1){
-                alert("Thêm Thành Công",params.reFetchListVehicle(),this.props.navigation.navigate('ListVehicle'));
+                alert("Thêm Thành Công",params.reFetchCustomer(),this.props.navigation.navigate('ListCustomer'));
             }
             return;
         })
@@ -102,6 +107,61 @@ export default class ManageCustomer extends Component{
             console.error(error);
         });
     };
+
+    DeleteCustomer(){
+        console.log("test");
+        fetch(LinkDeleteCustomer, {
+            method: "POST",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                "customercode"    : this.state.customerCode,
+            }),
+        }).then((response) => response.json())
+        .then((responseJson) => {
+            console.log(responseJson)
+            if(responseJson.rowCount === 1){
+                alert("Delete Success",params.reFetchCustomer(),this.props.navigation.navigate('ListCustomer'));
+            }
+            else
+            {
+                alert("Edit data is not deleted");
+            }
+            return;
+        })
+        .catch((error) => {
+            console.error(error);
+            alert(" Thông tin lỗi :" + error);
+        });
+    }
+
+    CheckTextInput = () => {
+        //Handler for the Submit onPress
+        if (this.state.firstName != '') {
+          //Check for the Name TextInput
+          if (this.state.firstName != '') {
+            //Check for the Email TextInput
+            alert('Success')
+          } else {
+            alert('Please Enter Email');
+          }
+        } else {
+          alert('Please Enter Name');
+        }
+      };
+      
+    //   validateEmail = (email) => {
+    //     var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    //       return re.test(email);
+    //   };
+    //   onSubmit = () => {
+    //     if (!this.validateEmail(this.state.text_input_email)) {
+    //       // not a valid email
+    //     } else {
+    //       // valid email
+    //     }
 
     render(){
         return(
@@ -126,9 +186,9 @@ export default class ManageCustomer extends Component{
                     <View style={styles.bodyView}>
                         <TextInput
                             style={styles.inputStyleFull}
-                            onChangeText={(age) => this.setState({age})}
-                            placeholder ='Ngày Sinh...'
-                            value={this.state.age}
+                            onChangeText={(birthday) => this.setState({birthday})}
+                            placeholder ='Ngày Sinh (YYYY-MM-DD)...'
+                            value={this.state.birthday}
                         />
                     </View>
                     <View style={styles.bodyView}>
@@ -227,10 +287,10 @@ export default class ManageCustomer extends Component{
                                     style={styles.iconControl}
                                     source={INSERT_IMAGE}
                                 />  
-                                <Text>Thêm</Text>
+                                <Text onPress={this.CheckTextInput}>Thêm</Text>
                             </View>
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.touchableContent} >
+                        <TouchableOpacity style={styles.touchableContent} onPress={this.DeleteCustomer.bind(this)} >
                             <View>
                                 <Image
                                     style={styles.iconControl}

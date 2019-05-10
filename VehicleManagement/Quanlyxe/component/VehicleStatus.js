@@ -156,7 +156,7 @@ class VehicleStatus extends Component{
                                 </View>
                             </TouchableOpacity>
                         }
-                        keyExtractor={({customercode}, index) => customercode.toString()}
+                        keyExtractor={({vehiclecode}, index) => vehiclecode.toString()}
                     />
                 </View>
             </ScrollView>

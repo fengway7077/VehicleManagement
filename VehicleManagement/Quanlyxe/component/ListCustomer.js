@@ -101,6 +101,9 @@ class ListCustomer extends Component{
                                             <Image style={styles.imageStyle}
                                                 source={{uri: 'https://static.independent.co.uk/s3fs-public/thumbnails/image/2017/09/12/11/naturo-monkey-selfie.jpg?w968h681'}}
                                             />
+                                             {/* <Image style={styles.imageStyle}
+                                                source={require('../Photo/Customer/baby.jpg'  )}
+                                            /> */}
                                         </View>
                                         <View style={styles.listViewChildRight} id={item.customercode}>
                                             <Text style={styles.generalStyle}>Người Thuê : {item.fullname}</Text>
@@ -125,7 +128,7 @@ const RootContent = createStackNavigator(
             screen: ListCustomer,
             navigationOptions: {
                 title: 'ListCustomer',
-                //  headerLeft: <TouchableOpacity
+               // headerLeft: <TouchableOpacity
                 //      onPress={() => navigation.navigate('ManageCustomer')} ><Text>Back</Text></TouchableOpacity>,
                 headerStyle: {
                   backgroundColor: '#FF9800',

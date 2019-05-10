@@ -110,8 +110,7 @@ class VehicleFees extends Component{
                                 </View>
                             </TouchableOpacity>
                         }
-                        keyExtractor={({vehiclecode}, index) => vehiclecode.toString()
-                    }
+                        keyExtractor={({vehiclecode}, index) => vehiclecode.toString() }
                     />
                 </View>
             </ScrollView>
