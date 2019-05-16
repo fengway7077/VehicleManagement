@@ -6,6 +6,11 @@ var app = express()
 var bodyParser = require('body-parser')
 var urlencodedParser = bodyParser.urlencoded({ extended: false })
 
+//include http, fs and url module
+  var http = require('http'),
+    fs = require('fs'),
+    url = require('url');
+
 //var vehiclecode = req.params.vehiclecode;
 /* Get Vehicle information listing. */
 router.get('/getVehicle', function(req, res, next) {
@@ -34,12 +39,13 @@ router.get('/getVehicle', function(req, res, next) {
 
 /* Update a Vehicle information . */
 router.post('/editVehicle',urlencodedParser, function(req, res, next) {
-
+        // console.log(req.body);
+        // return;
   var vehiclecode = req.body.vehiclecode;
   var vehiclenumber = req.body.vehiclenumber;
   var vehicletype = req.body.vehicletype;
   var vehiclecolor = req.body.vehiclecolor;
-  var purchaseprice = Number(req.body.purchaseprice);
+  var purchaseprice = Number(req.body.purchaseprice) == NaN ? 0 : req.body.purchaseprice;
   var rentalprice  = Number(req.body.rentalprice);
   var registrationnumber = req.body.registrationnumber;
   var managementnumber = req.body.managementnumber;
@@ -116,12 +122,12 @@ router.post('/searchVehicle',urlencodedParser,function(req, res, next) {
   router.post('/createVehicle', function(req, res, next) {
         // console.log(req.body);
         // return;
-     // var vehiclecode = req.body.vehiclecode;
+     //var vehiclecode = req.body.vehiclecode;
       var vehiclenumber = req.body.vehiclenumber;
       var vehicletype = req.body.vehicletype;
       var vehiclecolor = req.body.vehiclecolor;
-      var purchaseprice = Number(req.body.purchaseprice) == NaN ? 0 : Number(req.body.purchaseprice) ;
-      var rentalprice  = Number(req.body.rentalprice) == NaN ? 0 : Number(req.body.rentalprice)  ; 
+      var purchaseprice = Number(req.body.purchaseprice) == NaN ? 0 : req.body.purchaseprice;
+      var rentalprice  = Number(req.body.rentalprice) == NaN ? 0 : req.body.rentalprice; 
       var registrationnumber = req.body.registrationnumber;
       var managementnumber = req.body.managementnumber;
       var status  =  req.body.status; //
@@ -270,6 +276,22 @@ router.get('/getVehicleStatus',urlencodedParser,function(req, res, next) {
     });
     });
    });
-
-
+// //create http server listening on port 3333
+// router.get('/imgVehicle',function (req, res) {
+//   //use the url to parse the requested url and get the image name
+//   var query = url.parse(req.url,true).query;
+//   pic = query.image;
+//   //read the image using fs and send the image content back in the response
+//   fs.readFile('/Photo/Vehicle/' + pic, function (err, content) {
+//     if (err) {
+//         res.writeHead(400, {'Content-type':'text/html'})
+//         console.log(err);
+//         res.end("No such image");    
+//     } else {
+//         //specify the content type in the response will be an image
+//         res.writeHead(200,{'Content-type':'image/jpg'});
+//         res.end(content);
+//     }
+//   });
+// });
 module.exports = router;

@@ -6,7 +6,7 @@ import { Dropdown } from 'react-native-material-dropdown';
 import { createAppContainer, createStackNavigator } from 'react-navigation';
 import RentalHistory from './RentalHistory.js';
 import RepairVehicleHistory from './RepairVehicleHistory';
-import { LinkVehicleStatus,LinkSearchVehicleStatus } from '../constLink/linkService.js'
+import { LinkVehicleStatus,LinkSearchVehicleStatus,vehicleService } from '../constLink/linkService.js'
 class VehicleStatus extends Component{
     constructor(props) {
         super(props);
@@ -14,6 +14,7 @@ class VehicleStatus extends Component{
             isLoading: true,
             search: '',
             vehicleCode:'',
+            status:'',
         };
         //
     }
@@ -41,7 +42,7 @@ class VehicleStatus extends Component{
     }    
 
     SearchVehicleStatus(){
-        console.log("test");
+      //  console.warn(this.state.search + "test" + this.state.status);
         fetch(LinkSearchVehicleStatus, {
             method: "POST",
             headers: {
@@ -53,7 +54,7 @@ class VehicleStatus extends Component{
                 "status": this.state.status
             }),
         }).then((response) => response.json())
-        .then((responseJson) => {
+        .then((responseJson) => { 
             this.setState({
                 isLoading: false,
                 dataSource: responseJson,
@@ -83,6 +84,7 @@ class VehicleStatus extends Component{
     UpdateSearch = search => {
         this.setState({ search },this.SearchVehicleStatus.bind(this));
     };
+    
     render(){
         let data = [{
             value: 'Trống',
@@ -144,10 +146,17 @@ class VehicleStatus extends Component{
                                     <View style={styles.listViewChild}>
                                         <View style={styles.listViewChildLeft}>
                                             <Image style={styles.imageStyle}
-                                                source={{uri: 'https://static.independent.co.uk/s3fs-public/thumbnails/image/2017/09/12/11/naturo-monkey-selfie.jpg?w968h681'}}
+                                              //  source={{uri: 'https://static.independent.co.uk/s3fs-public/thumbnails/image/2017/09/12/11/naturo-monkey-selfie.jpg?w968h681'}}
+                                                source={{ uri: vehicleService + item.vehicleimage.toString()}}  
+                                                onLayout={ 
+                                                    () => {
+                                                        console.log(item)                                                      
+                                                    }
+                                                } 
                                             />
                                         </View>
                                         <View style={styles.listViewChildRight}>
+                                          
                                             <Text style={styles.generalStyle}>Tên Xe : {item.vehiclename}</Text>
                                             <Text style={styles.generalStyle}>Giá : {item.rentalprice}</Text>
                                             <Text style={styles.generalStyle}>Trạng Thái : {item.status=== 0 ?'Trống':item.status=== 1 ?'Cho Thuê':'Bảo Trì'}</Text>

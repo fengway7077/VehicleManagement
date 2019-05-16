@@ -1,0 +1,18 @@
+
+expressjs.com/en/starter/generator.html
+
+
+Express application generator
+
+npm install express-generator -g
+
+npm install
+
+
+
+https://aboutreact.com/example-of-react-native-autocomplete-input/
+npm install react-native-autocomplete-input --save
+
+
+//upload images
+npm install express-formidable

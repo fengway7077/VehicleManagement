@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
-import {TextInput,View,Text,StyleSheet,Image,TouchableOpacity,ScrollView} from 'react-native';
+import {TextInput,View,Text,StyleSheet,Image,TouchableOpacity,ScrollView,TouchableHighlight} from 'react-native';
 import { DELETE_IMAGE,INSERT_IMAGE,UPDATE_IMAGE,NO_IMAGE} from "./imageExport.js";
 import { Dropdown } from 'react-native-material-dropdown';
-import { LinkInsertVehicle ,LinkUpdateVehicle,LinkDeleteVehicle } from '../constLink/linkService.js';
+import { LinkInsertVehicle ,LinkUpdateVehicle,LinkDeleteVehicle ,vehicleService} from '../constLink/linkService.js';
 var FloatingLabel = require('react-native-floating-labels');
 var ImagePicker = require('react-native-image-picker');
 
@@ -31,6 +31,13 @@ export default class ManageVehicle extends Component{
                 describe           : item.describe ,
                 language           : 'Trạng Thái',
                 filePath           : {uri: item.vehicleimage},
+
+                namevalidate: true,
+                numbervalidate:true,
+                pricevalidate:true,
+                registrationvalidate:true,
+                managementvalidate:true,
+                puschasevalidate:true,  
             };
         }
     }
@@ -51,6 +58,14 @@ export default class ManageVehicle extends Component{
             describe           : '',
             language           : 'Trạng Thái',
             filePath           : {uri: ''},
+        
+            namevalidate: true,
+            numbervalidate:true,
+            pricevalidate:true,
+            registrationvalidate:true,
+            managementvalidate:true,
+            puschasevalidate:true,   
+
         };
     }
 
@@ -107,7 +122,8 @@ export default class ManageVehicle extends Component{
                 "status"             : this.state.status,
                 "vehiclecolor"       : this.state.vehicleColor,    
                 "purchaseprice"      : this.state.purchasePrice,
-                "vehicleimage"       : this.state.filePath,
+                // "vehicleimage"       : this.state.filePath,
+                "vehicleimage"       : this.state.imageVehicle,
                 "describe"           : this.state.describe,
             }),
         }).then((response) => response.json())
@@ -174,8 +190,54 @@ export default class ManageVehicle extends Component{
             }
         });
     };
+
+    validate(text,type){
+      //    console.log("test")
+         alph =/^[a-zA-Z]\s\t+$/;
+         number = /^[0-9]/; //   /^\d+$/;
+         mobi = /^[0-9]\(\d\d\d\) \d\d\d-\d\d\d\d$/; ///^\(\d{3}\) \d{3}-\d{4}$/;
+         alphnum = /[0-9a-zA-Z]/;
+        
+        if (type = 'vehiclename'){       
+            if(text.value != null){
+             // if(alph.test(text) ){
+                this.setState({namevalidate:true})
+            //   console.warn("ok");
+            }else{
+             //  console.warn("ng");
+             this.setState({namevalidate:false})
+            }
+         //  } 
+          }
+        else if(type ="vehiclenumber"){
+              if(alphnum.test(text)){
+              //  console.warn("vehiclenumber ok");
+                  this.setState({numbervalidate:true})
+               }else{
+                  this.setState({numbervalidate:false})
+               //   console.warn("vehiclenumber ng");
+              }
+         } 
+            
+      else  if((type ="rentalprice") || (type ="registrationnumber") ||(type ="managementnumber") ||(type ="purchaseprice") ) {
+            if(number.test(text)){
+                this.setState({pricevalidate:true}),
+                this.setState({registrationvalidate:true}),
+                this.setState({managementvalidate:true}),
+                this.setState({puschasevalidate:true})
+               // console.warn("ok");
+            }else{
+              //  console.warn("ng");
+              this.setState({pricevalidate:false}),
+              this.setState({registrationvalidate:false}),
+              this.setState({managementvalidate:false}),
+              this.setState({puschasevalidate:false})
+            }         
+         }
+    }
     
     render() {
+        
         let data = [{
             value: 'Trống'
         }, {
@@ -183,24 +245,26 @@ export default class ManageVehicle extends Component{
         }, {
             value: 'Bảo Trì'
         }];
+        
         return (
             <ScrollView style={styles.mainContainer}>  
                 <View style={styles.bodyContent}>
                     <View style={styles.bodyView}>
                         <FloatingLabel 
                             labelStyle={styles.labelInput}
-                            inputStyle={styles.input}
-                            style={styles.formInput}
-                            onBlur={this.onBlur}
-                            onChangeText={(vehicleName) => this.setState({vehicleName})}
-                            value={this.state.vehicleName}
+                           // inputStyle={styles.input}
+                            inputStyle={[styles.input , !this.state.namevalidate ? styles.error:null]} //color validate
+                            style={styles.formInput}  
+                            onBlur={this.onBlur}                                        //validate   
+                            onChangeText={(vehicleName) => {this.setState({vehicleName}); this.validate(this.state.vehicleName ,'vehiclename'); }}                    
+                            value={this.state.vehicleName}                                                                 
                         >Tên xe</FloatingLabel>
                         <FloatingLabel 
                             labelStyle={styles.labelInput}
-                            inputStyle={styles.input}
+                            inputStyle={[styles.input, !this.state.numbervalidate ? styles.error:null]}
                             style={styles.formInput}
                             onBlur={this.onBlur}
-                            onChangeText={(vehicleNumber) => this.setState({vehicleNumber})}
+                            onChangeText={(vehicleNumber) => {this.setState({vehicleNumber}); this.validate(this.state.vehicleNumber,'vehiclenumber'); }}
                             value={this.state.vehicleNumber}
                         >Số xe</FloatingLabel>
                         <FloatingLabel 
@@ -213,26 +277,26 @@ export default class ManageVehicle extends Component{
                         >Loại xe</FloatingLabel>
                         <FloatingLabel 
                             labelStyle={styles.labelInput}
-                            inputStyle={styles.input}
+                            inputStyle={[styles.input , !this.state.pricevalidate ? styles.error:null]}
                             style={styles.formInput}
-                            onBlur={this.onBlur}
-                            onChangeText={(rentalPrice) => this.setState({rentalPrice})}
+                            onBlur={this.onBlur} 
+                            onChangeText={(rentalPrice) =>{ this.setState({rentalPrice});this.validate(this.state.rentalPrice,'rentalprice');}}
                             value={this.state.rentalPrice}
                         >Giá cho thuê</FloatingLabel>
                         <FloatingLabel 
                             labelStyle={styles.labelInput}
-                            inputStyle={styles.input}
+                            inputStyle={[styles.input , !this.state.registrationvalidate ? styles.error:null]}
                             style={styles.formInput}
-                            onBlur={this.onBlur}
-                            onChangeText={(registrationNumber) => this.setState({registrationNumber})}
+                            onBlur={this.onBlur} 
+                            onChangeText={(registrationNumber) => {this.setState({registrationNumber}); this.validate(this.state.registrationNumber,'registrationnumber'); }}
                             value={this.state.registrationNumber}
                         >Số đăng kí</FloatingLabel>
                         <FloatingLabel 
                             labelStyle={styles.labelInput}
-                            inputStyle={styles.input}
+                            inputStyle={[styles.input , !this.state.managementvalidate ? styles.error:null]}
                             style={styles.formInput}
-                            onBlur={this.onBlur}
-                            onChangeText={(managementNumber) => this.setState({managementNumber})}
+                            onBlur={this.onBlur}                                                  //validate 
+                            onChangeText={(managementNumber) => {this.setState({managementNumber});this.validate(this.state.managementNumber,'managementnumber');}}
                             value={this.state.managementNumber}
                         >Số Quản Lý</FloatingLabel>
                         {/* <TextInput
@@ -302,10 +366,10 @@ export default class ManageVehicle extends Component{
                                 >Màu xe</FloatingLabel>
                                 <FloatingLabel 
                                     labelStyle={styles.labelInput}
-                                    inputStyle={styles.input}
+                                    inputStyle={[styles.input , !this.state.puschasevalidate ? styles.error:null]}
                                     style={styles.formInput}
                                     onBlur={this.onBlur}
-                                    onChangeText={(purchasePrice) => this.setState({purchasePrice})}
+                                    onChangeText={(purchasePrice) =>{ this.setState({purchasePrice});this.validate(this.state.purchasePrice,'purchaseprice');}}
                                     value={this.state.purchasePrice}
                                 >Giá xe</FloatingLabel>
                                 {/* <TextInput
@@ -321,13 +385,16 @@ export default class ManageVehicle extends Component{
                                     value={this.state.purchasePrice}
                                 /> */}
                             </View>
-                            <View style={styles.imageBodyView}>
-                                <TouchableOpacity style={styles.touchableContentImage} onPress={this.chooseFile.bind(this)} >
+                            <View style={styles.imageBodyView }>
+                                {/* <TouchableOpacity style={styles.touchableContentImage} onPress={this.chooseFile.bind(this)} >
                                     {this.state.filePath.uri != '' && <Image style={styles.imageStyle}
                                         source={{ uri:this.state.filePath.uri}}
                                     /> }
                                     {this.state.filePath.uri == '' && <Image style={styles.noImageStyle} source={NO_IMAGE} /> }
-                                </TouchableOpacity>
+                                </TouchableOpacity> */}
+                                <Image style={[styles.imageStyle,styles.imageStyleRight]}
+                                     source={{ uri:  (this.state.imageVehicle === ""? vehicleService + "/noimage.png": vehicleService + this.state.imageVehicle.toString())}} 
+                                />
                             </View>
                         </View>
                     </View>
@@ -351,7 +418,8 @@ export default class ManageVehicle extends Component{
                 </View>
                 <View style={styles.footerContent}>
                     <View style={styles.flexControl}>
-                        <TouchableOpacity style={styles.touchableContent} onPress={this.InsertVehicle.bind(this)}>
+                    {/* <TouchableHighlight onPress=  { this.functionOne() && this.functionTwo() }/> */}
+                        <TouchableOpacity style={styles.touchableContent} onPress={this.InsertVehicle.bind(this)  }>
                             <View>
                                 <Image
                                     style={styles.iconControl}
@@ -369,7 +437,7 @@ export default class ManageVehicle extends Component{
                                 <Text>Xóa</Text>
                             </View>
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.touchableContent} onPress={this.UpdateVehicle.bind(this)}>
+                        <TouchableOpacity style={styles.touchableContent} onPress={this.UpdateVehicle.bind(this) }>
                             <View>
                                 <Image
                                     style={styles.iconControl}
@@ -383,7 +451,14 @@ export default class ManageVehicle extends Component{
             </ScrollView>
         );
     }  
+
+    // shouldComponentUpdate() {
+    //     return false
+    //   }
+           
 }
+
+
 
 const styles = StyleSheet.create({
     mainContainer: {
@@ -488,11 +563,14 @@ const styles = StyleSheet.create({
     },
     imageStyle: {
         height:160,
-        width:'100%',
+        width:160,
     },
     noImageStyle: {
         height:160,
         width:160,
+    },
+    imageStyleRight :{
+       width:160,
     },
     touchableContentImage:{
         width:'100%',
@@ -510,4 +588,11 @@ const styles = StyleSheet.create({
         height:50,
         marginBottom:20
     },
+    error: {
+        borderRadius:2,
+        borderWidth:3,
+     //   backgroundColor:'yellow',
+        borderColor:'red'       
+    },
+
   });

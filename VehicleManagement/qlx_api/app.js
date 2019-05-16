@@ -27,6 +27,17 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+
+// app.use('/public', express.static(path.join(__dirname, 'public')));
+// var staticResource='E:/PHUNG/qlx_api/public/images';
+// app.use('/photo', express.static(path.join(staticResource, 'photo')));
+//app.use(express.static('public'));
+app.use('/photo', express.static(__dirname + '/photo/customer'));
+//app.use('/vehicle', express.static(__dirname + '/photo/vehicle'));
+app.use('/image',express.static(__dirname + '/photo'));
+//app.use('/vehicle',express.static(__dirname + '/photo'))
+
+
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 //Vehicle information

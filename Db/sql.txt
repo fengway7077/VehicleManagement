@@ -1,0 +1,3 @@
+
+
+ALTER TABLE ONLY rentaler ALTER COLUMN rentalercode SET DEFAULT nextval('rentaler_rentalercode_seq'::regclass);
