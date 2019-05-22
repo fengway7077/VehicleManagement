@@ -1,19 +1,36 @@
 var express = require('express');
 var router = express.Router();
 var pool = require('../common/database')
-var fs = require('fs')
-var app = express()
+ var fs = require('fs')
+// var app = express()
 var bodyParser = require('body-parser')
 /// create application/x-www-form-urlencoded parser
-var urlencodedParser = bodyParser.urlencoded({ extended: false })
+var urlencodedParser = bodyParser.urlencoded({ limit: '50mb', extended: false })
+
 // create application/json parser
-var jsonParser = bodyParser.json()
+//var jsonParser = bodyParser.json()
 
 //include http, fs and url module
-  var http = require('http'),
-    fs = require('fs'),
-    url = require('url');
+  // var http = require('http'),
+  //   fs = require('fs'),
+  //   url = require('url');
+  var multer = require('multer')
 
+  //upload images folder
+var storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    console.log("test");
+  cb(null, './photo/vehicle/')
+},
+filename: function (req, file, cb) {
+  cb(null,  `${file.fieldname}_${Date.now()}_${file.originalname}`)
+}
+})
+//Create an upload instance and receive a single file
+var upload = multer({ storage: storage ,limits: {
+  fileSize: 1024 * 1024 * 5
+}  })//.single('file')
+  
 //var vehiclecode = req.params.vehiclecode;
 /* Get Vehicle information listing. */
 router.get('/getVehicle', function(req, res, next) {
@@ -103,7 +120,15 @@ router.post('/editVehicle',urlencodedParser, function(req, res, next) {
 
 /*Search Vehicle information */
 router.post('/searchVehicle',urlencodedParser,function(req, res, next) {
+  // var itemPage = 3;
+  // var page = req.body.numPage;
+  // var ipage = page * itemPage
+  // var temp = []; 
+  // var temp1 =[];
+  
   var  vehicletype =  req.body.vehicletype
+  // console.log(req.body);
+  // return;
   pool.connect(function(err, client, done) {
     if(err) {
       return console.error('error fetching client from pool', err);
@@ -116,21 +141,27 @@ router.post('/searchVehicle',urlencodedParser,function(req, res, next) {
         return console.error('error running query', err);
       }
        res.json(result.rows)
-   //  res.send('Searching is a Vehicle information ');
+      // res.json(result.rowCount)
+  //  // res.send('Searching is a Vehicle information ');
+  //  for(var i = ipage ; i <= ipage + 2 ; i++){
+  //      temp.push(temp1,temp[i])
+  //  }
+  //   console.log(temp1);
+
   });
   });
  });
 
 /* Add a Vehicle information . */
-  router.post('/createVehicle',jsonParser, function(req, res, next) {
+  router.post('/createVehicle',urlencodedParser, function(req, res, next) {
         // console.log(req.body);
         // return;
      //var vehiclecode = req.body.vehiclecode;
       var vehiclenumber = req.body.vehiclenumber;
       var vehicletype = req.body.vehicletype;
       var vehiclecolor = req.body.vehiclecolor;
-      var purchaseprice = Number(req.body.purchaseprice) == NaN ? 0 : req.body.purchaseprice;
-      var rentalprice  = Number(req.body.rentalprice) == NaN ? 0 : req.body.rentalprice; 
+      var purchaseprice = ((Number(req.body.purchaseprice) == NaN) || (req.body.purchaseprice == null) ) ? 0 : req.body.purchaseprice;
+      var rentalprice  = ((Number(req.body.rentalprice) == NaN ) ||(req.body.rentalprice == null))  ? 0 : req.body.rentalprice; 
       var registrationnumber = req.body.registrationnumber;
       var managementnumber = req.body.managementnumber;
       var status  =  req.body.status; //
@@ -202,7 +233,7 @@ router.post('/removeVehicle',urlencodedParser,function(req, res, next) {
  });
 
   /*Get  records from  a Vehicle information */
-router.get('/getVehicleStatus',urlencodedParser,function(req, res, next) {
+router.get('/getVehicleStatus',function(req, res, next) {
  // var  vehiclecode =  req.body.vehiclecode
   pool.connect(function(err, client, done) {
     if(err) {
@@ -281,11 +312,33 @@ router.get('/getVehicleStatus',urlencodedParser,function(req, res, next) {
    });
 
     
-  // router.post('/',urlencodedParser,function(req, res, next) { 
-  //    // console.log(req.files);
-  //        // res.json(result.rows);  
-  //       res.send('Images information ');
-  //  });
+    
+   const uploadImage = async (req, res, next) => {
+ 
+    try {
+      // console.log( req.body);
+      // return;
+      var uriParts = req.body.path.split('.');
+      var fileType = uriParts[uriParts.length - 1]; //jpg
+      var daytime  = req.body.daytime;
+     // to declare some path to store your converted image
+     //   const path = './photo/vehicle/'+ Date.now()+'.png'
+       const path = './photo/vehicle/'+ "image-" + daytime + ".png"
+     // const imgdata =  req.body.base64image;
+       const imgdata = "data:image/png;base64," + req.body.base64image;
+         console.log("test " + imgdata)
+        // to convert base64 format into random filename
+        const base64Data = imgdata.replace(/^data:([A-Za-z-+/]+);base64,/, '');
+        console.log("base64Data" + imgdata)
+        fs.writeFileSync(path, base64Data,  {encoding: 'base64'});
+ 
+        return res.send(path);
+ 
+    } catch (e) {
+        next(e);
+    }
+}
+router.post('/upload', uploadImage)
 
-   
+
 module.exports = router;
