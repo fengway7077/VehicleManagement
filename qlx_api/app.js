@@ -4,7 +4,7 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
-var formidable = require('express-formidable'); //upload images
+//var formidable = require('express-formidable'); //upload images
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -22,6 +22,12 @@ var rentaler = require('./routes/rentaler');
 
 var app = express();
 
+var multer = require('multer')
+var fileUpload = require('express-fileupload');
+var cors = require('cors');
+app.use(cors())
+app.use(fileUpload());
+app.use('/public', express.static(__dirname + '/public'));
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
@@ -43,7 +49,8 @@ app.use('/photo', express.static(__dirname + '/photo/customer'));
 app.use('/image',express.static(__dirname + '/photo'));
 //app.use('/vehicle',express.static(__dirname + '/photo'))
 
- app.use(formidable({uploadDir:'./photo/vehicle'}));//upload image
+ //app.use(formidable({uploadDir:'./photo/vehicle'}));//upload image
+
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);

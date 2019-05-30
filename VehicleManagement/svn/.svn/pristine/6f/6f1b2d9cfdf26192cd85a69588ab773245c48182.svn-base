@@ -1,0 +1,31 @@
+/**
+ * Sample React Native App
+ * https://github.com/facebook/react-native
+ *
+ * @format
+ * @flow
+ */
+
+import React, { Component } from 'react';
+import {StyleSheet, View,Image,TouchableOpacity} from 'react-native';
+// import ManageCar from './component/ManageCar.js';
+// import ManageCustomer from './component/ManageCustomer.js';
+// import RentalHistory from './component/RentalHistory.js';
+// import RepairCarHistory from './component/RepairCarHistory.js';
+// import VehicleStatus from './component/VehicleStatus.js';
+// import VehicleFees from './component/VehicleFees.js';
+import MenuDrawer from './component/MenuDrawer.js';
+// // import {createDrawerNavigator, createStackNavigator, createAppContainer, SafeAreaView, DrawerItems} from 'react-navigation';
+// // import { DRAWER_IMAGE ,MOTOBIKE_IMAGE,CUSTOMER_IMAGE,RENTAL_IMAGE,REPAIR_IMAGE, MESSAGE_IMAGE, CLOCK_IMAGE,ICONMENU_IMAGE} from './component/imageExport.js';
+// // import { ScrollView } from 'react-native-gesture-handler';
+
+export default class App extends Component {
+  render() {
+    return (
+      <MenuDrawer />
+    );
+  }
+}
+
+
+

@@ -1,11 +1,13 @@
 import React, { Component } from 'react';
-import { View,Text,StyleSheet,Image,FlatList,TextInput,Picker,TouchableOpacity } from 'react-native';
+import { View,Text,StyleSheet,Image,FlatList,TextInput,Picker,TouchableOpacity ,RefreshControl ,Alert,ActivityIndicator,ListView} from 'react-native';
 import { createAppContainer, createStackNavigator } from 'react-navigation';
 import { ScrollView } from 'react-native-gesture-handler';
 import { SEARCH_IMAGE } from './imageExport.js'
-import ManageVehicle from './ManageVehicle.js'
+import VehicleRegistration from './VehicleRegistration.js'
 import { LinkListVehicle,LinkSearchListVehicle ,vehicleService} from '../constLink/linkService.js'
-
+import { List, ListItem, SearchBar } from "react-native-elements";
+import Swipeout from "react-native-swipeout"
+// import { type } from 'os';
 class ListVehicle extends Component{
     constructor(props) {
         super(props);
@@ -13,7 +15,17 @@ class ListVehicle extends Component{
             tempImage: '',
             isLoading: true,
             search: '',
+            refreshing: false,
+            activeRowKey:null,          
+          ////  pageIndex: 0,
+            dataSource: [],
+            offsetData: 0,
+            fetching_from_server: false,
+            isListEnd :false,
+            error: null,
         };
+      //  offsetData: 0; //Index of the offset to load from web API
+     ///    this.updateSearch();
     }
 
     getDataVehicle(){
@@ -23,6 +35,7 @@ class ListVehicle extends Component{
         this.setState({
             isLoading: false,
             dataSource: responseJson,
+           // refreshing: false,
         }, function(){
 
         });
@@ -34,10 +47,17 @@ class ListVehicle extends Component{
     }
 
     componentDidMount(){
-        this.getDataVehicle();
+       
+        if (this.state.search == ""){        
+           this.getDataVehicle();
+        }else{
+           this.updateSearch();
+        }
     }   
     
     updateSearch = search => {
+          const{offsetData} =this.state;//
+          this.setState({ loading: true });//
         this.setState({ search }, () => {
             fetch(LinkSearchListVehicle, {
                 method: "POST",
@@ -46,26 +66,173 @@ class ListVehicle extends Component{
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    "vehicletype": this.state.search
+                    "vehicletype": this.state.search,
+                     pageIndex: this.state.offsetData,
                 }),
             }).then((response) => response.json())
-            .then((responseJson) => {
+            .then((responseJson) => {              
                 this.setState({
-                    isLoading: false,
-                    dataSource: responseJson,
+                    dataSource: responseJson, 
+                 //  dataSource: responseJson.rows,
+                //   dataSource: this.state.offsetData === 0 ? responseJson.rows :[...this.state.dataSource, ...responseJson.rows ], 
+                   isLoading: false,
+                   refreshing: false,
                 });
             })
             .catch((error) => {
               console.error(error);
+              this.setState({ error, loading: false });
             });
         });
     };
+
+
+    // updateSearch = search => {
+    //     console.log("test");
+      
+    //  if (!this.state.fetching_from_server && !this.state.isListEnd) {
+    //     this.setState({ fetching_from_server: true });
+    //     this.setState({ search }, () => {
+    //         fetch(LinkSearchListVehicle, {
+    //             method: "POST",
+    //             headers: {
+    //                 'Accept': 'application/json',
+    //                 'Content-Type': 'application/json',
+    //             },
+    //             body: JSON.stringify({
+    //                 "vehicletype": this.state.search,
+    //                  pageIndex: this.state.offsetData,
+    //             }),
+    //         }).then((response) => response.json())
+    //         .then((responseJson) => {
+    //              if(responseJson.rows.length > 1){
+    //                  this.offsetData = this.offsetData + 5; ////Successful response from the API Call
+    //             this.setState({
+    //                 fetching_from_server: false,
+    //                 dataSource:  [...this.state.dataSource, ...responseJson.rows],
+    //              //   refreshing: false,
+    //             });
+    //           }else{
+    //             this.setState({
+    //                 fetching_from_server: false,
+    //                 isListEnd: true,
+    //               });
+    //           }
+        
+    //         })
+    //         .catch((error) => {
+    //           console.error(error);
+    //         });
+    //     });
+    //  } //end if
+    // };
     
+    // _onRefresh=()=>{
+    //    // console.warn("test12");
+    //     this.setState({refreshing: true ,
+
+    //        // offsetData : this.state.offsetData + 5,
+    //     });
+       
+    //    console.warn( "test88" + this.state.search);
+	// 	// this.updateSearch().then(() =>{
+	// 	// 	this.setState({refreshing: false})
+    //     // });
+    //    setTimeout(() => this.setState({ refreshing: false,
+    //      // offsetData : this.state.offsetData + 5 ,
+    //     }), 5000);
+    //   this.updateSearch();
+    
+	// }
+
+    handleRefresh = () => {
+        var offsetData_  = this.state.offsetData != 0 ? 0 : this.state.offsetData -5;
+        this.setState(
+          {
+            offsetData: offsetData_,
+            refreshing: true,
+          },
+        //   () => {
+        //     this.updateSearch();
+        //   }
+        );
+      };
+    handleLoadMore = () => {  
+        this.setState(    {
+            offsetData: this.state.offsetData + 5
+          },
+          () => {
+            this.updateSearch();
+          }
+        );
+      };
+
+    // renderHeader = () => {
+    //     return <SearchBar placeholder="Type Here..." lightTheme round />;
+    //   };
+    renderSeparator = () => {
+        return (
+          <View
+            style={styles.renderSeparator}
+          />
+        );
+      };
+      renderFooter = () => {
+        if (!this.state.fetching_from_server) return null;  
+        return (
+          <View style={ styles.renderFooter }  >
+            <ActivityIndicator animating size="large"  style={{ margin: 15 }} />
+          </View>
+        );
+      };
+
     render(){
         const { search } = this.state;
         const { navigate } = this.props.navigation;
+        // const swipeSetting = {
+        //     autoClose :true,
+        //     onClose:(secId,rowId,direction)=>{
+        //         if(this.state.activeRowKey != null){
+        //             this.setState({activeRowKey:null})
+        //         }
+
+        //     },
+        //     onOpen:(secId,rowId,direction)=>{
+        //          this.setState({activeRowKey:this.props.item.vehiclecode});  //key
+        //     },
+        //     right:[ 
+        //         {
+        //             onPress:()=>{
+        //                 Alert.alert(
+        //                     'Alert',
+        //                     'Are you sure you want to delete?',
+        //                     [
+        //                       {text:'No' ,onPress:()=>console.log('Cancel Pressed'),style:'cancel'},  
+        //                       {text:'Yes',onPress:()=>{
+        //                           flatListData.splice(this.props.index,1);//remove object from an Array
+        //                       }},
+        //                     ],
+        //                     {cancelable:true}
+        //                 );
+
+        //             },
+        //             text:'Delete', type:'delete'
+        //         }       
+        //     ],
+        //     rowId:this.props.index,
+        //     sectionId:1
+        // };
+
+        // if (this.state.isLoading) {
+        //     return (
+        //       <View style={{flex: 1, paddingTop: 20}}>
+        //         <ActivityIndicator />
+        //       </View>
+        //     );
+        //   }
+     
         return(
-            <ScrollView style={styles.mainContainer}>
+            <ScrollView style={styles.mainContainer}  >
                 <View style={styles.contentSearch}>
                     <View style={styles.contentChildSearch}>
                         <Image style={styles.iconInputSearch} source={SEARCH_IMAGE}/>
@@ -76,16 +243,19 @@ class ListVehicle extends Component{
                             value={search}
                         />
                     </View>
-                </View>
-               
+                </View>   
                 <View style={styles.bodyContent}>
+                {/* {this.state.loading ? (
+                 <ActivityIndicator size="large" />
+                  ) : ( */}
                     <FlatList
                         style={styles.flatStyle}
                         data={this.state.dataSource}
                         renderItem={({item}) =>
                             <TouchableOpacity style={styles.touchableStyle}
                                 onPress={
-                                    () => navigate('ManageVehicle',
+                                 //  () => navigate('ManageVehicle',
+                                    () => navigate('VehicleRegistration',
                                         { 
                                             params: { 
                                                 item,
@@ -96,6 +266,7 @@ class ListVehicle extends Component{
                                         }
                                     )
                                 }>
+                                {/* <Swipeout {...swipeSetting}>     */}
                                 <View style={styles.bodyListView}>
                                     <View style={styles.listViewChild}>
                                         <View style={styles.listViewChildLeft}>
@@ -124,10 +295,34 @@ class ListVehicle extends Component{
                                         </View>
                                     </View>
                                 </View>
+                                {/* </Swipeout> */}
                             </TouchableOpacity>
                         }
                         keyExtractor={({vehiclecode}, index) => vehiclecode.toString()}
+                        // refreshControl={
+                        //     <RefreshControl
+                        //     onRefresh={this.handleRefresh}
+                        //     refreshing = {this.state.refreshing}
+                        //     onEndReached={this.handleLoadMore}
+                        //     tintColor="#ff0000"
+                        //      title="Loading..."
+                        //      titleColor="#00ff00"
+                        //      colors={["red", "green", "blue"]}
+                        //      progressBackgroundColor="#ffff00" 
+                        //    //  onEndThreshold={0}  
+                        //     //  pagingEnabled={true} 
+                        //     />
+                        // }
+                        
+                        //  ItemSeparatorComponent={this.renderSeparator}
+                        // // // ListHeaderComponent={this.renderHeader}
+                        //  ListFooterComponent={this.renderFooter}
+                        //  onRefresh={this.handleRefresh}
+                        //  refreshing={this.state.refreshing}
+                        //  onEndReached={this.handleLoadMore}
+                        //  onEndReachedThreshold={50}
                     />
+                    {/* )}  */}
                 </View>
             </ScrollView>
         );
@@ -147,10 +342,10 @@ const RootContent = createStackNavigator(
                 headerTintColor: 'white',
             },
         },
-        ManageVehicle: {
-            screen: ManageVehicle,
+        VehicleRegistration: {
+            screen: VehicleRegistration,
             navigationOptions: {
-                title: 'ManageVehicle',
+                title: 'VehicleRegistration',
                 headerStyle: {
                   backgroundColor: '#FF9800',
                   textAlignVertical: "center",
@@ -282,5 +477,16 @@ const styles = StyleSheet.create({
         fontSize:20,
         height:50,
         marginBottom:20
+    },
+    renderSeparator:{
+        height: 1,
+        width: "86%",
+        backgroundColor: "#CED0CE",
+        marginLeft: "14%"
+    },
+    renderFooter:{
+        paddingVertical: 20,
+        borderTopWidth: 1,
+        borderColor: "#CED0CE"
     },
 })

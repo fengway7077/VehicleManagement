@@ -1,0 +1,8 @@
+const linkService = 'http://192.168.11.128:3333/'
+export const LinkVehicleStatus = linkService + 'vehiclerentalhistory/getListVehiclerental'
+export const LinkVehicleFees = linkService + 'vehiclerentalhistory/getListVehiclerental'
+// export const SearchVehicleFees = linkService + 'vehiclerentalhistory/getListVehiclerental'
+export const LinkListCustomer = linkService + 'customer/getcustomer'
+export const LinkSearchListCustomer = linkService + 'customer/getcustomer'
+export const LinkListVehicle = linkService + 'vehicledetails/getVehicle'
+export const LinkSearchListVehicle = linkService + 'vehicledetails/searchVehicle'

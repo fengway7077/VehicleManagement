@@ -1,0 +1,407 @@
+import React, { Component } from 'react';
+import {TextInput,View,Text,StyleSheet,Image,TouchableOpacity} from 'react-native';
+import { DELETE_IMAGE,INSERT_IMAGE,UPDATE_IMAGE  } from "./imageExport.js";
+import { ScrollView } from 'react-native-gesture-handler';
+import {LinkCheckDataCustomer,
+        LinkCheckDataVehicle,
+        LinkListVehicle,
+        LinkListCustomer,
+        LinkInsertRentalHistory,
+        LinkUpdateRentalHistory} from '../constLink/linkService.js';
+import AutoCompleteCustomer from './AutoCompleteCustomer.js';
+import AutoCompleteVehicle from './AutoCompleteVehicle';
+export default class RentalHistory extends Component {
+    constructor(props) {
+        super(props);
+        params = this.props.navigation.getParam('params', null);
+        if(params === null){
+            this.state = { 
+                vehicleCode    : '',
+                vehicleName    : '',
+                customerCode   : '',
+                customerName   : '',
+                phone          : '',
+                price          : '',
+                rentDate       : '',
+                payDate        : '',
+                collectionDate : '',
+                vehicleSuggest : ''
+            };
+        }
+        else
+        {
+            item = params.item
+            var nowDate = new Date(Date.now());
+            var payDate = new Date(item.payday);
+            this.state = { 
+                vehicleCode    : item.vehiclecode.toString(),
+                vehicleName    : item.vehiclename,
+                customerCode   : item.customercode.toString(),
+                customerName   : item.fullname,
+                phone          : item.phone,
+                price          : item.rentalprice,
+                rentDate       : item.rentaldate,
+                payDate        : item.payday,
+                collectionDate : (payDate.getUTCDate()- nowDate.getUTCDate()).toString(),      
+            };
+        }
+    }
+
+    checkDataVehicle(query){
+        fetch(LinkCheckDataVehicle, {
+            method: "POST",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                "vehiclecode" : query,
+            }),
+            
+        }).then((response) => response.json())
+        .then((responseJson) => {
+            if(responseJson.length === 1){
+                this.setState({
+                    vehicleName : responseJson[0].vehiclename,
+                    vehicleCode : query
+                });
+            }
+            else{
+                alert("Mã Xe Không Tồn Tại");
+            }
+            return;
+        })
+        .catch((error) => {
+            console.error(error);
+        });
+    }
+
+    checkDataCustomer(query){
+        fetch(LinkCheckDataCustomer, {
+            method: "POST",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                "customercode" : query,
+            }),
+        }).then((response) => response.json())
+        .then((responseJson) => {
+            if(responseJson.length === 1){
+                this.setState({
+                    customerName : responseJson[0].fullname,
+                    customerCode : query
+                });
+            }
+            else{
+                alert("Mã Khách Hàng Không Tồn Tại");
+            }
+            return;
+        })
+        .catch((error) => {
+            console.error(error);
+        });
+    }
+
+    updateRentalHistory(){
+        fetch(LinkUpdateRentalHistory, {
+            method: "POST",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                "vehiclecode"    : this.state.vehicleCode,
+                "customercode"   : this.state.customerCode,
+                "rentaldate"     : this.state.rentDate,
+                "payday"         : this.state.payDate,    
+            }),
+        }).then((response) => response.json())
+        .then((responseJson) => {
+            console.log(responseJson)
+            if(responseJson.rowCount === 1){
+                alert("Sửa Thành Công",params.reFetchVehicleFees(),this.props.navigation.navigate('VehicleFees'));
+            }
+            else
+            {
+                alert("Dữ liệu sửa không tồn tại")
+            }
+            return;
+        })
+        .catch((error) => {
+            console.error(error);
+        });
+    }
+
+    insertRentalHistory(){
+        console.log(this.state.customerCode)
+        console.log(this.state.vehicleCode)
+        fetch(LinkInsertRentalHistory, {
+            method: "POST",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                "vehiclecode"    : this.state.vehicleCode,
+                "customercode"   : this.state.customerCode,
+                "rentaldate"     : this.state.rentDate,
+                "payday"         : this.state.payDate,  
+            }),
+        }).then((response) => response.json())
+        .then((responseJson) => {
+            console.log(responseJson)
+            if(responseJson.rowCount === 1){
+                alert("Thêm Thành Công",params.reFetchVehicleFees(),this.props.navigation.navigate('VehicleFees'));
+            }
+            else
+            {
+                alert("Trùng Dữ liệu thêm")
+            }
+            return;
+        })
+        .catch((error) => {
+            console.error(error);
+        });
+    }
+
+    render(){
+        return(
+            <ScrollView style={styles.mainContainer}>
+                <View style={styles.bodyContent}>
+                    <View style={styles.bodyView}>
+                        <AutoCompleteVehicle
+                            value={this.state.vehicleCode}
+                            link={LinkListVehicle}
+                            checkCode={
+                                ((code) => {
+                                    this.checkDataVehicle(code)
+                                }).bind(this)
+                            }
+                        />
+                        {/* <TextInput
+                            style={styles.inputStyleFull}
+                            onChangeText={(vehicleCode) => this.setState({vehicleCode})}
+                            placeholder ='Mã Xe...'
+                            value={this.state.vehicleCode}
+                            onBlur={this.checkVehicleCode}
+                        /> */}
+                    </View>
+                    <View style={styles.bodyView}>
+                        <TextInput
+                            style={styles.inputStyleGuessVehicle}
+                            onChangeText={(vehicleName) => this.setState({vehicleName})}
+                            placeholder ='Tên Xe...'
+                            value={this.state.vehicleName}
+                            editable={false}
+                        />
+                    </View>
+                    <View style={styles.bodyView}>
+                        <AutoCompleteCustomer
+                            value={this.state.customerCode}
+                            link={LinkListCustomer}
+                            checkCode={
+                                ((code) => {
+                                    this.checkDataCustomer(code)
+                                }).bind(this)
+                            }
+                        />
+                    </View>
+                    <View style={styles.bodyView}>
+                        <TextInput
+                            style={styles.inputStyleGuess}
+                            onChangeText={(customerName) => this.setState({customerName})}
+                            placeholder ='Tên Khách Hàng...'
+                            value={this.state.customerName}
+                            editable={false} selectTextOnFocus={false}
+                        />
+                    </View>
+                    <View style={styles.bodyView}>
+                        <TextInput
+                            style={styles.inputStyleFull}
+                            onChangeText={(phone) => this.setState({phone})}
+                            placeholder ='Số Điện Thoại...'
+                            value={this.state.phone}
+                        />
+                    </View>
+                    <View style={styles.bodyView}>
+                        <View style={styles.bodyViewChild}>
+                            <TextInput
+                                style={styles.inputStylePrice}
+                                onChangeText={(price) => this.setState({price})}
+                                placeholder ='Giá cho thuê...'
+                                value={this.state.price}
+                            />
+                            <TextInput
+                                style={styles.inputStyleCollection}
+                                onChangeText={(collectionDate) => this.setState({collectionDate})}
+                                placeholder ='Số ngày còn lại...'
+                                value={this.state.collectionDate}
+                                editable={false} selectTextOnFocus={false}
+                            />
+                        </View>
+                    </View>
+                    <View style={styles.bodyView}>
+                        <TextInput
+                            style={styles.inputStyleFull}
+                            onChangeText={(rentDate) => this.setState({rentDate})}
+                            placeholder ='Ngày Thuê...'
+                            value={this.state.rentDate}
+                        />
+                    </View>
+                    <View style={styles.bodyView}>
+                        <TextInput
+                            style={styles.inputStyleFull}
+                            onChangeText={(payDate) => this.setState({payDate})}
+                            placeholder ='Ngày Trả...'
+                            value={this.state.payDate}
+                        />
+                    </View>
+                </View>
+                <View style={styles.footerContent}>
+                    <View style={styles.flexControl}>
+                        <TouchableOpacity style={styles.touchableContent} onPress={this.insertRentalHistory.bind(this)}>
+                            <View>
+                                <Image
+                                    style={styles.iconControl}
+                                    source={INSERT_IMAGE}
+                                />  
+                                <Text>Thêm</Text>
+                            </View>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.touchableContent}>
+                            <View>
+                                <Image
+                                    style={styles.iconControl}
+                                    source={DELETE_IMAGE}
+                                />   
+                                <Text>Xóa</Text>
+                            </View>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.touchableContent} onPress={this.updateRentalHistory.bind(this)}>
+                            <View>
+                                <Image
+                                    style={styles.iconControl}
+                                    source={UPDATE_IMAGE}
+                                />
+                                <Text>Sửa</Text>
+                            </View>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </ScrollView>
+        );
+    }
+}
+
+const styles = StyleSheet.create({
+    mainContainer: {
+        marginTop: 20,
+        flex: 1,
+    },
+    headerContent:
+    {
+        alignItems:'center',
+    },
+    bodyContent:
+    {
+        justifyContent:'center',
+        flexDirection:'column',
+        alignItems:'center',
+    },
+    footerContent:
+    {
+        height:60,
+        alignItems:'center',
+        justifyContent:'center',
+    },
+    bodyView:{
+        width:'85%',
+        alignItems: 'center',
+        justifyContent:'center',
+    },
+    bodyViewChild:{
+        width:'100%',
+        flexDirection:'row',
+        justifyContent:'space-between'
+    },
+    inputStylePrice:{
+        height: 40,
+        width:'45%',
+        borderWidth:1,
+        borderColor: '#428AF8',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom:10,
+        borderRadius:1
+    },
+    inputStyleCollection:{
+        width:'50%',
+        height: 40,
+        borderWidth:1,
+        borderColor: '#228b22',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom:10,
+        borderRadius:1
+    },
+    flexControl:{
+        width:'85%',
+        flexDirection:'row',
+        justifyContent:'space-between',
+        position: 'absolute',
+    },
+    touchableContent:{
+        width:'33%',
+        height:60,
+        backgroundColor: '#FF9800', 
+        justifyContent: 'center', 
+        alignItems: 'center',
+        bottom: 0
+    },
+    iconControl:{
+        width:30,
+        height:30
+    },
+    inputStyleFull: {
+        height: 40,
+        width:'100%',
+        borderWidth:1,
+        borderColor: '#428AF8',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom:10,
+        borderRadius:1
+    },
+    inputStyleGuess: {
+        height: 40,
+        width:'100%',
+        borderWidth:1,
+        borderColor: '#228b22',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom:10,
+        borderRadius:1
+    },
+    inputStyleGuessVehicle: {
+        height: 40,
+        width:'100%',
+        borderWidth:1,
+        borderColor: '#228b22',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius:1
+    },
+    textStyle: {
+        width:'100%',
+        textAlign: 'center',
+        color: 'white',
+        marginBottom: 5,
+        backgroundColor:'green',
+        textAlignVertical: "center",
+        fontSize:20,
+        height:50,
+        marginBottom:20
+    },
+})

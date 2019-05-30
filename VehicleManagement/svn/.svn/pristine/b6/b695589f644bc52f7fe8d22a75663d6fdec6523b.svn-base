@@ -1,0 +1,12 @@
+const linkService = 'http://192.168.11.128:3333/'
+export const LinkListCustomer = linkService + 'customer/getcustomer'
+export const LinkSearchListCustomer = linkService + 'customer/getcustomer'
+export const LinkListVehicle = linkService + 'vehicledetails/getVehicle'
+export const LinkSearchListVehicle = linkService + 'vehicledetails/searchVehicle'
+export const LinkVehicleFees = linkService + 'vehiclerentalhistory/getListVehiclerental'
+export const LinkSearchVehicleFees = linkService + 'vehiclerentalhistory/searchListVehiclerental'
+export const LinkVehicleStatus = linkService + 'vehiclerentalhistory/getListVehiclerental'
+export const LinkSearchVehicleStatus = linkService + 'Vehiclerepairhistory/searchListVehiclestatus'
+
+//Them KH
+export const LinkInsertCustomer = linkService + 'customer/createCustomer'

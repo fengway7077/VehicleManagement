@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import {StyleSheet, View,TouchableOpacity,Image,Text} from 'react-native';
 import {createDrawerNavigator, createStackNavigator, createAppContainer,DrawerItems, SafeAreaView,ScrollView } from 'react-navigation';
-import { DRAWER_IMAGE ,MOTOBIKE_IMAGE,CUSTOMER_IMAGE,RENTAL_IMAGE,REPAIR_IMAGE, MESSAGE_IMAGE, CLOCK_IMAGE,ICONMENU_IMAGE,CALENDAR_IMAGE} from './imageExport.js';
+import { DRAWER_IMAGE ,VEHICLE1_IMAGE,MOTOBIKE_IMAGE,CUSTOMER_IMAGE,RENTAL_IMAGE,REPAIR_IMAGE, MESSAGE_IMAGE, CLOCK_IMAGE,ICONMENU_IMAGE,CALENDAR_IMAGE,REGISTER_IMAGE} from './imageExport.js';
 import ManageVehicle from './ManageVehicle.js';
 import ManageCustomer from './ManageCustomer.js';
 import RentalHistory from './RentalHistory.js';
@@ -10,6 +10,7 @@ import VehicleFees from './VehicleFees.js';
 import VehicleStatus from './VehicleStatus.js';
 import ListVehicle from './ListVehicle.js';
 import ListCustomer from './ListCustomer.js';
+import VehicleRegistration from './VehicleRegistration.js';
 import CalendarPickerContent from './CalendarPickerContent.js';
 class MenuDrawer extends Component {
   toggleDrawer = () => {
@@ -31,6 +32,7 @@ class MenuDrawer extends Component {
 }
 
 const ManageVehicle_Screen = createStackNavigator({
+  
   First: {
     screen: ManageVehicle,
     navigationOptions: ({ navigation }) => ({
@@ -168,11 +170,26 @@ const VehicleStatus_Screen = createStackNavigator({
   },
 });
 
-const CalendarPickerContent_Screen = createStackNavigator({
-  Six: {
-    screen: CalendarPickerContent,
+// const CalendarPickerContent_Screen = createStackNavigator({
+//   Seven: {
+//     screen: CalendarPickerContent,
+//     navigationOptions: ({ navigation }) => ({
+//       title: 'CalendarPicker',
+//       headerLeft: <MenuDrawer navigationProps={navigation} />,
+//       headerStyle: {
+//         backgroundColor:'#FF9800',
+//         textAlignVertical: "center",
+//       },
+//       headerTintColor: 'white',
+//     }),
+//   },
+// });
+
+const VehicleRegistration_Screen = createStackNavigator({
+  Eight: {
+    screen: VehicleRegistration,
     navigationOptions: ({ navigation }) => ({
-      title: 'CalendarPicker',
+      title: 'VehicleRegistration',
       headerLeft: <MenuDrawer navigationProps={navigation} />,
       headerStyle: {
         backgroundColor:'#FF9800',
@@ -202,7 +219,7 @@ const DrawerNavigator_Screen = createDrawerNavigator({
       drawerLabel: 'ManageVehicle',
       drawerIcon: ({ tintColor }) => (
         <Image
-          source={MOTOBIKE_IMAGE}
+          source={VEHICLE1_IMAGE}
           style={[styles.icon, {tintColor: tintColor}]}
         />
       ),
@@ -300,19 +317,35 @@ const DrawerNavigator_Screen = createDrawerNavigator({
     },
   },
 
-  CalendarPickerContent: {
-    screen: CalendarPickerContent_Screen,
+  // CalendarPickerContent: {
+  //   screen: CalendarPickerContent_Screen,
+  //   navigationOptions: {
+  //     drawerLabel: 'CalendarPicker',
+  //     drawerIcon: ({ tintColor }) => (
+  //       <Image
+  //         source={CALENDAR_IMAGE}
+  //         style={[styles.icon, {tintColor: tintColor}]}
+  //       />
+  //     ),  
+  //   },
+  // },
+
+  VehicleRegistration: {
+    screen: VehicleRegistration_Screen,
     navigationOptions: {
-      drawerLabel: 'CalendarPicker',
+      drawerLabel: 'VehicleRegistration',
       drawerIcon: ({ tintColor }) => (
         <Image
-          source={CALENDAR_IMAGE}
+          source={REGISTER_IMAGE}
           style={[styles.icon, {tintColor: tintColor}]}
         />
       ),  
     },
   },
+
 },
+
+
 {
   contentComponent:headerMenuDrawer
 });

@@ -14,5 +14,10 @@ https://aboutreact.com/example-of-react-native-autocomplete-input/
 npm install react-native-autocomplete-input --save
 
 
-//upload images
+//upload images error
 npm install express-formidable
+
+//server
+npm i multer cors nodemon –save
+//client
+ npm install axios

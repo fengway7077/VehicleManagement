@@ -1,5 +1,5 @@
-const linkService = 'http://192.168.11.129:3333/'
 
+const linkService = 'http://192.168.11.129:3333/'
 //const linkService = 'http://116.193.74.82:8099/'
 
 export const vehicleService = linkService + 'image/vehicle/'
@@ -10,6 +10,7 @@ export const LinkListVehicle = linkService + 'vehicledetails/getVehicle'
 export const LinkVehicleFees = linkService + 'vehiclerentalhistory/getListVehiclerental'
 export const LinkVehicleStatus = linkService + 'vehiclerentalhistory/getListVehiclerental'
 //export const LinkVehicleList = linkService + 'Vehiclerepairhistory/getListVehiclerepair'
+export const LinkVehicleInfo = linkService + 'vehicledetails/getVehicleInfo'
 //Search
 export const LinkSearchListCustomer = linkService + 'customer/searchCustomer'
 export const LinkSearchListVehicle = linkService + 'vehicledetails/searchVehicle'
@@ -37,4 +38,6 @@ export const LinkCheckDataCustomer = linkService + 'customer/checkCustomer'
 export const LinkCheckDataVehicle = linkService + 'vehicledetails/checkVehicle'
 export const LinkCheckVehicleRental = linkService + 'vehiclerentalhistory/checkVehiclerental'
 
+//upload image
+export const LinkUploadImage = linkService + 'vehicledetails/upload'
 //export const images = linkService + ''

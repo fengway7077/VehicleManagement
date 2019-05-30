@@ -14,22 +14,22 @@ var urlencodedParser = bodyParser.urlencoded({ limit: '50mb', extended: false })
   // var http = require('http'),
   //   fs = require('fs'),
   //   url = require('url');
-  var multer = require('multer')
+//   var multer = require('multer')
 
-  //upload images folder
-var storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    console.log("test");
-  cb(null, './photo/vehicle/')
-},
-filename: function (req, file, cb) {
-  cb(null,  `${file.fieldname}_${Date.now()}_${file.originalname}`)
-}
-})
-//Create an upload instance and receive a single file
-var upload = multer({ storage: storage ,limits: {
-  fileSize: 1024 * 1024 * 5
-}  })//.single('file')
+//   //upload images folder
+// var storage = multer.diskStorage({
+//   destination: function (req, file, cb) {
+//     console.log("test");
+//   cb(null, './photo/vehicle/')
+// },
+// filename: function (req, file, cb) {
+//   cb(null,  `${file.fieldname}_${Date.now()}_${file.originalname}`)
+// }
+// })
+// //Create an upload instance and receive a single file
+// var upload = multer({ storage: storage ,limits: {
+//   fileSize: 1024 * 1024 * 5
+// }  })//.single('file')
   
 //var vehiclecode = req.params.vehiclecode;
 /* Get Vehicle information listing. */
@@ -147,7 +147,7 @@ router.post('/searchVehicle',urlencodedParser,function(req, res, next) {
   //      temp.push(temp1,temp[i])
   //  }
   //   console.log(temp1);
-
+   
   });
   });
  });
@@ -314,7 +314,7 @@ router.get('/getVehicleStatus',function(req, res, next) {
     
     
    const uploadImage = async (req, res, next) => {
- 
+
     try {
       // console.log( req.body);
       // return;
@@ -339,6 +339,75 @@ router.get('/getVehicleStatus',function(req, res, next) {
     }
 }
 router.post('/upload', uploadImage)
+
+
+
+// // /* test Search Vehicle information */
+// router.post('/searchVehicle',urlencodedParser,function(req, res, next) {
+  
+//   var pageIndex =  req.body.pageIndex;
+//   // var page = req.body.numPage;
+//   // var ipage = page * itemPage
+//   // var temp = []; 
+//   // var temp1 =[];
+  
+//   var  vehicletype =  req.body.vehicletype
+//   console.log(req.body);
+//   //return;
+//   pool.connect(function(err, client, done) {
+//     if(err) {
+//       return console.error('error fetching client from pool', err);
+//     }  
+//     client.query(` SELECT * FROM vehicledetails
+//                     WHERE vehicletype ILIKE '%${vehicletype}%'  
+//                     ORDER BY  vehiclecode ASC
+//                     LIMIT 5  
+//                     OFFSET '${pageIndex}' ROWS        
+//                       `,  function(err, result) {
+//      done(err);
+//       if(err) {
+//         return console.error('error running query', err);
+//       }
+//    //  res.json(result.rows) //
+//       res.json(result)
+//   //  // res.send('Searching is a Vehicle information ');
+//   //  for(var i = ipage ; i <= ipage + 2 ; i++){
+//   //      temp.push(temp1,temp[i])
+//   //  }
+//   //   console.log(temp1);
+
+//   });
+//   });
+//  });
+
+router.get('/getVehicleInfo', function(req, res, next) {
+  pool.connect(function(err, client, done) {
+    if(err) {
+      return console.error('error fetching client from pool', err);
+    }
+    //use the client for executing the query
+      client.query(`SELECT COUNT(1) FILTER (WHERE status = '0') AS countempty,
+                        COUNT(1) FILTER (WHERE status = '1') AS countrepair,
+                        COUNT(1) FILTER (WHERE status = '2') AS countretal,
+                        SUM(rentalprice)   FILTER (WHERE status = '0') AS  sumemptyrental,
+                        SUM(rentalprice)   FILTER (WHERE status = '1') AS  sumrepairrental,
+                        SUM(rentalprice)   FILTER (WHERE status = '2') AS  sumretalrental,
+                        SUM(purchaseprice)   FILTER (WHERE status = '0') AS  sumemptypurchase,
+                        SUM(purchaseprice)   FILTER (WHERE status = '1') AS  sumrepairpurchase,
+                        SUM(purchaseprice)   FILTER (WHERE status = '2') AS  sumretalpurchase
+                        FROM vehicledetails
+           `,  function(err, result) {
+      //call `done(err)` to release the client back to the pool (or destroy it if there is an error)
+      done(err);
+      if(err) {
+        return console.error('error running query', err);
+      }
+         res.json(result.rows)
+     //  res.send('Vehicle information : ' + vehicle );
+    });
+  });
+
+});
 
 
 module.exports = router;

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>logFormatVersion</key>
+	<integer>9</integer>
+	<key>logs</key>
+	<dict>
+		<key>D89C4EE5-2F95-42E6-B0B5-E3CC8EF39F04</key>
+		<dict>
+			<key>className</key>
+			<string>IDECommandLineBuildLog</string>
+			<key>documentTypeString</key>
+			<string>&lt;nil&gt;</string>
+			<key>domainType</key>
+			<string>Xcode.IDEActivityLogDomainType.BuildLog</string>
+			<key>fileName</key>
+			<string>D89C4EE5-2F95-42E6-B0B5-E3CC8EF39F04.xcactivitylog</string>
+			<key>highLevelStatus</key>
+			<string>S</string>
+			<key>schemeIdentifier-containerName</key>
+			<string>QuanLyXe project</string>
+			<key>schemeIdentifier-schemeName</key>
+			<string>QuanLyXe</string>
+			<key>schemeIdentifier-sharedScheme</key>
+			<integer>1</integer>
+			<key>signature</key>
+			<string>Building project QuanLyXe with scheme QuanLyXe and configuration Debug</string>
+			<key>timeStartedRecording</key>
+			<real>576669501.25540495</real>
+			<key>timeStoppedRecording</key>
+			<real>576669535.54505897</real>
+			<key>title</key>
+			<string>Building project QuanLyXe with scheme QuanLyXe and configuration Debug</string>
+			<key>uniqueIdentifier</key>
+			<string>D89C4EE5-2F95-42E6-B0B5-E3CC8EF39F04</string>
+		</dict>
+		<key>FA10F0C6-3213-4B29-BF41-003D2EC351E3</key>
+		<dict>
+			<key>className</key>
+			<string>IDECommandLineBuildLog</string>
+			<key>documentTypeString</key>
+			<string>&lt;nil&gt;</string>
+			<key>domainType</key>
+			<string>Xcode.IDEActivityLogDomainType.BuildLog</string>
+			<key>fileName</key>
+			<string>FA10F0C6-3213-4B29-BF41-003D2EC351E3.xcactivitylog</string>
+			<key>highLevelStatus</key>
+			<string>S</string>
+			<key>schemeIdentifier-containerName</key>
+			<string>QuanLyXe project</string>
+			<key>schemeIdentifier-schemeName</key>
+			<string>QuanLyXe</string>
+			<key>schemeIdentifier-sharedScheme</key>
+			<integer>1</integer>
+			<key>signature</key>
+			<string>Building project QuanLyXe with scheme QuanLyXe and configuration Debug</string>
+			<key>timeStartedRecording</key>
+			<real>576669247.51772904</real>
+			<key>timeStoppedRecording</key>
+			<real>576669255.97847199</real>
+			<key>title</key>
+			<string>Building project QuanLyXe with scheme QuanLyXe and configuration Debug</string>
+			<key>uniqueIdentifier</key>
+			<string>FA10F0C6-3213-4B29-BF41-003D2EC351E3</string>
+		</dict>
+	</dict>
+</dict>
+</plist>

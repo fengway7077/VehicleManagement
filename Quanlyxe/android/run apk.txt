@@ -1,0 +1,12 @@
+
+
+
+
+
+
+
+
+./gradlew assembleRelease
+
+//file
+NameProject/android/app/build/outputs/apk/
