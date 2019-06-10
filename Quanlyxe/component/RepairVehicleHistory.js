@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {TextInput,View,Text,StyleSheet,Image,TouchableOpacity} from 'react-native';
+import {TextInput,View,Text,StyleSheet,Image,TouchableOpacity,AsyncStorage} from 'react-native';
 import { DELETE_IMAGE,INSERT_IMAGE,UPDATE_IMAGE  } from "./imageExport.js";
 import { ScrollView } from 'react-native-gesture-handler';
 import {LinkInsertRepairHistory,LinkUpdateRepairHistory,LinkDeleteRepairHistory,LinkListVehicle,LinkListCustomer} from '../constLink/linkService.js';
@@ -9,6 +9,7 @@ import Moment from 'moment';
 export default class RepairVehicleHistory extends Component{
     constructor(props) {
         super(props);
+        this._loadDataUser();
         params = this.props.navigation.getParam('params', null);
         console.log(params);
        if(params === null){
@@ -242,7 +243,17 @@ export default class RepairVehicleHistory extends Component{
            
         }
 
+        _loadDataUser = async() =>{
+            try{
+            const isLoggedIn = await AsyncStorage.getItem('user');
+            this.props.navigation.navigate( isLoggedIn !== null ? 'RepairVehicleHistory' : 'Login');  
+          } catch (error) {
+            console.log(error);
+          }
+        }
+
     render(){
+        console.disableYellowBox = true; //fix warn yellow
         return(
             <ScrollView style={styles.mainContainer}>
                 <View style={styles.bodyContent}>

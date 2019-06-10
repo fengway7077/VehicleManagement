@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View,Text,StyleSheet,Image,FlatList,TextInput,Picker,TouchableOpacity ,RefreshControl ,Alert,ActivityIndicator,ListView} from 'react-native';
+import { View,Text,StyleSheet,Image,FlatList,TextInput,Picker,TouchableOpacity ,RefreshControl ,Alert,ActivityIndicator,ListView,AsyncStorage} from 'react-native';
 import { createAppContainer, createStackNavigator } from 'react-navigation';
 import { ScrollView } from 'react-native-gesture-handler';
 import { SEARCH_IMAGE } from './imageExport.js'
@@ -11,6 +11,7 @@ import Swipeout from "react-native-swipeout"
 class ListVehicle extends Component{
     constructor(props) {
         super(props);
+       // this._loadDataUser();
         this.state = { 
             tempImage: '',
             isLoading: true,
@@ -27,6 +28,17 @@ class ListVehicle extends Component{
       //  offsetData: 0; //Index of the offset to load from web API
      ///    this.updateSearch();
     }
+   //get user info
+   _loadDataUser = async() =>{
+        try {
+         const isLoggedIn = await AsyncStorage.getItem('user') || 'none';
+         this.props.navigation.navigate( isLoggedIn !== null ? 'ListVehicle' : 'Login');  
+      } catch (error) {
+        // Error retrieving data
+        console.log(error);
+      }
+   }
+
 
     getDataVehicle(){
         return fetch(LinkListVehicle)
@@ -47,7 +59,7 @@ class ListVehicle extends Component{
     }
 
     componentDidMount(){
-       
+        this._loadDataUser();
         if (this.state.search == ""){        
            this.getDataVehicle();
         }else{
@@ -230,7 +242,7 @@ class ListVehicle extends Component{
         //       </View>
         //     );
         //   }
-     
+     console.disableYellowBox = true; //fix warn yellow
         return(
             <ScrollView style={styles.mainContainer}  >
                 <View style={styles.contentSearch}>

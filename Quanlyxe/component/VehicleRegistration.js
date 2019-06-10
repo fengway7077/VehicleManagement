@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {TextInput,View,Text,StyleSheet,Image,TouchableOpacity,ScrollView,TouchableHighlight} from 'react-native';
+import {TextInput,View,Text,StyleSheet,Image,TouchableOpacity,ScrollView,TouchableHighlight,AsyncStorage} from 'react-native';
 import { DELETE_IMAGE,INSERT_IMAGE,UPDATE_IMAGE,NO_IMAGE} from "./imageExport.js";
 import { Dropdown } from 'react-native-material-dropdown';
 import { LinkInsertVehicle ,LinkUpdateVehicle,LinkDeleteVehicle ,vehicleService,LinkUploadImage} from '../constLink/linkService.js';
@@ -10,6 +10,7 @@ import axios from 'axios';
 export default class VehicleRegistration extends Component{
     constructor(props) {
         super(props);
+        this._loadDataUser();
         params = this.props.navigation.getParam('params', null);
         if( params === null){
             this.vehicleInit();
@@ -279,7 +280,7 @@ export default class VehicleRegistration extends Component{
                 },
                  body:JSON.stringify({ base64image: this.state.filePath.data,
                                         path: this.state.filePath.path,
-                                        fileName:this.state.filePath.fileName,
+                                        fileName:(this.state.filePath.fileName).slice(0, 6),
                                         type:  this.state.filePath.type,
                                         daytime: this.state.day, //set date
                                     }),
@@ -295,7 +296,15 @@ export default class VehicleRegistration extends Component{
             //  xhr.send(imageData);
      }
 
-
+ //get user info
+   _loadDataUser = async() =>{
+       try{
+     const isLoggedIn = await AsyncStorage.getItem('user');
+     this.props.navigation.navigate( isLoggedIn !== null ? 'VehicleRegistration' : 'Login');  
+    } catch (error) {
+        console.log(error);
+      }
+   }
 
     render() {
         
@@ -581,7 +590,7 @@ const styles = StyleSheet.create({
     },
     input: {
         borderColor: 'green',  
-        borderRadius:1,
+        borderRadius:5, //tron goc
         borderWidth: 1
     },
     touchableContent:{

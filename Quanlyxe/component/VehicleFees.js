@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {View,Text,StyleSheet,Image,FlatList,TextInput,Button, TouchableOpacity} from 'react-native';
+import {View,Text,StyleSheet,Image,FlatList,TextInput,Button, TouchableOpacity, AsyncStorage} from 'react-native';
 import { ScrollView} from 'react-native-gesture-handler';
 import { createAppContainer, createStackNavigator } from 'react-navigation';
 import RentalHistory from './RentalHistory';
@@ -12,6 +12,7 @@ class VehicleFees extends Component{
             isloading:true,
             search:'',
         };
+        this._loadDataUser();
     }
 
     getDataVehicleFees(){
@@ -64,8 +65,19 @@ class VehicleFees extends Component{
     updateSearch = search => {
         this.setState({ search },this.seacrchVehicleFees.bind(this));
     };
+    //get user  info
+    _loadDataUser = async() =>{
+        try{
+        const isLoggedIn = await AsyncStorage.getItem('user');
+        this.props.navigation.navigate( isLoggedIn !== null ? 'RepairVehicleHistory' : 'Login');  
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
     render(){
         const { search } = this.state;
+        console.disableYellowBox = true; //fix warn yellow
         return(
             <ScrollView style={styles.mainContainer}>
                 <View style={styles.contentSearch}>

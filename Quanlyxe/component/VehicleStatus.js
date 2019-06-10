@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View,Text,StyleSheet,Image,FlatList,TextInput,Picker,TouchableOpacity } from 'react-native';
+import { View,Text,StyleSheet,Image,FlatList,TextInput,Picker,TouchableOpacity,AsyncStorage } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { SEARCH_IMAGE } from './imageExport.js'
 import { Dropdown } from 'react-native-material-dropdown';
@@ -10,6 +10,7 @@ import { LinkVehicleStatus,LinkSearchVehicleStatus,vehicleService } from '../con
 class VehicleStatus extends Component{
     constructor(props) {
         super(props);
+        this._loadDataUser();
         this.state = { 
             isLoading: true,
             search: '',
@@ -17,6 +18,7 @@ class VehicleStatus extends Component{
             status:'',
         };
         //
+       
     }
 
     getDataVehicleStatus(){
@@ -37,7 +39,8 @@ class VehicleStatus extends Component{
         });
     }
 
-    componentDidMount(){
+    componentDidMount(){  
+            this.props.navigation.navigate('Login');
         this.getDataVehicleStatus();
     }    
 
@@ -84,7 +87,16 @@ class VehicleStatus extends Component{
     UpdateSearch = search => {
         this.setState({ search },this.SearchVehicleStatus.bind(this));
     };
-    
+    // get user Info
+    _loadDataUser = async() =>{
+        try{
+        const isLoggedIn = await AsyncStorage.getItem('user');
+        this.props.navigation.navigate( isLoggedIn !== null ? 'VehicleStatus' : 'Login');  
+    } catch (error) {
+        console.log(error);
+      }
+    }
+
     render(){
         let data = [{
             value: 'Trống',

@@ -312,18 +312,19 @@ router.get('/getVehicleStatus',function(req, res, next) {
    });
 
     
-    
+    //upload Image
    const uploadImage = async (req, res, next) => {
-
     try {
       // console.log( req.body);
       // return;
       var uriParts = req.body.path.split('.');
       var fileType = uriParts[uriParts.length - 1]; //jpg
       var daytime  = req.body.daytime;
+      var fileName = req.body.fileName;
      // to declare some path to store your converted image
      //   const path = './photo/vehicle/'+ Date.now()+'.png'
-       const path = './photo/vehicle/'+ "image-" + daytime + ".png"
+      // const path = './photo/vehicle/'+ "image-" + daytime + ".png"
+      const path = './photo/vehicle/'+ fileName + daytime + ".png" ;
      // const imgdata =  req.body.base64image;
        const imgdata = "data:image/png;base64," + req.body.base64image;
          console.log("test " + imgdata)

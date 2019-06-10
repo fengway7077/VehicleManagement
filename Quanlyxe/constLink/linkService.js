@@ -40,4 +40,4 @@ export const LinkCheckVehicleRental = linkService + 'vehiclerentalhistory/checkV
 
 //upload image
 export const LinkUploadImage = linkService + 'vehicledetails/upload'
-//export const images = linkService + ''
+export const LinkUser = linkService + 'users/getUser'

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View,Text,StyleSheet,Image,FlatList,TextInput,Picker,TouchableOpacity } from 'react-native';
+import { View,Text,StyleSheet,Image,FlatList,TextInput,Picker,TouchableOpacity ,AsyncStorage} from 'react-native';
 import { createAppContainer, createStackNavigator } from 'react-navigation';
 import { ScrollView } from 'react-native-gesture-handler';
 import { SEARCH_IMAGE } from './imageExport.js'
@@ -8,6 +8,7 @@ import { LinkListCustomer, LinkSearchListCustomer ,customerService} from '../con
 class ListCustomer extends Component{
     constructor(props) {
         super(props);
+        this._loadDataUser();
         this.state = { 
             isLoading: true,
             search: '',
@@ -32,6 +33,7 @@ class ListCustomer extends Component{
     }
 
     componentDidMount(){
+      //  this.props.navigation.navigate('Login');
         this.getDataCustomer();
     }   
     
@@ -60,6 +62,16 @@ class ListCustomer extends Component{
             });
         });
     };
+   //get user info
+   _loadDataUser = async() =>{
+       try{
+        const isLoggedIn = await AsyncStorage.getItem('user');
+        this.props.navigation.navigate( isLoggedIn !== null ? 'ListCustomer' : 'Login');  
+       }catch{
+           console.log(error);
+       }
+     }
+
     render(){
         const { search } = this.state;
         return(

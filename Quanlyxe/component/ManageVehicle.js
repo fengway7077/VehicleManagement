@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
-import {FlatList,View,Text,StyleSheet,Image,TouchableOpacity,ScrollView,TouchableHighlight,ActivityIndicator,Label ,Button} from 'react-native';
+import {FlatList,View,Text,StyleSheet,Image,TouchableOpacity,ScrollView,TouchableHighlight,ActivityIndicator,Label ,Button,AsyncStorage} from 'react-native';
 import { LinkVehicleInfo} from '../constLink/linkService.js';
 import { VEHICLE_IMAGE } from './imageExport.js'
 import { Tooltip } from 'react-native-elements';
 export default class ManageVehicle extends Component{
     constructor(props) {
         super(props);
+        this._loadDataUser();
         this.state = { 
             isLoading: true,
             dataSource: null,
@@ -29,9 +30,22 @@ export default class ManageVehicle extends Component{
     }
 
     componentDidMount() {
+     // this.props.navigation.navigate('Login');
       this.getDataInfo();    
     }
-
+    // get user Info
+    _loadDataUser = async() =>{
+      // let AsyncStorageExport = AsyncStorage;
+      //  if (!AsyncStorageExport) {
+      //      AsyncStorageExport = require('react-native-async-storage').default;
+      //     }
+      try{
+      const isLoggedIn = await AsyncStorageExport.getItem('user');
+      this.props.navigation.navigate( isLoggedIn !== null ? 'ManageVehicle' : 'Login');  
+    } catch (error) {
+      console.log(error);
+    }
+  }
     render() {
         // if(this.state.isLoading){
         //     return(
@@ -133,6 +147,7 @@ export default class ManageVehicle extends Component{
               
                </View>             
              } 
+             keyExtractor={(item, index) => index.toString()}
              />
             
              </View>  
@@ -140,7 +155,7 @@ export default class ManageVehicle extends Component{
               <View style={styles.flexControl1}>
              <TouchableOpacity style={styles.touchableContent1}  onPress={() => this.props.navigation.navigate('ListVehicle')}   >
                 <Text  style = {styles.textbutton}>
-                Find Vehicle 
+                 Find Vehicle 
                 </Text>
             </TouchableOpacity >
             <TouchableOpacity style={styles.touchableContent1}   onPress={() => this.props.navigation.navigate('ListCustomer')}   >

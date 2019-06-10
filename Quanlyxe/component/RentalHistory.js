@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { TextInput,View,Text,StyleSheet,Image,TouchableOpacity } from 'react-native';
+import { TextInput,View,Text,StyleSheet,Image,TouchableOpacity,AsyncStorage } from 'react-native';
 import { DELETE_IMAGE,INSERT_IMAGE,UPDATE_IMAGE } from "./imageExport.js";
 import { ScrollView } from 'react-native-gesture-handler';
 import { LinkCheckDataCustomer,
@@ -15,6 +15,7 @@ import { callbackify } from 'util';
 export default class RentalHistory extends Component {
     constructor(props) {
         super(props);
+        this._loadDataUser();
         params = this.props.navigation.getParam('params', null);
         if(params === null){
             this.state = { 
@@ -320,9 +321,20 @@ export default class RentalHistory extends Component {
             }
         }
     }
-
+    // componentDidMount() {
+    //     this.props.navigation.navigate('Login');   
+    //   }
+    _loadDataUser = async() =>{
+        try {
+        const isLoggedIn = await AsyncStorage.getItem('user');
+        this.props.navigation.navigate( isLoggedIn !== null ? 'RentalHistory' : 'Login');  
+        } catch (error) {
+        console.log(error);
+      }
+    }
 
     render(){
+        console.disableYellowBox = true; //fix warn yellow
         return(
             <ScrollView style={styles.mainContainer}>
                 <View style={styles.bodyContent}>
