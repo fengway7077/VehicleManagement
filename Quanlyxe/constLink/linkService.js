@@ -1,6 +1,6 @@
 
 const linkService = 'http://192.168.11.129:3333/'
-//const linkService = 'http://116.193.74.82:8099/'
+//const linkService = 'http://116.193.47.28:8099/'
 
 export const vehicleService = linkService + 'image/vehicle/'
 export const customerService = linkService + 'image/customer/'
