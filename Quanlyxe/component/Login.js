@@ -35,6 +35,7 @@ export default class Login extends Component{
 
   render() {
     //const { accountName, passWord } = this.state;
+    console.disableYellowBox = true; //fix warn yellow
     return (
         <View style={styles.mainContainer}>
         <View style={styles.bodyContent}>
@@ -103,12 +104,19 @@ export default class Login extends Component{
             var pass = JSON.stringify(responseJson.rows[0].password) ;//get username
             alert("Login success",this.props.navigation.navigate('ManageVehicle'));
             //set user info
+            try{
              // const userInfo = {username: responseJson.accountname,password: responseJson.password} 
-            //   const userInfo = {username: name,password: pass}
-            //   AsyncStorage.setItem('user',userInfo);
-              AsyncStorage.setItem('user',responseJson);
-              this.setState({ 'user': responseJson });
-              console.log(pass);
+             //  const userInfo = {username: name,password: pass}
+              // AsyncStorage.setItem('user',userInfo);
+              AsyncStorage.setItem('user',"responseJson");
+               this.setState({ 'user': responseJson });
+            //   AsyncStorage.setItem('user',name);
+            //   this.setState({ 'user': name });
+             //   console.log("test" + JSON.parse(AsyncStorage.getItem('user')));
+                console.log( name + pass);
+            } catch (error) {
+                console.log("Error saving data :" + error);
+           }     
         }
         else
         {

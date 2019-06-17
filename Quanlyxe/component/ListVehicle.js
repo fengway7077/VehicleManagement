@@ -11,7 +11,6 @@ import Swipeout from "react-native-swipeout"
 class ListVehicle extends Component{
     constructor(props) {
         super(props);
-       // this._loadDataUser();
         this.state = { 
             tempImage: '',
             isLoading: true,
@@ -28,17 +27,6 @@ class ListVehicle extends Component{
       //  offsetData: 0; //Index of the offset to load from web API
      ///    this.updateSearch();
     }
-   //get user info
-   _loadDataUser = async() =>{
-        try {
-         const isLoggedIn = await AsyncStorage.getItem('user') || 'none';
-         this.props.navigation.navigate( isLoggedIn !== null ? 'ListVehicle' : 'Login');  
-      } catch (error) {
-        // Error retrieving data
-        console.log(error);
-      }
-   }
-
 
     getDataVehicle(){
         return fetch(LinkListVehicle)
@@ -59,7 +47,6 @@ class ListVehicle extends Component{
     }
 
     componentDidMount(){
-        this._loadDataUser();
         if (this.state.search == ""){        
            this.getDataVehicle();
         }else{
@@ -374,6 +361,21 @@ const RootContent = createStackNavigator(
 const AppContainer = createAppContainer(RootContent);
   
 export default class App extends React.Component {
+    constructor(props) {
+        super(props);
+        this._loadDataUser();          
+    }
+       //get user info
+   _loadDataUser = async() =>{
+    try {
+     const isLoggedIn = await AsyncStorage.getItem('user') ;
+     this.props.navigation.navigate( isLoggedIn !== null ? 'ListVehicle' : 'Login');  
+       } catch (error) {
+    // Error retrieving data
+    console.log(error);
+    }
+  }
+
     render() {
         return <AppContainer />;
     }

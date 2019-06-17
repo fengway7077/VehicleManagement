@@ -12,7 +12,7 @@ class VehicleFees extends Component{
             isloading:true,
             search:'',
         };
-        this._loadDataUser();
+      //  this._loadDataUser();
     }
 
     getDataVehicleFees(){
@@ -65,16 +65,7 @@ class VehicleFees extends Component{
     updateSearch = search => {
         this.setState({ search },this.seacrchVehicleFees.bind(this));
     };
-    //get user  info
-    _loadDataUser = async() =>{
-        try{
-        const isLoggedIn = await AsyncStorage.getItem('user');
-        this.props.navigation.navigate( isLoggedIn !== null ? 'RepairVehicleHistory' : 'Login');  
-      } catch (error) {
-        console.log(error);
-      }
-    }
-
+ 
     render(){
         const { search } = this.state;
         console.disableYellowBox = true; //fix warn yellow
@@ -174,6 +165,19 @@ const RootContent = createStackNavigator(
 const AppContainer = createAppContainer(RootContent);
   
 export default class App extends React.Component {
+    constructor(props) {
+        super(props);
+        this._loadDataUser();
+    }
+       //get user  info
+       _loadDataUser = async() =>{
+        try{
+        const isLoggedIn = await AsyncStorage.getItem('user');
+        this.props.navigation.navigate( isLoggedIn !== null ? 'RepairVehicleHistory' : 'Login');  
+      } catch (error) {
+        console.log(error);
+      }
+    }
     render() {
         return <AppContainer />;
     }

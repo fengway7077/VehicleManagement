@@ -229,7 +229,8 @@ export default class ManageCustomer extends Component{
     //get user Info
     _loadDataUser = async() =>{
         const isLoggedIn = await AsyncStorage.getItem('user');
-        this.props.navigation.navigate( isLoggedIn !== null ? 'ManageCustomer' : 'Login');  
+        const userName = await JSON.parse(isLoggedIn) || [];
+        this.props.navigation.navigate( userName !== null ? 'ManageCustomer' : 'Login'); 
     }
     render(){
         return(

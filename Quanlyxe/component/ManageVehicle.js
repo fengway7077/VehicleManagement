@@ -30,22 +30,23 @@ export default class ManageVehicle extends Component{
     }
 
     componentDidMount() {
+     // this._loadDataUser();
      // this.props.navigation.navigate('Login');
       this.getDataInfo();    
     }
     // get user Info
     _loadDataUser = async() =>{
-      // let AsyncStorageExport = AsyncStorage;
-      //  if (!AsyncStorageExport) {
-      //      AsyncStorageExport = require('react-native-async-storage').default;
-      //     }
       try{
-      const isLoggedIn = await AsyncStorageExport.getItem('user');
-      this.props.navigation.navigate( isLoggedIn !== null ? 'ManageVehicle' : 'Login');  
-    } catch (error) {
-      console.log(error);
+        const isLoggedIn = await AsyncStorage.getItem('user');
+      //   const userName = await JSON.parse(isLoggedIn) || [];
+      //   console.log("test " + userName); 
+      //  this.props.navigation.navigate( ( userName !== null || userName !== ""  ) ? 'ManageVehicle' : 'Login');
+        this.props.navigation.navigate( isLoggedIn !== null  ? 'ManageVehicle' : 'Login');
+      } catch (error) {
+       console.log(error);
+      }
     }
-  }
+    
     render() {
         // if(this.state.isLoading){
         //     return(

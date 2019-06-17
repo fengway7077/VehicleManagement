@@ -10,7 +10,7 @@ import { LinkVehicleStatus,LinkSearchVehicleStatus,vehicleService } from '../con
 class VehicleStatus extends Component{
     constructor(props) {
         super(props);
-        this._loadDataUser();
+     //   this._loadDataUser();
         this.state = { 
             isLoading: true,
             search: '',
@@ -40,7 +40,8 @@ class VehicleStatus extends Component{
     }
 
     componentDidMount(){  
-            this.props.navigation.navigate('Login');
+        // this._loadDataUser();
+        //  this.props.navigation.navigate('Login');
         this.getDataVehicleStatus();
     }    
 
@@ -87,15 +88,15 @@ class VehicleStatus extends Component{
     UpdateSearch = search => {
         this.setState({ search },this.SearchVehicleStatus.bind(this));
     };
-    // get user Info
-    _loadDataUser = async() =>{
-        try{
-        const isLoggedIn = await AsyncStorage.getItem('user');
-        this.props.navigation.navigate( isLoggedIn !== null ? 'VehicleStatus' : 'Login');  
-    } catch (error) {
-        console.log(error);
-      }
-    }
+    // // get user Info
+    // _loadDataUser = async() =>{
+    //   try{
+    //     const isLoggedIn = await AsyncStorage.getItem('user');
+    //     this.props.navigation.navigate( isLoggedIn !== null ? 'VehicleStatus' : 'Login');  
+    //    } catch (error) {
+    //     console.log(error);
+    //   }
+    // }
 
     render(){
         let data = [{
@@ -244,6 +245,19 @@ const RootContent = createStackNavigator(
 const AppContainer = createAppContainer(RootContent);
     
 export default class App extends React.Component {
+    constructor(props) {
+        super(props);
+        this._loadDataUser();          
+    }
+     // get user Info
+     _loadDataUser = async() =>{
+        try{
+          const isLoggedIn = await AsyncStorage.getItem('user');
+          this.props.navigation.navigate( isLoggedIn !== null ? 'VehicleStatus' : 'Login');  
+         } catch (error) {
+          console.log(error);
+        }
+      }
     render() {
         return <AppContainer />;
     }

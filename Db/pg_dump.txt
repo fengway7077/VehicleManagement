@@ -1,0 +1,14 @@
+
+
+C:\Program Files\PostgreSQL\11\bin>pg_dump -U postgres -h localhost -p 5433  -Fc VehicleManagement > E:\Folder\VehicleManagement.sql
+Backup: 
+   pg_dump -U postgres -h localhost -p 5433  -Fc VehicleManagement > E:\Folder\VehicleManagement.sql
+Restore: 
+  pg_restore -U postgres -h localhost -p 5433  -Fc VehicleManagement > E:/Folder/VehicleManagement.sql
+  
+  
+  
+  psql -U <username> -d <dbname> -1 -f <filename>.sql
+or
+
+pg_restore -U <username> -d <dbname> -1 <filename>.dump

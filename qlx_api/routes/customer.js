@@ -26,29 +26,29 @@ router.get('/getCustomer', function(req, res, next) {
   });
 });
 
-/*Search customer information */
-router.post('/searchCustomer',urlencodedParser,function(req, res, next) {
-  var  firstname =  req.body.firstname
-  var  lastname =  req.body.lastname
-  var fullname =  lastname + firstname
-  pool.connect(function(err, client, done) {
-    if(err) {
-      return console.error('error fetching client from pool', err);
-    }  
-    client.query(` SELECT * FROM customer
-                    WHERE firstname ILIKE '%${firstname}%'  
-                      OR  lastname ILIKE '%${lastname}%'  
-                      OR  fullname ILIKE '%${fullname}%'      
-                      `,  function(err, result) {
-     done(err);
-      if(err) {
-        return console.error('error running query', err);
-      }
-       res.json(result.rows)
-   //  res.send('Searching is a Vehicle information ');
-   });
-  });
- });
+// /*Search customer information */
+// router.post('/searchCustomer',urlencodedParser,function(req, res, next) {
+//   var  firstname =  req.body.firstname
+//   var  lastname =  req.body.lastname
+//   var fullname =  lastname + firstname
+//   pool.connect(function(err, client, done) {
+//     if(err) {
+//       return console.error('error fetching client from pool', err);
+//     }  
+//     client.query(` SELECT * FROM customer
+//                     WHERE firstname ILIKE '%${firstname}%'  
+//                       OR  lastname ILIKE '%${lastname}%'  
+//                       OR  fullname ILIKE '%${fullname}%'      
+//                       `,  function(err, result) {
+//      done(err);
+//       if(err) {
+//         return console.error('error running query', err);
+//       }
+//        res.json(result.rows)
+//    //  res.send('Searching is a Vehicle information ');
+//    });
+//   });
+//  });
 
 /* Update customer  */
  router.post('/editCustomer',urlencodedParser, function(req, res, next) {     
@@ -210,6 +210,44 @@ pool.connect(function(err, client, done) {
     });
     });
    });
+
+ /*Search customer information */
+router.post('/searchCustomer',urlencodedParser,function(req, res, next) {
+  var  firstname =  req.body.firstname
+  var  lastname =  req.body.lastname
+  var fullname =  lastname + firstname
+  var pageIndex = req.body.pageIndex
+  console.log( "pageIndex" + pageIndex)
+  //return;
+  pool.connect(function(err, client, done) {
+    if(err) {
+      return console.error('error fetching client from pool', err);
+    }  
+    client.query(` SELECT * ,(SELECT COUNT(*)  FROM customer
+                                            WHERE firstname ILIKE '%${firstname}%'  
+                                            OR  lastname ILIKE '%${lastname}%'  
+                                            OR  fullname ILIKE '%${fullname}%' 
+                             ) AS  mycount
+                 FROM customer
+                    WHERE firstname ILIKE '%${firstname}%'  
+                      OR  lastname ILIKE '%${lastname}%'  
+                      OR  fullname ILIKE '%${fullname}%'  
+                      ORDER BY  customercode ASC
+                      LIMIT 5  
+                      OFFSET '${pageIndex}' ROWS     
+                      `,  function(err, result) {
+     done(err);
+      if(err) {
+        return console.error('error running query', err);
+      }
+     //  res.json(result.rows)
+       res.json(result)
+   //  res.send('Searching is a Vehicle information ');
+   });
+  });
+ });
+
+
 
 
 module.exports = router;

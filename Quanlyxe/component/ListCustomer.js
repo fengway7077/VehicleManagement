@@ -1,17 +1,19 @@
 import React, { Component } from 'react';
-import { View,Text,StyleSheet,Image,FlatList,TextInput,Picker,TouchableOpacity ,AsyncStorage} from 'react-native';
+import { View,Text,StyleSheet,Image,FlatList,TextInput,Picker,TouchableOpacity ,AsyncStorage,Animated,RefreshControl} from 'react-native';
 import { createAppContainer, createStackNavigator } from 'react-navigation';
-import { ScrollView } from 'react-native-gesture-handler';
+import { PanGestureHandler,State ,ScrollView } from 'react-native-gesture-handler';
 import { SEARCH_IMAGE } from './imageExport.js'
 import ManageCustomer from './ManageCustomer.js'
 import { LinkListCustomer, LinkSearchListCustomer ,customerService} from '../constLink/linkService.js'
 class ListCustomer extends Component{
     constructor(props) {
         super(props);
-        this._loadDataUser();
         this.state = { 
             isLoading: true,
-            search: '',
+            search: '',          
+            offsetData: 0,
+            refreshing: false,
+            myRowCount: 0,
         };
     }
 
@@ -33,8 +35,13 @@ class ListCustomer extends Component{
     }
 
     componentDidMount(){
-      //  this.props.navigation.navigate('Login');
+        // this.props.navigation.navigate('Login');
         this.getDataCustomer();
+        //page list
+        // this.list.setNativeProps({
+        //     scrollEnabled: false,
+        //   });
+
     }   
     
     UpdateSearch = search => {
@@ -48,47 +55,133 @@ class ListCustomer extends Component{
                 body: JSON.stringify({
                     "lastname"  : this.state.search,
                     "firstname" : this.state.search,
-                    "fullname"  : this.state.search
+                    "fullname"  : this.state.search ,
+                     pageIndex: this.state.offsetData,
                 }),
             }).then((response) => response.json())
             .then((responseJson) => {
                 this.setState({
                     isLoading: false,
-                    dataSource: responseJson,
+                   // dataSource: responseJson,
+                    dataSource: responseJson.rows,
+                    myRowCount: responseJson.rows[0].mycount,//
                 });
+               // console.log("myRowCount" + this.state.myRowCount);
             })
             .catch((error) => {
               console.error(error);
             });
         });
     };
-   //get user info
-   _loadDataUser = async() =>{
-       try{
-        const isLoggedIn = await AsyncStorage.getItem('user');
-        this.props.navigation.navigate( isLoggedIn !== null ? 'ListCustomer' : 'Login');  
-       }catch{
-           console.log(error);
-       }
-     }
 
+  loadDataSearch(offset){
+      console.log("offset" + offset);
+    //   if(parseInt(offset) == null )
+    //   {
+    //     offset = offset + 5
+    //   }
+       this.setState({  isLoading: true });
+        fetch(LinkSearchListCustomer, {
+            method: "POST",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                "lastname"  : this.state.search,
+                "firstname" : this.state.search,
+                "fullname"  : this.state.search,
+                  pageIndex: offset ,
+            }),
+        }).then((response) => response.json())
+        .then((responseJson) => {
+          //  console.log("tes" + responseJson) ;
+            this.setState({
+                isLoading: false,
+                dataSource: responseJson.rows,
+            });
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+  }
+
+    _onRefresh = () => {  
+     console.info( "myRowCount" +this.state.myRowCount)
+        if (this.state.offsetData > this.state.myRowCount){     //25 > 22
+            if( this.state.offsetData < this.state.myRowCount + 5  ){  //25 < 22 +5
+                this.state.offsetData ;
+                console.log( "   this.state.offsetData" +   this.state.offsetData) ;
+            }else{
+                this.state.offsetData = 0; 
+            }
+        }else{
+            this.state.offsetData ;  
+        }    
+        this.setState(    {
+            offsetData: this.state.offsetData + 5
+          },
+        );
+        this.loadDataSearch( this.state.offsetData);
+      };
+
+      handleLoadMore = () => {  
+        var offsetData_  = this.state.offsetData != 0 ? 0 : this.state.offsetData -5;
+        console.info("test 2 " + this.state.offsetData);
+        this.setState(   {
+            offsetData: offsetData_ ,
+            refreshing: true,
+          },
+          () => {
+            this.UpdateSearch;
+          }
+        );
+      };
+  
+  
     render(){
         const { search } = this.state;
+        
         return(
-            <ScrollView style={styles.mainContainer}>
-                <View style={styles.contentSearch}>
+    
+              <ScrollView style={styles.mainContainer}
+                refreshControl={ <RefreshControl refreshing={this.state.refreshing} onRefresh={this._onRefresh.bind(this)} /> }   
+              //  contentOffset = {[-4, 4]} 
+              //   horizontal
+              //  pagingEnabled
+               // showsHorizontalScrollIndicator={false}
+              //  directionalLockEnabled
+               // contentInset={{top: 1}}
+               // onEndReached={this.handleLoadMore}
+              //  scrollEnabled ={true}
+              onScrollAnimationEnd ={this.handleLoadMore}
+              >
+                 <View style={styles.contentSearch}>
                     <View style={styles.contentChildSearch}>
                         <Image style={styles.iconInputSearch} source={SEARCH_IMAGE}/>
-                        <TextInput
-                            style={styles.searchStyle}
-                            placeholder="Nhập Tên Khách Hàng Muốn Tìm Kiếm..."
+                       <TextInput
+                             style={styles.searchStyle}
+                             placeholder="Nhập Tên Khách Hàng Muốn Tìm Kiếm..."
                             onChangeText={this.UpdateSearch}
                             value={search}
-                        />
-                    </View>
-                </View>
-               
-                <View style={styles.bodyContent}>
+                         />
+                  </View>             
+               </View>
+
+                <View style={styles.bodyContent}> 
+                {/* <PanGestureHandler>
+                    activeOffsetX={[-4, 4]}
+                    onHandlerStateChange={() => {
+                    if (nativeEvent.state === State.ACTIVE) {
+                        this.list.setNativeProps({
+                        scrollEnabled: true,
+                        });
+                    }
+                    }} 
+                    >  
+                    <Text>he</Text>  
+                 </PanGestureHandler>   */}
+                {/* <Animated.View> */}
                     <FlatList
                         style={styles.flatStyle}
                         data={this.state.dataSource}
@@ -136,9 +229,22 @@ class ListCustomer extends Component{
                             </TouchableOpacity>
                         }
                         keyExtractor={({customercode}, index) => customercode.toString()}
-                    />
+                      
+                    //      pagingEnabled
+                    //      showsHorizontalScrollIndicator={false}
+                    //      horizontal
+                    //      ref={list => {
+                    //         this.list = list;
+                    //       }}
+                    //        onMomentumScrollEnd={() => {  this.list.setNativeProps({ scrollEnabled: false })  } }    
+
+                      />
+               
+                    {/* </Animated.View> */}
+                 
                 </View>
             </ScrollView>
+         
         );
     }
 }
@@ -178,6 +284,20 @@ const RootContent = createStackNavigator(
 const AppContainer = createAppContainer(RootContent);
   
 export default class App extends React.Component {
+    constructor(props) {
+        super(props);
+        this._loadDataUser();
+    }
+     //get user info
+   _loadDataUser = async() =>{
+    try{
+     const isLoggedIn = await AsyncStorage.getItem('user');
+     this.props.navigation.navigate( isLoggedIn !== null ? 'ListCustomer' : 'Login');  
+     console.log("test  "+ isLoggedIn);
+    }catch{
+        console.log(error);
+    }
+  }
     render() {
         return <AppContainer />;
     }
