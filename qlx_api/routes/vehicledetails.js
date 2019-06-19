@@ -120,11 +120,6 @@ router.post('/editVehicle',urlencodedParser, function(req, res, next) {
 
 /*Search Vehicle information */
 router.post('/searchVehicle',urlencodedParser,function(req, res, next) {
-  // var itemPage = 3;
-  // var page = req.body.numPage;
-  // var ipage = page * itemPage
-  // var temp = []; 
-  // var temp1 =[];
   
   var  vehicletype =  req.body.vehicletype
   // console.log(req.body);
@@ -141,13 +136,6 @@ router.post('/searchVehicle',urlencodedParser,function(req, res, next) {
         return console.error('error running query', err);
       }
        res.json(result.rows)
-      // res.json(result.rowCount)
-  //  // res.send('Searching is a Vehicle information ');
-  //  for(var i = ipage ; i <= ipage + 2 ; i++){
-  //      temp.push(temp1,temp[i])
-  //  }
-  //   console.log(temp1);
-   
   });
   });
  });
@@ -343,43 +331,33 @@ router.post('/upload', uploadImage)
 
 
 
-// // /* test Search Vehicle information */
-// router.post('/searchVehicle',urlencodedParser,function(req, res, next) {
-  
-//   var pageIndex =  req.body.pageIndex;
-//   // var page = req.body.numPage;
-//   // var ipage = page * itemPage
-//   // var temp = []; 
-//   // var temp1 =[];
-  
-//   var  vehicletype =  req.body.vehicletype
-//   console.log(req.body);
-//   //return;
-//   pool.connect(function(err, client, done) {
-//     if(err) {
-//       return console.error('error fetching client from pool', err);
-//     }  
-//     client.query(` SELECT * FROM vehicledetails
-//                     WHERE vehicletype ILIKE '%${vehicletype}%'  
-//                     ORDER BY  vehiclecode ASC
-//                     LIMIT 5  
-//                     OFFSET '${pageIndex}' ROWS        
-//                       `,  function(err, result) {
-//      done(err);
-//       if(err) {
-//         return console.error('error running query', err);
-//       }
-//    //  res.json(result.rows) //
-//       res.json(result)
-//   //  // res.send('Searching is a Vehicle information ');
-//   //  for(var i = ipage ; i <= ipage + 2 ; i++){
-//   //      temp.push(temp1,temp[i])
-//   //  }
-//   //   console.log(temp1);
-
-//   });
-//   });
-//  });
+// /* test Search Vehicle information */
+router.post('/searchVehiclePage',urlencodedParser,function(req, res, next) {
+  var  vehicletype =  req.body.vehicletype;
+  var pageIndex =  req.body.pageIndex;
+  var pageItem =  req.body.pageItem;
+  console.log("pageIndex " + pageIndex);
+  //console.log(req.body);
+  //return;
+  pool.connect(function(err, client, done) {
+    if(err) {
+      return console.error('error fetching client from pool', err);
+    }  
+    client.query(` SELECT * , (SELECT COUNT(*)  FROM vehicledetails  WHERE vehicletype ILIKE '%${vehicletype}%') AS  mycount
+                    FROM vehicledetails
+                    WHERE vehicletype ILIKE '%${vehicletype}%'  
+                    ORDER BY  vehiclecode ASC
+                    LIMIT '${pageItem}'   
+                    OFFSET '${pageIndex}' ROWS    
+                      `,  function(err, result) {
+     done(err);
+      if(err) {
+        return console.error('error running query', err);
+      }
+      res.json(result)
+  });
+  });
+ });
 
 router.get('/getVehicleInfo', function(req, res, next) {
   pool.connect(function(err, client, done) {
@@ -404,6 +382,35 @@ router.get('/getVehicleInfo', function(req, res, next) {
         return console.error('error running query', err);
       }
          res.json(result.rows)
+     //  res.send('Vehicle information : ' + vehicle );
+    });
+  });
+
+});
+
+/* Get Vehicle information listing. */
+router.post('/getVehiclePage', function(req, res, next) {
+  var pageIndex =  req.body.pageIndex;
+  var pageItem =  req.body.pageItem;
+  console.log("pageIndex " + pageIndex);
+  pool.connect(function(err, client, done) {
+    if(err) {
+      return console.error('error fetching client from pool', err);
+    }
+   
+    //use the client for executing the query
+      client.query(`SELECT * ,(SELECT COUNT(*)  FROM vehicledetails) AS  datacount
+                       FROM vehicledetails
+                       ORDER BY  vehiclecode ASC
+                       LIMIT '${pageItem}'
+                       OFFSET '${pageIndex}' ROWS  
+        `,  function(err, result) {
+      //call `done(err)` to release the client back to the pool (or destroy it if there is an error)
+      done(err);
+      if(err) {
+        return console.error('error running query', err);
+      }
+          res.json(result)
      //  res.send('Vehicle information : ' + vehicle );
     });
   });

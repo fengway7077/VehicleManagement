@@ -1,43 +1,87 @@
 import React, { Component } from 'react';
-import { View,Text,StyleSheet,Image,FlatList,TextInput,Picker,TouchableOpacity } from 'react-native';
+import { View,Text,StyleSheet,Image,FlatList,TextInput,Picker,TouchableOpacity ,AsyncStorage,Animated,RefreshControl} from 'react-native';
 import { createAppContainer, createStackNavigator } from 'react-navigation';
-import { ScrollView } from 'react-native-gesture-handler';
+import { PanGestureHandler,State ,ScrollView } from 'react-native-gesture-handler';
 import { SEARCH_IMAGE } from './imageExport.js'
 import ManageCustomer from './ManageCustomer.js'
-import { LinkListCustomer, LinkSearchListCustomer ,customerService} from '../constLink/linkService.js'
+import { LinkListCustomer, LinkSearchListCustomerPage ,customerService,LinkListCustomerPage} from '../constLink/linkService.js'
 class ListCustomer extends Component{
     constructor(props) {
         super(props);
         this.state = { 
             isLoading: true,
-            search: '',
+            search: '',          
+            offsetData: 0,
+            refreshing: false,
+            myRowCount: 0,
+            dataRowCount : 0,
+            pageItem: 7, //
         };
     }
 
-    getDataCustomer(){
-        return fetch(LinkListCustomer)
-        .then((response) => response.json())
-        .then((responseJson) => {
-        this.setState({
-            isLoading: false,
-            dataSource: responseJson,
-        }, function(){
+    // getDataCustomer(){
+    //     return fetch(LinkListCustomer)
+    //     .then((response) => response.json())
+    //     .then((responseJson) => {
+    //     this.setState({
+    //         isLoading: false,
+    //         dataSource: responseJson,
+    //     }, function(){
 
-        });
+    //     });
 
-        })
-        .catch((error) =>{
+    //     })
+    //     .catch((error) =>{
+    //         console.error(error);
+    //     });
+    // }
+
+    getDataCustomerPage(offset){
+     //   console.log("offset" + offset);
+         this.setState({  isLoading: true });
+          fetch(LinkListCustomerPage, {
+              method: "POST",
+              headers: {
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                    pageIndex: offset ,
+                    pageItem: this.state.pageItem,
+              }),
+          }).then((response) => response.json())
+          .then((responseJson) => {
+            //  console.log("tes" + responseJson) ;
+            if( responseJson.rowCount !== 0 ){
+                this.setState({
+                    isLoading: false,
+                    dataSource: responseJson.rows,
+                    dataRowCount:  responseJson.rows[0].datacount,//
+                });
+             }else{
+                this.setState({
+                  dataRowCount:  null,//
+              });
+            }       
+          })
+          .catch((error) => {
             console.error(error);
-        });
+          });
     }
 
     componentDidMount(){
-        this.getDataCustomer();
+        // this.props.navigation.navigate('Login');
+        this.getDataCustomerPage(this.state.offsetData);
+        //page list
+        // this.list.setNativeProps({
+        //     scrollEnabled: false,
+        //   });
+
     }   
     
     UpdateSearch = search => {
         this.setState({ search },() => {
-            fetch(LinkSearchListCustomer, {
+            fetch(LinkSearchListCustomerPage, {
                 method: "POST",
                 headers: {
                     'Accept': 'application/json',
@@ -46,37 +90,166 @@ class ListCustomer extends Component{
                 body: JSON.stringify({
                     "lastname"  : this.state.search,
                     "firstname" : this.state.search,
-                    "fullname"  : this.state.search
+                    "fullname"  : this.state.search ,
+                     pageIndex: this.state.offsetData,
+                     pageItem: this.state.pageItem,
                 }),
             }).then((response) => response.json())
             .then((responseJson) => {
-                this.setState({
-                    isLoading: false,
-                    dataSource: responseJson,
-                });
+                console.log("responseJson.RowCount" + responseJson.rowCount);
+                if( responseJson.rowCount !== 0 ){
+                    this.setState({
+                        isLoading: false,
+                       // dataSource: responseJson,
+                        dataSource: responseJson.rows,
+                        myRowCount: responseJson.rows[0].mycount ,//
+                    });
+                }else{
+                    this.setState({
+                        myRowCount: null ,//
+                    });
+                }             
+                   // console.log("myRowCount" + this.state.myRowCount);         
             })
             .catch((error) => {
               console.error(error);
             });
         });
     };
+
+  loadDataSearch(offset){
+     // console.log("offset" + offset);
+       this.setState({  isLoading: true });
+        fetch(LinkSearchListCustomerPage, {
+            method: "POST",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                "lastname"  : this.state.search,
+                "firstname" : this.state.search,
+                "fullname"  : this.state.search,
+                  pageIndex: offset ,
+                  pageItem: this.state.pageItem,
+            }),
+        }).then((response) => response.json())
+        .then((responseJson) => {
+          //  console.log("tes" + responseJson) ;
+            this.setState({
+                isLoading: false,
+                dataSource: responseJson.rows,
+            });
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+  }
+
+    _onRefresh = () => {  
+     //  console.info( "myRowCount" +this.state.myRowCount)
+        var  pageRow =   this.state.myRowCount;
+        var dataRC = this.state.dataRowCount;
+     //   console.log("dsfdsf " + pageRow )
+    //     var  page = this.state.page
+    //     var item = 5 ;  
+    //     if(page >  pageRow/5 ){
+    //        page = 0;
+    //     }  
+    //     // for(var  p = 0; p < pageRow/5 ; p++){
+    //     //         page =  p;
+    //         var  itempage = page * item ;
+    //      //   for (var i = itempage; i <= itempage + 4; i++) {
+    //             this.state.offsetData = itempage;
+    //      //   }
+    //  //   }
+         this.setState({refreshing: true});
+        //get   
+        if(this.state.search == ""){
+            if (this.state.offsetData > dataRC){         
+                this.state.offsetData = 0; 
+           }else{    
+                this.state.offsetData; 
+           }   
+        }else{
+            if (this.state.offsetData > pageRow){     //25 > 22        
+                this.state.offsetData = 0; 
+          }else{    
+              this.state.offsetData; 
+        } 
+        }
+
+        this.setState(    {
+           offsetData: this.state.offsetData + this.state.pageItem, // + 7
+          },
+        );        
+        if(this.state.search != ""){
+            this.loadDataSearch( this.state.offsetData);
+            this.setState({refreshing: false});
+        }else{
+            this.getDataCustomerPage(this.state.offsetData);
+            this.setState({refreshing: false});
+        }
+       
+      };
+
+      handleLoadMore = () => {  
+        // var offsetData_  = this.state.offsetData != 0 ? 0 : this.state.offsetData -5;
+        // console.info("test 2 " + this.state.offsetData);
+        // this.setState(   {
+        //     offsetData: offsetData_ ,
+        //     refreshing: true,
+        //   },
+        //   () => {
+        //     this.UpdateSearch;
+        //   }
+        // );
+      };
+  
+  
     render(){
         const { search } = this.state;
+        
         return(
-            <ScrollView style={styles.mainContainer}>
-                <View style={styles.contentSearch}>
+    
+              <ScrollView style={styles.mainContainer}
+                refreshControl={ <RefreshControl refreshing={this.state.refreshing} onRefresh={this._onRefresh.bind(this)} /> }   
+              //  contentOffset = {[-4, 4]} 
+              //   horizontal
+              //  pagingEnabled
+               // showsHorizontalScrollIndicator={false}
+              //  directionalLockEnabled
+               // contentInset={{top: 1}}
+               // onEndReached={this.handleLoadMore}
+              //  scrollEnabled ={true}
+              onScrollAnimationEnd ={this.handleLoadMore}
+              >
+                 <View style={styles.contentSearch}>
                     <View style={styles.contentChildSearch}>
                         <Image style={styles.iconInputSearch} source={SEARCH_IMAGE}/>
-                        <TextInput
-                            style={styles.searchStyle}
-                            placeholder="Nhập Tên Khách Hàng Muốn Tìm Kiếm..."
+                       <TextInput
+                             style={styles.searchStyle}
+                             placeholder="Nhập Tên Khách Hàng Muốn Tìm Kiếm..."
                             onChangeText={this.UpdateSearch}
                             value={search}
-                        />
-                    </View>
-                </View>
-               
-                <View style={styles.bodyContent}>
+                         />
+                  </View>             
+               </View>
+
+                <View style={styles.bodyContent}> 
+                {/* <PanGestureHandler>
+                    activeOffsetX={[-4, 4]}
+                    onHandlerStateChange={() => {
+                    if (nativeEvent.state === State.ACTIVE) {
+                        this.list.setNativeProps({
+                        scrollEnabled: true,
+                        });
+                    }
+                    }} 
+                    >  
+                    <Text>he</Text>  
+                 </PanGestureHandler>   */}
+                {/* <Animated.View> */}
                     <FlatList
                         style={styles.flatStyle}
                         data={this.state.dataSource}
@@ -88,7 +261,7 @@ class ListCustomer extends Component{
                                             params: { 
                                                 item,
                                                 reFetchCustomer: (() => {
-                                                    this.getDataCustomer()
+                                                    this.getDataCustomerPage()
                                                 }).bind(this)
                                             } 
                                         }
@@ -124,9 +297,22 @@ class ListCustomer extends Component{
                             </TouchableOpacity>
                         }
                         keyExtractor={({customercode}, index) => customercode.toString()}
-                    />
+                      
+                    //      pagingEnabled
+                    //      showsHorizontalScrollIndicator={false}
+                    //      horizontal
+                    //      ref={list => {
+                    //         this.list = list;
+                    //       }}
+                    //        onMomentumScrollEnd={() => {  this.list.setNativeProps({ scrollEnabled: false })  } }    
+
+                      />
+               
+                    {/* </Animated.View> */}
+                 
                 </View>
             </ScrollView>
+         
         );
     }
 }
@@ -166,6 +352,20 @@ const RootContent = createStackNavigator(
 const AppContainer = createAppContainer(RootContent);
   
 export default class App extends React.Component {
+    constructor(props) {
+        super(props);
+        this._loadDataUser();
+    }
+     //get user info
+   _loadDataUser = async() =>{
+    try{
+     const isLoggedIn = await AsyncStorage.getItem('user');
+     this.props.navigation.navigate( isLoggedIn !== null ? 'ListCustomer' : 'Login');  
+     console.log("test  "+ isLoggedIn);
+    }catch{
+        console.log(error);
+    }
+  }
     render() {
         return <AppContainer />;
     }

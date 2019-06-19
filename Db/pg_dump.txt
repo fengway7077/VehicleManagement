@@ -2,9 +2,9 @@
 
 C:\Program Files\PostgreSQL\11\bin>pg_dump -U postgres -h localhost -p 5433  -Fc VehicleManagement > E:\Folder\VehicleManagement.sql
 Backup: 
-   pg_dump -U postgres -h localhost -p 5433  -Fc VehicleManagement > E:\Folder\VehicleManagement.sql
+   pg_dump -U postgres -h localhost -p 5433  -Fc VehicleManagement > D:\MyFolder\VehicleManagement.sql
 Restore: 
-  pg_restore -U postgres -h localhost -p 5433  -Fc VehicleManagement > E:/Folder/VehicleManagement.sql
+  pg_restore -U postgres -h localhost -p 5433  -Fc VehicleManagement > E:/MyFolder/VehicleManagement.sql
   
   
   

@@ -207,5 +207,171 @@ router.post('/editVehiclerental',urlencodedParser,function(req, res, next) {
      });
 
  
+/* Get vehicle rental history information listing to customer and vehicle . */
+router.post('/getListVehiclerentalPage', function(req, res, next) {
+  var pageIndex = req.body.pageIndex;
+  var pageItem =  req.body.pageItem;
+  // console.log( "pageIndex " + pageIndex)
+  // console.log( "pageItem " + pageItem)
+  pool.connect(function(err, client, done) {
+    if(err) {
+      return console.error('error fetching client from pool', err);
+    }
+    //use the client for executing the query
+      client.query(`SELECT  vd.vehiclecode
+                          , vd.vehicletype
+                          , vd.vehiclename
+                          , ct.customercode
+                          , ct.lastname ||' ' || ct.firstname AS fullname
+                          , ct.phone
+                          , vrh.rentaldate
+                          , vrh.payday
+                          , vd.rentalprice
+                          , vd.status
+                          , vrh1.damagedday
+                          , vd.vehicleimage
+                          , ct.customerimage
+                          , (SELECT COUNT(*)  FROM    vehiclerentalhistory vrh
+                                              LEFT JOIN vehicledetails vd
+                                                ON  vrh.vehiclecode = vd.vehiclecode
+                                              LEFT JOIN customer ct
+                                                ON ct.customercode = vrh.customercode 
+                                              LEFT OUTER JOIN vehiclerepairhistory vrh1
+                                                ON   vrh1.vehiclecode = vd.vehiclecode
+                                                AND  vrh1.customercode = ct.customercode 
+                                              WHERE  vd.vehiclecode IS NOT NULL AND ct.customercode IS NOT NULL) AS  datacount
+                      FROM  vehiclerentalhistory vrh
+                      LEFT JOIN vehicledetails vd
+                        ON  vrh.vehiclecode = vd.vehiclecode
+                      LEFT JOIN customer ct
+                        ON ct.customercode = vrh.customercode 
+                      LEFT OUTER JOIN vehiclerepairhistory vrh1
+                        ON   vrh1.vehiclecode = vd.vehiclecode
+                        AND  vrh1.customercode = ct.customercode 
+                      WHERE  vd.vehiclecode IS NOT NULL AND ct.customercode IS NOT NULL 
+                      ORDER BY  vd.vehiclecode , ct.customercode ASC
+                      LIMIT '${pageItem}'    
+                      OFFSET '${pageIndex}' ROWS 
+                        `  ,  function(err, result) {
+      done(err);
+      if(err) {
+        return console.error('error running query', err);
+      }      
+      // res.json(result.rows)
+      res.json(result)
+    //  res.send('vehicle rental history : ' +  res.json(result));
+    });
+  });
+});
+
+/*Search vehicle rental history information listing to customer and vehicle  */
+router.post('/searchListVehiclerentalPage',urlencodedParser,function(req, res, next) {
+  var  firstname =  req.body.firstname;
+  var  lastname =  req.body.lastname;
+  var fullname  = req.body.fullname;
+  var pageIndex = req.body.pageIndex;
+  var pageItem =  req.body.pageItem;
+  // console.log( "pageIndex " + pageIndex)
+  //console.log( "pageItem " + pageItem)
+  pool.connect(function(err, client, done) {
+    if(err) {
+      return console.error('error fetching client from pool', err);
+    }  
+    client.query(` SELECT  vd.vehiclecode
+                          , vd.vehicletype
+                          , vd.vehiclename
+                          , ct.customercode
+                          , ct.lastname ||' ' || ct.firstname AS fullname
+                          , ct.phone
+                          , vrh.rentaldate
+                          , vrh.payday
+                          , vd.rentalprice
+                          , ct.customerimage
+                          , (SELECT COUNT(*)  FROM  vehiclerentalhistory vrh
+                                              LEFT JOIN vehicledetails vd
+                                                ON  vrh.vehiclecode = vd.vehiclecode
+                                              LEFT JOIN customer ct
+                                                ON ct.customercode = vrh.customercode
+                                              WHERE ct.firstname ILIKE '%${firstname}%'  
+                                                OR  ct.lastname ILIKE '%${lastname}%' 
+                                                OR ct.fullname ILIKE  '%${fullname}%' ) AS mycount
+                      FROM  vehiclerentalhistory vrh
+                      LEFT JOIN vehicledetails vd
+                        ON  vrh.vehiclecode = vd.vehiclecode
+                      LEFT JOIN customer ct
+                        ON ct.customercode = vrh.customercode
+                      WHERE ct.firstname ILIKE '%${firstname}%'  
+                       OR  ct.lastname ILIKE '%${lastname}%' 
+                       OR ct.fullname ILIKE  '%${fullname}%'  
+                      ORDER BY  vd.vehiclecode , ct.customercode ASC
+                      LIMIT '${pageItem}'    
+                      OFFSET '${pageIndex}' ROWS 
+                      `,  function(err, result) {
+     done(err);
+      if(err) {
+        return console.error('error running query', err);
+      }
+       res.json(result)
+   //  res.send('Searching is a Vehicle information ');
+  });
+  });
+ });
+
+/* Get vehicle rental history information listing to customer and vehicle list. */
+router.post('/getListVehiclerentalPageList', function(req, res, next) {
+  var pageIndex = req.body.pageIndex;
+  var pageItem =  req.body.pageItem;
+   console.log( "pageIndex " + pageIndex)
+  // console.log( "pageItem " + pageItem)
+  pool.connect(function(err, client, done) {
+    if(err) {
+      return console.error('error fetching client from pool', err);
+    }
+    //use the client for executing the query
+      client.query(`SELECT  vd.vehiclecode
+                          , vd.vehicletype
+                          , vd.vehiclename
+                          , ct.customercode
+                          , ct.lastname ||' ' || ct.firstname AS fullname
+                          , ct.phone
+                          , vrh.rentaldate
+                          , vrh.payday
+                          , vd.rentalprice
+                          , vd.status
+                          , vrh1.damagedday
+                          , vd.vehicleimage
+                          , ct.customerimage
+                          , (SELECT COUNT(*)  FROM    vehiclerentalhistory vrh
+                                              LEFT JOIN vehicledetails vd
+                                                ON  vrh.vehiclecode = vd.vehiclecode
+                                              LEFT JOIN customer ct
+                                                ON ct.customercode = vrh.customercode 
+                                              LEFT OUTER JOIN vehiclerepairhistory vrh1
+                                                ON   vrh1.vehiclecode = vd.vehiclecode
+                                                AND  vrh1.customercode = ct.customercode 
+                                              WHERE  vd.vehiclecode IS NOT NULL AND ct.customercode IS NOT NULL) AS  datacount
+                      FROM  vehiclerentalhistory vrh
+                      LEFT JOIN vehicledetails vd
+                        ON  vrh.vehiclecode = vd.vehiclecode
+                      LEFT JOIN customer ct
+                        ON ct.customercode = vrh.customercode 
+                      LEFT OUTER JOIN vehiclerepairhistory vrh1
+                        ON   vrh1.vehiclecode = vd.vehiclecode
+                        AND  vrh1.customercode = ct.customercode 
+                      WHERE  vd.vehiclecode IS NOT NULL AND ct.customercode IS NOT NULL 
+                      ORDER BY  vd.vehiclecode , ct.customercode ASC
+                      LIMIT '${pageItem}'    
+                      OFFSET '${pageIndex}' ROWS 
+                        `  ,  function(err, result) {
+      done(err);
+      if(err) {
+        return console.error('error running query', err);
+      }      
+      // res.json(result.rows)
+      res.json(result)
+    });
+  });
+});
+
 module.exports = router;
 

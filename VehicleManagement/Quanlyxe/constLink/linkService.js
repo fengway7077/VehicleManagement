@@ -1,5 +1,5 @@
-const linkService = 'http://192.168.11.129:3333/'
 
+const linkService = 'http://192.168.11.129:3333/'
 //const linkService = 'http://116.193.74.82:8099/'
 
 export const vehicleService = linkService + 'image/vehicle/'
@@ -10,11 +10,21 @@ export const LinkListVehicle = linkService + 'vehicledetails/getVehicle'
 export const LinkVehicleFees = linkService + 'vehiclerentalhistory/getListVehiclerental'
 export const LinkVehicleStatus = linkService + 'vehiclerentalhistory/getListVehiclerental'
 //export const LinkVehicleList = linkService + 'Vehiclerepairhistory/getListVehiclerepair'
+export const LinkVehicleInfo = linkService + 'vehicledetails/getVehicleInfo'
+export const LinkListCustomerPage = linkService + 'customer/getcustomerPage'
+export const LinkListVehiclePage = linkService + 'vehicledetails/getVehiclePage'
+export const LinkVehicleFeesPage = linkService + 'vehiclerentalhistory/getListVehiclerentalPage'
+export const LinkVehicleStatusPage = linkService + 'vehiclerentalhistory/getListVehiclerentalPageList'
+
 //Search
 export const LinkSearchListCustomer = linkService + 'customer/searchCustomer'
 export const LinkSearchListVehicle = linkService + 'vehicledetails/searchVehicle'
 export const LinkSearchVehicleFees = linkService + 'vehiclerentalhistory/searchListVehiclerental'
 export const LinkSearchVehicleStatus = linkService + 'vehiclerepairhistory/searchListVehiclestatus'
+export const LinkSearchListVehiclePage = linkService + 'vehicledetails/searchVehiclePage'
+export const LinkSearchListCustomerPage = linkService + 'customer/searchCustomerPage'
+export const LinkSearchVehicleFeesPage = linkService + 'vehiclerentalhistory/searchListVehiclerentalPage'
+export const LinkSearchVehicleStatusPageList = linkService + 'vehiclerepairhistory/searchListVehiclestatusPage'
 //Insert
 export const LinkInsertCustomer = linkService + 'customer/createCustomer'
 export const LinkInsertVehicle = linkService + 'vehicledetails/createVehicle'
@@ -37,4 +47,6 @@ export const LinkCheckDataCustomer = linkService + 'customer/checkCustomer'
 export const LinkCheckDataVehicle = linkService + 'vehicledetails/checkVehicle'
 export const LinkCheckVehicleRental = linkService + 'vehiclerentalhistory/checkVehiclerental'
 
-//export const images = linkService + ''
+//upload image
+export const LinkUploadImage = linkService + 'vehicledetails/upload'
+export const LinkUser = linkService + 'users/getUser'

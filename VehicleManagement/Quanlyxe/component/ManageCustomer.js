@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {TextInput,View,Text,StyleSheet,Image,TouchableOpacity} from 'react-native';
+import {TextInput,View,Text,StyleSheet,Image,TouchableOpacity,AsyncStorage} from 'react-native';
 import { DELETE_IMAGE,INSERT_IMAGE,UPDATE_IMAGE  } from "./imageExport.js";
 import { ScrollView } from 'react-native-gesture-handler';
 import { LinkInsertCustomer , LinkUpdateCustomer,LinkDeleteCustomer } from '../constLink/linkService.js';
@@ -8,6 +8,7 @@ import { Divider } from 'react-native-elements';
 export default class ManageCustomer extends Component{
     constructor(props) {
         super(props);
+        this._loadDataUser();
         params = this.props.navigation.getParam('params', null);
         if(params === null){
             this.state ={ 
@@ -225,7 +226,12 @@ export default class ManageCustomer extends Component{
             }
       
     }
-
+    //get user Info
+    _loadDataUser = async() =>{
+        const isLoggedIn = await AsyncStorage.getItem('user');
+        const userName = await JSON.parse(isLoggedIn) || [];
+        this.props.navigation.navigate( userName !== null ? 'ManageCustomer' : 'Login'); 
+    }
     render(){
         return(
             <ScrollView style={styles.mainContainer}>
@@ -383,13 +389,9 @@ export default class ManageCustomer extends Component{
             </ScrollView>
         );
     }
-
-    // shouldComponentUpdate() {
-    //     return false
-    //   }
-     
-    // componentDidUpdate(){
-    //     return true;
+   
+    // componentDidMount(){
+    //     this.props.navigation.navigate('Login');
     // }
 
 }

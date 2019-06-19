@@ -1,22 +1,27 @@
 import React, { Component } from 'react';
-import { View,Text,StyleSheet,Image,FlatList,TextInput,Picker,TouchableOpacity } from 'react-native';
+import { View,Text,StyleSheet,Image,FlatList,TextInput,Picker,TouchableOpacity,AsyncStorage,RefreshControl } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { SEARCH_IMAGE } from './imageExport.js'
 import { Dropdown } from 'react-native-material-dropdown';
 import { createAppContainer, createStackNavigator } from 'react-navigation';
 import RentalHistory from './RentalHistory.js';
 import RepairVehicleHistory from './RepairVehicleHistory';
-import { LinkVehicleStatus,LinkSearchVehicleStatus,vehicleService } from '../constLink/linkService.js'
+import { LinkVehicleStatus,LinkSearchVehicleStatus,vehicleService,LinkVehicleStatusPage,LinkSearchVehicleStatusPageList } from '../constLink/linkService.js'
 class VehicleStatus extends Component{
     constructor(props) {
         super(props);
+     //   this._loadDataUser();
         this.state = { 
             isLoading: true,
             search: '',
             vehicleCode:'',
             status:'',
+            offsetData: 0,
+            myRowCount: 0,
+            dataRowCount : 0,
+            pageItem: 7,
+            refreshing: false,
         };
-        //
     }
 
     getDataVehicleStatus(){
@@ -36,14 +41,47 @@ class VehicleStatus extends Component{
         console.error(error);
         });
     }
+ 
+    getDataVehicleStatusPage(offset){
+        //   console.log("offset" + offset);
+            this.setState({  isLoading: true });
+             fetch(LinkVehicleStatusPage, {
+                 method: "POST",
+                 headers: {
+                     'Accept': 'application/json',
+                     'Content-Type': 'application/json',
+                 },
+                 body: JSON.stringify({
+                       pageIndex: offset ,
+                       pageItem: this.state.pageItem,
+                 }),
+             }).then((response) => response.json())
+             .then((responseJson) => {
+               //  console.log("tes" + responseJson) ;
+               if( responseJson.rowCount !== 0 ){
+                   this.setState({
+                       isLoading: false,
+                       dataSource: responseJson.rows,
+                       dataRowCount:  responseJson.rows[0].datacount,//
+                   });
+                }else{
+                   this.setState({
+                     dataRowCount:  null,//
+                 });
+               }       
+             })
+             .catch((error) => {
+               console.error(error);
+             });
+       }
 
-    componentDidMount(){
-        this.getDataVehicleStatus();
+
+    componentDidMount(){  
+        this.getDataVehicleStatusPage(this.state.offsetData);
     }    
 
     SearchVehicleStatus(){
-      //  console.warn(this.state.search + "test" + this.state.status);
-        fetch(LinkSearchVehicleStatus, {
+        fetch(LinkSearchVehicleStatusPageList, {
             method: "POST",
             headers: {
                 'Accept': 'application/json',
@@ -51,14 +89,27 @@ class VehicleStatus extends Component{
             },
             body: JSON.stringify({
                 "vehicletype": this.state.search,
-                "status": this.state.status
+                "status": this.state.status,
+                 pageIndex:  this.state.offsetData,
+                 pageItem: this.state.pageItem,
             }),
         }).then((response) => response.json())
         .then((responseJson) => { 
-            this.setState({
-                isLoading: false,
-                dataSource: responseJson,
-            });
+            // this.setState({
+            //     isLoading: false,
+            //     dataSource: responseJson,
+            // });
+            if( responseJson.rowCount !== 0 ){
+                this.setState({
+                   dataSource: responseJson.rows,
+                   isLoading: false,
+                   myRowCount: responseJson.rows[0].mycount ,
+                });
+            }else{
+                this.setState({
+                    myRowCount: null ,//
+                });
+            }         
         })
         .catch((error) => {
             console.error(error);
@@ -84,7 +135,67 @@ class VehicleStatus extends Component{
     UpdateSearch = search => {
         this.setState({ search },this.SearchVehicleStatus.bind(this));
     };
-    
+   
+    loadDataSearch(offset){
+        // console.log("offset" + offset);
+          this.setState({  isLoading: true });
+           fetch(LinkSearchVehicleStatusPageList, {
+               method: "POST",
+               headers: {
+                   'Accept': 'application/json',
+                   'Content-Type': 'application/json',
+               },
+               body: JSON.stringify({
+                "vehicletype": this.state.search,
+                "status": this.state.status,
+                  pageIndex: offset,
+                  pageItem: this.state.pageItem,
+               }),
+           }).then((response) => response.json())
+           .then((responseJson) => {
+               this.setState({
+                   isLoading: false,
+                   dataSource: responseJson.rows,
+               });
+           })
+           .catch((error) => {
+             console.error(error);
+           });
+     }
+
+    _onRefresh = () => {  
+        // console.info( "dataRowCount" +this.state.dataRowCount)
+          this.setState({refreshing: true});
+          var pageRow =   this.state.myRowCount;
+          var dataRC = this.state.dataRowCount;
+          //get   
+          if(this.state.search == ""){
+              if (this.state.offsetData > dataRC){         
+                  this.state.offsetData = 0; 
+             }else{    
+                  this.state.offsetData ;
+             }   
+          }else{
+              if (this.state.offsetData > pageRow){         
+                  this.state.offsetData = 0; 
+            }else{    
+                this.state.offsetData; 
+          } 
+          }
+  
+          this.setState(    {
+             offsetData: this.state.offsetData + this.state.pageItem,
+            },
+          );        
+          if(this.state.search != ""){
+              this.loadDataSearch( this.state.offsetData);
+              this.setState({refreshing: false});
+          }else{
+              this.getDataVehicleStatusPage(this.state.offsetData);
+              this.setState({refreshing: false});
+          }      
+        };
+
     render(){
         let data = [{
             value: 'Trống',
@@ -96,7 +207,9 @@ class VehicleStatus extends Component{
         const { search } = this.state;
         const { navigate } = this.props.navigation;
         return(
-            <ScrollView style={styles.mainContainer}>
+            <ScrollView style={styles.mainContainer}
+              refreshControl={ <RefreshControl refreshing={this.state.refreshing} onRefresh={this._onRefresh.bind(this)} /> } 
+            >
                 <View style={styles.contentSearch}>
                     <View style={styles.contentChildSearch}>
                         <Image style={styles.iconInputSearch} source={SEARCH_IMAGE}/>
@@ -116,8 +229,7 @@ class VehicleStatus extends Component{
                             />
                         </View>
                         <Text style={styles.spaceRight}></Text>
-                    </View>
-                    
+                    </View>      
                 </View>
                
                 <View style={styles.bodyContent}>
@@ -130,7 +242,7 @@ class VehicleStatus extends Component{
                                 params: { 
                                     item,
                                     reFetchVehicleStatus: (() => {
-                                        this.getDataVehicleStatus()
+                                        this.getDataVehicleStatusPage()
                                     }).bind(this)
                                 } 
                             }):
@@ -138,7 +250,7 @@ class VehicleStatus extends Component{
                                 params: { 
                                     item,
                                     reFetchVehicleStatus: (() => {
-                                        this.getDataVehicleStatus()
+                                        this.getDataVehicleStatusPage()
                                     }).bind(this)
                                 } 
                             })}>
@@ -148,11 +260,11 @@ class VehicleStatus extends Component{
                                             <Image style={styles.imageStyle}
                                               //  source={{uri: 'https://static.independent.co.uk/s3fs-public/thumbnails/image/2017/09/12/11/naturo-monkey-selfie.jpg?w968h681'}}
                                                 source={{ uri: vehicleService + item.vehicleimage.toString()}}  
-                                                onLayout={ 
-                                                    () => {
-                                                        console.log(item)                                                      
-                                                    }
-                                                } 
+                                                // onLayout={ 
+                                                //     () => {
+                                                //         console.log(item)                                                      
+                                                //     }
+                                                // } 
                                             />
                                         </View>
                                         <View style={styles.listViewChildRight}>
@@ -232,6 +344,19 @@ const RootContent = createStackNavigator(
 const AppContainer = createAppContainer(RootContent);
     
 export default class App extends React.Component {
+    constructor(props) {
+        super(props);
+        this._loadDataUser();          
+    }
+     // get user Info
+     _loadDataUser = async() =>{
+        try{
+          const isLoggedIn = await AsyncStorage.getItem('user');
+          this.props.navigation.navigate( isLoggedIn !== null ? 'VehicleStatus' : 'Login');  
+         } catch (error) {
+          console.log(error);
+        }
+      }
     render() {
         return <AppContainer />;
     }

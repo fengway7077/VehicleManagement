@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import {StyleSheet, View,TouchableOpacity,Image,Text} from 'react-native';
 import {createDrawerNavigator, createStackNavigator, createAppContainer,DrawerItems, SafeAreaView,ScrollView } from 'react-navigation';
-import { DRAWER_IMAGE ,MOTOBIKE_IMAGE,CUSTOMER_IMAGE,RENTAL_IMAGE,REPAIR_IMAGE, MESSAGE_IMAGE, CLOCK_IMAGE,ICONMENU_IMAGE,CALENDAR_IMAGE} from './imageExport.js';
+import { DRAWER_IMAGE ,VEHICLE1_IMAGE,MOTOBIKE_IMAGE,CUSTOMER_IMAGE,RENTAL_IMAGE,REPAIR_IMAGE, MESSAGE_IMAGE, CLOCK_IMAGE,ICONMENU_IMAGE,CALENDAR_IMAGE,REGISTER_IMAGE,LOGIN_IMAGE,LOGOUT_IMAGE} from './imageExport.js';
+import Login from './Login.js';
 import ManageVehicle from './ManageVehicle.js';
 import ManageCustomer from './ManageCustomer.js';
 import RentalHistory from './RentalHistory.js';
@@ -10,11 +11,26 @@ import VehicleFees from './VehicleFees.js';
 import VehicleStatus from './VehicleStatus.js';
 import ListVehicle from './ListVehicle.js';
 import ListCustomer from './ListCustomer.js';
+import VehicleRegistration from './VehicleRegistration.js';
 import CalendarPickerContent from './CalendarPickerContent.js';
+import HiddenScreen from './HiddenScreen.js';
+import Logout from './Logout.js';
+
 class MenuDrawer extends Component {
   toggleDrawer = () => {
     this.props.navigationProps.toggleDrawer();
   };
+
+  constructor(props) {
+    super(props);
+   // console.warn(login),
+    global.user = true;
+    //console.warn(global.user),
+    this.state = { 
+      test: true,             
+    };
+  }
+
 
   render() {
     return (
@@ -30,8 +46,26 @@ class MenuDrawer extends Component {
   }
 }
 
+
+const Login_Screen = createStackNavigator({  
+  Login: {
+    screen: Login,
+    navigationOptions: ({ navigation }) => ({
+      title: 'Login ',
+      headerLeft: <MenuDrawer navigationProps={navigation} />,
+      headerStyle: {
+        backgroundColor: '#FF9800',
+        textAlignVertical: "center",
+      },
+      headerTintColor: 'white',
+    }),
+  },
+});
+
+
 const ManageVehicle_Screen = createStackNavigator({
   First: {
+    //disableOpenGesture: true,
     screen: ManageVehicle,
     navigationOptions: ({ navigation }) => ({
       title: 'Vehicle Information Management',
@@ -93,9 +127,18 @@ const ListVehicle_Screen = createStackNavigator({
 const ListCustomer_Screen = createStackNavigator({
   ListCustomer: {
     screen: ListCustomer,
-    navigationOptions:{
-      header:null
-    }
+    // navigationOptions:{
+    //   header:null
+    // }
+      navigationOptions: ({ navigation }) => ({
+        title: 'Vehicle Information Management',
+        headerLeft: <MenuDrawer navigationProps={navigation} />,
+        headerStyle: {
+          backgroundColor: '#FF9800',
+          textAlignVertical: "center",
+        },
+        headerTintColor: 'white',
+      }),
     // navigationOptions: ({ navigation }) => ({
     //   title: 'ListCustomer',
     //   headerLeft: <TouchableOpacity
@@ -168,14 +211,61 @@ const VehicleStatus_Screen = createStackNavigator({
   },
 });
 
-const CalendarPickerContent_Screen = createStackNavigator({
-  Six: {
-    screen: CalendarPickerContent,
+// const CalendarPickerContent_Screen = createStackNavigator({
+//   Seven: {
+//     screen: CalendarPickerContent,
+//     navigationOptions: ({ navigation }) => ({
+//       title: 'CalendarPicker',
+//       headerLeft: <MenuDrawer navigationProps={navigation} />,
+//       headerStyle: {
+//         backgroundColor:'#FF9800',
+//         textAlignVertical: "center",
+//       },
+//       headerTintColor: 'white',
+//     }),
+//   },
+// });
+
+const VehicleRegistration_Screen = createStackNavigator({
+  Eight: {
+    screen: VehicleRegistration,
     navigationOptions: ({ navigation }) => ({
-      title: 'CalendarPicker',
+      title: 'VehicleRegistration',
       headerLeft: <MenuDrawer navigationProps={navigation} />,
       headerStyle: {
         backgroundColor:'#FF9800',
+        textAlignVertical: "center",
+      },
+      headerTintColor: 'white',
+    }),
+  },
+});
+
+
+//Stack Navigator for Hidden Option of Navigation Drawer
+const HiddenScreen_Screen = createStackNavigator({
+  HiddenScreen: {
+    screen: HiddenScreen,
+    navigationOptions: ({ navigation }) => ({
+      title: 'HiddenScreen',
+      headerLeft: <MenuDrawer navigationProps={navigation} />,
+      headerStyle: {
+        backgroundColor: '#FF9800',
+      },
+      headerTintColor: '#fff',
+    }),
+  },
+});
+
+//Logout
+const Logout_Screen = createStackNavigator({  
+  Logout: {
+    screen: Logout,
+    navigationOptions: ({ navigation }) => ({
+      title: 'Logout ',
+      headerLeft: <MenuDrawer navigationProps={navigation} />,
+      headerStyle: {
+        backgroundColor: '#FF9800',
         textAlignVertical: "center",
       },
       headerTintColor: 'white',
@@ -195,14 +285,37 @@ const headerMenuDrawer =(props) =>(
   </SafeAreaView>
 )
 
+class Hidden extends React.Component {
+  render() {
+    return null;
+  }
+}
+
 const DrawerNavigator_Screen = createDrawerNavigator({
+
+  Login: {
+    screen: Login_Screen,
+    navigationOptions: {
+      drawerLabel: 'Login',
+      drawerIcon: ({ tintColor }) => (
+        <Image
+          source={LOGIN_IMAGE}
+          style={[styles.icon, {tintColor: tintColor}]}
+        />
+      ),
+    },
+  },
+
+
   ManageVehicle: {
     screen: ManageVehicle_Screen,
     navigationOptions: {
-      drawerLabel: 'ManageVehicle',
+      drawerLabel:   'ManageVehicle',
+      // drawerLabel: () => null,
+      // drawerIcon: () => null,
       drawerIcon: ({ tintColor }) => (
         <Image
-          source={MOTOBIKE_IMAGE}
+          source={VEHICLE1_IMAGE}
           style={[styles.icon, {tintColor: tintColor}]}
         />
       ),
@@ -300,19 +413,57 @@ const DrawerNavigator_Screen = createDrawerNavigator({
     },
   },
 
-  CalendarPickerContent: {
-    screen: CalendarPickerContent_Screen,
+  // CalendarPickerContent: {
+  //   screen: CalendarPickerContent_Screen,
+  //   navigationOptions: {
+  //     drawerLabel: 'CalendarPicker',
+  //     drawerIcon: ({ tintColor }) => (
+  //       <Image
+  //         source={CALENDAR_IMAGE}
+  //         style={[styles.icon, {tintColor: tintColor}]}
+  //       />
+  //     ),  
+  //   },
+  // },
+
+  VehicleRegistration: {
+    screen: VehicleRegistration_Screen,
     navigationOptions: {
-      drawerLabel: 'CalendarPicker',
+      drawerLabel: 'VehicleRegistration',
       drawerIcon: ({ tintColor }) => (
         <Image
-          source={CALENDAR_IMAGE}
+          source={REGISTER_IMAGE}
           style={[styles.icon, {tintColor: tintColor}]}
         />
       ),  
     },
   },
+
+  HiddenScreen: {
+    screen: HiddenScreen_Screen,
+    navigationOptions: {
+      //Return Custom label with null in return.
+      //It will hide the label from Navigation Drawer
+      drawerLabel: <Hidden />,
+    },
+  },
+
+  Logout: {
+    screen: Logout_Screen,
+    navigationOptions: {
+      drawerLabel: 'Logout',
+      drawerIcon: ({ tintColor }) => (
+        <Image
+          source={LOGOUT_IMAGE}
+          style={[styles.icon, {tintColor: tintColor}]}
+        />
+      ),
+    },
+  },
+
 },
+
+
 {
   contentComponent:headerMenuDrawer
 });

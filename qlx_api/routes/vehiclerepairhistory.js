@@ -186,5 +186,67 @@ router.post('/addVehiclerepair',urlencodedParser,function(req, res, next) {
       });
      });
 
+     /*Search vehicle repair history information listing to customer and vehicle  */
+router.post('/searchListVehiclestatusPage',urlencodedParser,function(req, res, next) {
+  var  vehicletype =  req.body.vehicletype;
+  var  status =  req.body.status;
+  var pageIndex = req.body.pageIndex;
+  var pageItem =  req.body.pageItem;
+  console.log(  req.body) ;
+pool.connect(function(err, client, done) {
+  if(err) {
+    return console.error('error fetching client from pool', err);
+  }  
+  client.query(`   SELECT vd.vehiclecode
+                        , vd.vehicletype
+                        , vd.vehiclename
+                        , ct.customercode
+                        , ct.lastname ||' ' || ct.firstname AS fullname
+                        , ct.phone
+                        , vph.damagedday 
+                        , vph.amountfixed
+                        , vd.status 
+                        , vd.vehicleimage  
+                        , vrh1.payday 
+                        , vd.rentalprice   
+                        , (SELECT COUNT(*) 
+                            FROM  vehiclerepairhistory vph
+                            LEFT JOIN vehicledetails vd
+                              ON  vph.vehiclecode = vd.vehiclecode
+                            LEFT JOIN customer ct
+                              ON ct.customercode = vph.customercode  
+                            LEFT OUTER JOIN vehiclerentalhistory vrh1
+                              ON   vrh1.vehiclecode = vd.vehiclecode
+                              AND  vrh1.customercode = ct.customercode                      
+                            WHERE vd.vehicletype ILIKE '%${vehicletype}%' 
+                              AND   vd.status::text LIKE '%${status}%'
+                              AND	vd.vehiclecode IS NOT NULL 
+                              AND ct.customercode IS NOT NULL   
+                        )  AS mycount             
+                    FROM  vehiclerepairhistory vph
+                    LEFT JOIN vehicledetails vd
+                      ON  vph.vehiclecode = vd.vehiclecode
+                    LEFT JOIN customer ct
+                      ON ct.customercode = vph.customercode  
+                    LEFT OUTER JOIN vehiclerentalhistory vrh1
+                      ON   vrh1.vehiclecode = vd.vehiclecode
+                      AND  vrh1.customercode = ct.customercode                      
+                    WHERE vd.vehicletype ILIKE '%${vehicletype}%' 
+                       AND   vd.status::text LIKE '%${status}%'
+                       AND	vd.vehiclecode IS NOT NULL 
+                       AND ct.customercode IS NOT NULL   
+                    ORDER BY  vd.vehiclecode , ct.customercode ASC
+                    LIMIT '${pageItem}'    
+                    OFFSET '${pageIndex}' ROWS  
+                    `,  function(err, result) {
+   done(err);
+    if(err) {
+      return console.error('error running query', err);
+    }
+     res.json(result)
+});
+});
+});
+
 module.exports = router;
 

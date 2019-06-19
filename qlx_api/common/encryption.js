@@ -30,11 +30,11 @@
 //   return dec;
 // }
 
-// var hw = encrypt("Csv0202")
-//   // outputs hello world
-// //console.log(decrypt(hw));
-// var hash = crypto.createHash('sha256').update("text").digest('base64');
-// console.log( hash);
+ //var hw = encrypt("text")
+ // outputs hello world
+//console.log(decrypt(hw));
+//var hash = crypto.createHash('sha256').update("Cube2335").digest('base64');
+ //console.log( hash);
 
 // var crypto = require('crypto');
 

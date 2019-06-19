@@ -212,12 +212,13 @@ pool.connect(function(err, client, done) {
    });
 
  /*Search customer information */
-router.post('/searchCustomer',urlencodedParser,function(req, res, next) {
+router.post('/searchCustomerPage',urlencodedParser,function(req, res, next) {
   var  firstname =  req.body.firstname
   var  lastname =  req.body.lastname
   var fullname =  lastname + firstname
+  var pageItem =  req.body.pageItem;
   var pageIndex = req.body.pageIndex
-  console.log( "pageIndex" + pageIndex)
+  console.log( "pageIndex " + pageIndex)
   //return;
   pool.connect(function(err, client, done) {
     if(err) {
@@ -233,7 +234,7 @@ router.post('/searchCustomer',urlencodedParser,function(req, res, next) {
                       OR  lastname ILIKE '%${lastname}%'  
                       OR  fullname ILIKE '%${fullname}%'  
                       ORDER BY  customercode ASC
-                      LIMIT 5  
+                      LIMIT '${pageItem}'  
                       OFFSET '${pageIndex}' ROWS     
                       `,  function(err, result) {
      done(err);
@@ -247,6 +248,35 @@ router.post('/searchCustomer',urlencodedParser,function(req, res, next) {
   });
  });
 
+ /* Get customer information listing. */
+router.post('/getcustomerPage', function(req, res, next) {
+  var pageIndex = req.body.pageIndex
+  var pageItem =  req.body.pageItem;
+  console.log( "pageIndex " + pageIndex)
+  pool.connect(function(err, client, done) {
+    if(err) {
+      return console.error('error fetching client from pool', err);
+    }
+   
+    //use the client for executing the query
+    client.query(` SELECT * ,(SELECT COUNT(*)  FROM customer) AS  datacount
+                     FROM customer 
+                     ORDER BY  customercode ASC
+                     LIMIT '${pageItem}'      
+                     OFFSET '${pageIndex}' ROWS  
+     `
+      ,  function(err, result) {
+      //call `done(err)` to release the client back to the pool (or destroy it if there is an error)
+      done(err);
+ 
+      if(err) {
+        return console.error('error running query', err);
+      }
+      res.json(result)
+    //  res.send('customer information' + res.json(result));
+    });
+  });
+});
 
 
 
