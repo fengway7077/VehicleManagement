@@ -4,7 +4,7 @@ import { createAppContainer, createStackNavigator } from 'react-navigation';
 import { PanGestureHandler,State ,ScrollView } from 'react-native-gesture-handler';
 import { SEARCH_IMAGE } from './imageExport.js'
 import ManageCustomer from './ManageCustomer.js'
-import { LinkListCustomer, LinkSearchListCustomer ,customerService} from '../constLink/linkService.js'
+import { LinkListCustomer, LinkSearchListCustomerPage ,customerService,LinkListCustomerPage} from '../constLink/linkService.js'
 class ListCustomer extends Component{
     constructor(props) {
         super(props);
@@ -14,29 +14,64 @@ class ListCustomer extends Component{
             offsetData: 0,
             refreshing: false,
             myRowCount: 0,
+            dataRowCount : 0,
+            pageItem: 7, //
         };
     }
 
-    getDataCustomer(){
-        return fetch(LinkListCustomer)
-        .then((response) => response.json())
-        .then((responseJson) => {
-        this.setState({
-            isLoading: false,
-            dataSource: responseJson,
-        }, function(){
+    // getDataCustomer(){
+    //     return fetch(LinkListCustomer)
+    //     .then((response) => response.json())
+    //     .then((responseJson) => {
+    //     this.setState({
+    //         isLoading: false,
+    //         dataSource: responseJson,
+    //     }, function(){
 
-        });
+    //     });
 
-        })
-        .catch((error) =>{
+    //     })
+    //     .catch((error) =>{
+    //         console.error(error);
+    //     });
+    // }
+
+    getDataCustomerPage(offset){
+     //   console.log("offset" + offset);
+         this.setState({  isLoading: true });
+          fetch(LinkListCustomerPage, {
+              method: "POST",
+              headers: {
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                    pageIndex: offset ,
+                    pageItem: this.state.pageItem,
+              }),
+          }).then((response) => response.json())
+          .then((responseJson) => {
+            //  console.log("tes" + responseJson) ;
+            if( responseJson.rowCount !== 0 ){
+                this.setState({
+                    isLoading: false,
+                    dataSource: responseJson.rows,
+                    dataRowCount:  responseJson.rows[0].datacount,//
+                });
+             }else{
+                this.setState({
+                  dataRowCount:  null,//
+              });
+            }       
+          })
+          .catch((error) => {
             console.error(error);
-        });
+          });
     }
 
     componentDidMount(){
         // this.props.navigation.navigate('Login');
-        this.getDataCustomer();
+        this.getDataCustomerPage(this.state.offsetData);
         //page list
         // this.list.setNativeProps({
         //     scrollEnabled: false,
@@ -46,7 +81,7 @@ class ListCustomer extends Component{
     
     UpdateSearch = search => {
         this.setState({ search },() => {
-            fetch(LinkSearchListCustomer, {
+            fetch(LinkSearchListCustomerPage, {
                 method: "POST",
                 headers: {
                     'Accept': 'application/json',
@@ -57,16 +92,24 @@ class ListCustomer extends Component{
                     "firstname" : this.state.search,
                     "fullname"  : this.state.search ,
                      pageIndex: this.state.offsetData,
+                     pageItem: this.state.pageItem,
                 }),
             }).then((response) => response.json())
             .then((responseJson) => {
-                this.setState({
-                    isLoading: false,
-                   // dataSource: responseJson,
-                    dataSource: responseJson.rows,
-                    myRowCount: responseJson.rows[0].mycount,//
-                });
-               // console.log("myRowCount" + this.state.myRowCount);
+                console.log("responseJson.RowCount" + responseJson.rowCount);
+                if( responseJson.rowCount !== 0 ){
+                    this.setState({
+                        isLoading: false,
+                       // dataSource: responseJson,
+                        dataSource: responseJson.rows,
+                        myRowCount: responseJson.rows[0].mycount ,//
+                    });
+                }else{
+                    this.setState({
+                        myRowCount: null ,//
+                    });
+                }             
+                   // console.log("myRowCount" + this.state.myRowCount);         
             })
             .catch((error) => {
               console.error(error);
@@ -75,13 +118,9 @@ class ListCustomer extends Component{
     };
 
   loadDataSearch(offset){
-      console.log("offset" + offset);
-    //   if(parseInt(offset) == null )
-    //   {
-    //     offset = offset + 5
-    //   }
+     // console.log("offset" + offset);
        this.setState({  isLoading: true });
-        fetch(LinkSearchListCustomer, {
+        fetch(LinkSearchListCustomerPage, {
             method: "POST",
             headers: {
                 'Accept': 'application/json',
@@ -92,6 +131,7 @@ class ListCustomer extends Component{
                 "firstname" : this.state.search,
                 "fullname"  : this.state.search,
                   pageIndex: offset ,
+                  pageItem: this.state.pageItem,
             }),
         }).then((response) => response.json())
         .then((responseJson) => {
@@ -107,35 +147,63 @@ class ListCustomer extends Component{
   }
 
     _onRefresh = () => {  
-     console.info( "myRowCount" +this.state.myRowCount)
-        if (this.state.offsetData > this.state.myRowCount){     //25 > 22
-            if( this.state.offsetData < this.state.myRowCount + 5  ){  //25 < 22 +5
-                this.state.offsetData ;
-                console.log( "   this.state.offsetData" +   this.state.offsetData) ;
-            }else{
+     //  console.info( "myRowCount" +this.state.myRowCount)
+        var  pageRow =   this.state.myRowCount;
+        var dataRC = this.state.dataRowCount;
+     //   console.log("dsfdsf " + pageRow )
+    //     var  page = this.state.page
+    //     var item = 5 ;  
+    //     if(page >  pageRow/5 ){
+    //        page = 0;
+    //     }  
+    //     // for(var  p = 0; p < pageRow/5 ; p++){
+    //     //         page =  p;
+    //         var  itempage = page * item ;
+    //      //   for (var i = itempage; i <= itempage + 4; i++) {
+    //             this.state.offsetData = itempage;
+    //      //   }
+    //  //   }
+         this.setState({refreshing: true});
+        //get   
+        if(this.state.search == ""){
+            if (this.state.offsetData > dataRC){         
                 this.state.offsetData = 0; 
-            }
+           }else{    
+                this.state.offsetData; 
+           }   
         }else{
-            this.state.offsetData ;  
-        }    
+            if (this.state.offsetData > pageRow){     //25 > 22        
+                this.state.offsetData = 0; 
+          }else{    
+              this.state.offsetData; 
+        } 
+        }
+
         this.setState(    {
-            offsetData: this.state.offsetData + 5
+           offsetData: this.state.offsetData + this.state.pageItem, // + 7
           },
-        );
-        this.loadDataSearch( this.state.offsetData);
+        );        
+        if(this.state.search != ""){
+            this.loadDataSearch( this.state.offsetData);
+            this.setState({refreshing: false});
+        }else{
+            this.getDataCustomerPage(this.state.offsetData);
+            this.setState({refreshing: false});
+        }
+       
       };
 
       handleLoadMore = () => {  
-        var offsetData_  = this.state.offsetData != 0 ? 0 : this.state.offsetData -5;
-        console.info("test 2 " + this.state.offsetData);
-        this.setState(   {
-            offsetData: offsetData_ ,
-            refreshing: true,
-          },
-          () => {
-            this.UpdateSearch;
-          }
-        );
+        // var offsetData_  = this.state.offsetData != 0 ? 0 : this.state.offsetData -5;
+        // console.info("test 2 " + this.state.offsetData);
+        // this.setState(   {
+        //     offsetData: offsetData_ ,
+        //     refreshing: true,
+        //   },
+        //   () => {
+        //     this.UpdateSearch;
+        //   }
+        // );
       };
   
   
@@ -193,7 +261,7 @@ class ListCustomer extends Component{
                                             params: { 
                                                 item,
                                                 reFetchCustomer: (() => {
-                                                    this.getDataCustomer()
+                                                    this.getDataCustomerPage()
                                                 }).bind(this)
                                             } 
                                         }

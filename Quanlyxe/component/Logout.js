@@ -50,7 +50,6 @@ export default class HiddenScreen extends React.Component {
   }
 }
 
-
 const styles = StyleSheet.create({
     mainContainer: {
         marginTop: 50,

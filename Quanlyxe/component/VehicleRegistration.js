@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
-import {TextInput,View,Text,StyleSheet,Image,TouchableOpacity,ScrollView,TouchableHighlight,AsyncStorage} from 'react-native';
+import { Platform,TextInput,View,Text,StyleSheet,Image,TouchableOpacity,ScrollView,TouchableHighlight,AsyncStorage} from 'react-native';
 import { DELETE_IMAGE,INSERT_IMAGE,UPDATE_IMAGE,NO_IMAGE} from "./imageExport.js";
 import { Dropdown } from 'react-native-material-dropdown';
 import { LinkInsertVehicle ,LinkUpdateVehicle,LinkDeleteVehicle ,vehicleService,LinkUploadImage} from '../constLink/linkService.js';
 var FloatingLabel = require('react-native-floating-labels');
 var ImagePicker = require('react-native-image-picker');
-import axios from 'axios';
+
 ////import uploadFile from '../customize/upload.js';
 export default class VehicleRegistration extends Component{
     constructor(props) {
@@ -33,6 +33,7 @@ export default class VehicleRegistration extends Component{
                 describe           : item.describe ,
                 language           : 'Trạng Thái',
                 filePath           : {uri: item.vehicleimage},
+             // filePath           :  Platform.OS === 'android' ?  {uri: item.vehicleimage} : {uri: item.vehicleimage.replace('file://', '')},
                //vali
                 namevalidate: true,
                 numbervalidate:true,
@@ -81,6 +82,7 @@ export default class VehicleRegistration extends Component{
     }
 
     InsertVehicle(){
+        console.warn(this.state.filePath);
         console.log(this.state.filePath);
         fetch(LinkInsertVehicle, {
             method: "POST",
@@ -137,14 +139,14 @@ export default class VehicleRegistration extends Component{
                 "status"             : this.state.status,
                 "vehiclecolor"       : this.state.vehicleColor,    
                 "purchaseprice"      : this.state.purchasePrice,
-               //  "vehicleimage"      :  this.state.filePath == null ? ((this.state.filePath.fileName).slice(0, 6) + this.state.day + ".png" ): this.state.filePath,
+             // "vehicleimage"      :  (this.state.filePath.fileName).slice(0, 6) + this.state.day + ".png",
                 "vehicleimage"       : this.state.imageVehicle,
                 "describe"           : this.state.describe,
             }),
         }).then((response) => response.json())
         .then((responseJson) => {
             if(responseJson.rowCount === 1){
-                this.uploadImage(); 
+            //   this.uploadImage(); 
                 alert("Sửa Thành Công",params.reFetchVehicle(),this.props.navigation.navigate('ListVehicle'));
             }
             return;
@@ -202,6 +204,13 @@ export default class VehicleRegistration extends Component{
                 this.setState({
                 filePath: source,
                 });
+                // this.setState({
+                //     filePath: Platform.OS === 'android' ? source: source ={data:response.data ,
+                //                                                            path:response.uri.replace('file://', ''),
+                //                                                            fileName: response.fileName,
+                //                                                            type:response.type
+                //                                                            },
+                //     });
             }
         });
     };
@@ -252,7 +261,7 @@ export default class VehicleRegistration extends Component{
     }
     
  uploadImage() {
-    
+    console.warn("test" + this.state.filePath);
    // var xhr = new XMLHttpRequest();
    // var  apiUrl = 'http://192.168.11.129:3333/vehicledetails/upload'
     //  var uriParts = this.state.filePath.path.split('.');
@@ -279,14 +288,14 @@ export default class VehicleRegistration extends Component{
                    'Content-Type': 'application/json',
                 },
                  body:JSON.stringify({ base64image: this.state.filePath.data,
-                                        path: this.state.filePath.path,
+                                        path:  Platform.OS === 'android' ? this.state.filePath.path :this.state.filePath.path.replace('file://', ''),
                                         fileName:(this.state.filePath.fileName).slice(0, 6),
                                         type:  this.state.filePath.type,
                                         daytime: this.state.day, //set date
                                     }),
               //  // body:imageData //JSON.stringify({  image: this.state.filePath.data }),
                 }).then(response => {
-                   // console.log(response.body);
+                    console.log(response.body);
                     console.log("imageData uploaded")
                 }).catch(err => {
                     console.log(err)
@@ -468,11 +477,20 @@ export default class VehicleRegistration extends Component{
                                       source={{ uri:this.state.filePath.uri}}
                                   /> }
                                   {this.state.filePath.uri == '' && <Image style={styles.noImageStyle} source={NO_IMAGE} /> }             
-                              </TouchableOpacity>
+                               </TouchableOpacity>
                             :  //else
-                                 <Image style={[styles.imageStyle,styles.imageStyleRight]}
-                                     source={{ uri:  (this.state.imageVehicle === ""? vehicleService + "/noimage.png": vehicleService + this.state.imageVehicle.toString())}} 
-                                />                                
+                              //  ( this.state.imageVehicle === null ?
+                                    <Image style={[styles.imageStyle,styles.imageStyleRight]}
+                                        source={{ uri:  (this.state.imageVehicle === null ? vehicleService + "/noimage.png": vehicleService + this.state.imageVehicle.toString())}} 
+                                    /> 
+                                // :  
+                                //     <TouchableOpacity style={styles.touchableContentImage} onPress={this.chooseFile.bind(this)} >
+                                //     {this.state.filePath.uri != '' && <Image style={styles.imageStyle}
+                                //         source={{ uri:this.state.filePath.uri}}
+                                //     /> }
+                                //    { this.state.imageVehicle !== '' &&  <Image style={styles.noImageStyle2} source={NO_IMAGE} /> }             
+                                //     </TouchableOpacity>
+                                // )     
                             }                                                                                  
                             </View>
                         </View>
@@ -672,5 +690,17 @@ const styles = StyleSheet.create({
      //   backgroundColor:'yellow',
         borderColor:'red'       
     },
-
+    imageStyle1: {
+        height:160,
+        width:160,
+      //  zIndex: 1 , 
+    },
+    noImageStyle2: {
+        height:160,
+        width:160,
+          marginBottom:'10%',
+       // paddingBottom:'10%',
+        position: 'absolute',
+        zIndex:-2 ,   
+    },
   });

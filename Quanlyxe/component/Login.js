@@ -108,8 +108,8 @@ export default class Login extends Component{
              // const userInfo = {username: responseJson.accountname,password: responseJson.password} 
              //  const userInfo = {username: name,password: pass}
               // AsyncStorage.setItem('user',userInfo);
-              AsyncStorage.setItem('user',"responseJson");
-               this.setState({ 'user': responseJson });
+              AsyncStorage.setItem('user',"responseJson"); //string
+              this.setState({ 'user': responseJson });
             //   AsyncStorage.setItem('user',name);
             //   this.setState({ 'user': name });
              //   console.log("test" + JSON.parse(AsyncStorage.getItem('user')));

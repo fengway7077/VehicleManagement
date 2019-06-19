@@ -4,9 +4,9 @@ import { createAppContainer, createStackNavigator } from 'react-navigation';
 import { ScrollView } from 'react-native-gesture-handler';
 import { SEARCH_IMAGE } from './imageExport.js'
 import VehicleRegistration from './VehicleRegistration.js'
-import { LinkListVehicle,LinkSearchListVehicle ,vehicleService} from '../constLink/linkService.js'
+import { LinkListVehicle,LinkSearchListVehicle ,vehicleService,LinkListVehiclePage,LinkSearchListVehiclePage} from '../constLink/linkService.js'
 import { List, ListItem, SearchBar } from "react-native-elements";
-import Swipeout from "react-native-swipeout"
+//import Swipeout from "react-native-swipeout"
 // import { type } from 'os';
 class ListVehicle extends Component{
     constructor(props) {
@@ -16,13 +16,16 @@ class ListVehicle extends Component{
             isLoading: true,
             search: '',
             refreshing: false,
-            activeRowKey:null,          
+          //  activeRowKey:null,          
           ////  pageIndex: 0,
-            dataSource: [],
+           // dataSource: [],
             offsetData: 0,
             fetching_from_server: false,
-            isListEnd :false,
+           // isListEnd :false,
             error: null,
+            myRowCount: 0,
+            dataRowCount : 0,
+            pageItem: 7,
         };
       //  offsetData: 0; //Index of the offset to load from web API
      ///    this.updateSearch();
@@ -45,20 +48,54 @@ class ListVehicle extends Component{
         console.error(error);
         });
     }
+    getDataVehiclePage(offset){
+        //   console.log("offset" + offset);
+            this.setState({  isLoading: true });
+             fetch(LinkListVehiclePage, {
+                 method: "POST",
+                 headers: {
+                     'Accept': 'application/json',
+                     'Content-Type': 'application/json',
+                 },
+                 body: JSON.stringify({
+                       pageIndex: offset ,
+                       pageItem: this.state.pageItem,
+                 }),
+             }).then((response) => response.json())
+             .then((responseJson) => {
+               //  console.log("tes" + responseJson) ;
+               if( responseJson.rowCount !== 0 ){
+                   this.setState({
+                       isLoading: false,
+                       dataSource: responseJson.rows,
+                       dataRowCount:  responseJson.rows[0].datacount,//
+                   });
+                }else{
+                   this.setState({
+                     dataRowCount:  null,//
+                 });
+               }       
+             })
+             .catch((error) => {
+               console.error(error);
+             });
+       }
 
     componentDidMount(){
-        if (this.state.search == ""){        
-           this.getDataVehicle();
-        }else{
-           this.updateSearch();
-        }
+        this.getDataVehiclePage(this.state.offsetData);
+        // if (this.state.search == ""){        
+        //    this.getDataVehicle();
+        // }else{
+        //    this.updateSearch();
+        // }
     }   
     
     updateSearch = search => {
-          const{offsetData} =this.state;//
-          this.setState({ loading: true });//
+        console.log("test");
+         // const{offsetData} =this.state;//
+          //this.setState({ loading: true });//
         this.setState({ search }, () => {
-            fetch(LinkSearchListVehicle, {
+            fetch(LinkSearchListVehiclePage, {
                 method: "POST",
                 headers: {
                     'Accept': 'application/json',
@@ -66,17 +103,26 @@ class ListVehicle extends Component{
                 },
                 body: JSON.stringify({
                     "vehicletype": this.state.search,
-                     pageIndex: this.state.offsetData,
+                     pageIndex:  this.state.offsetData,
+                     pageItem: this.state.pageItem,
                 }),
             }).then((response) => response.json())
-            .then((responseJson) => {              
-                this.setState({
-                    dataSource: responseJson, 
-                 //  dataSource: responseJson.rows,
-                //   dataSource: this.state.offsetData === 0 ? responseJson.rows :[...this.state.dataSource, ...responseJson.rows ], 
-                   isLoading: false,
-                   refreshing: false,
-                });
+            .then((responseJson) => {  
+                if( responseJson.rowCount !== 0 ){
+                    this.setState({
+                       // dataSource: responseJson, 
+                      dataSource: responseJson.rows,
+                    //   dataSource: this.state.offsetData === 0 ? responseJson.rows :[...this.state.dataSource, ...responseJson.rows ], 
+                       isLoading: false,
+                     //  refreshing: false,
+                     myRowCount: responseJson.rows[0].mycount ,
+                    });
+                }else{
+                    this.setState({
+                        myRowCount: null ,//
+                    });
+                }            
+              
             })
             .catch((error) => {
               console.error(error);
@@ -85,6 +131,31 @@ class ListVehicle extends Component{
         });
     };
 
+    loadDataSearch(offset){
+         console.log("offset" + offset);
+          this.setState({  isLoading: true });
+           fetch(LinkSearchListVehiclePage, {
+               method: "POST",
+               headers: {
+                   'Accept': 'application/json',
+                   'Content-Type': 'application/json',
+               },
+               body: JSON.stringify({
+                "vehicletype": this.state.search,
+                 pageIndex: offset,
+                 pageItem: this.state.pageItem,
+               }),
+           }).then((response) => response.json())
+           .then((responseJson) => {
+               this.setState({
+                   isLoading: false,
+                   dataSource: responseJson.rows,
+               });
+           })
+           .catch((error) => {
+             console.error(error);
+           });
+     }
 
     // updateSearch = search => {
     //     console.log("test");
@@ -126,64 +197,77 @@ class ListVehicle extends Component{
     //  } //end if
     // };
     
-    // _onRefresh=()=>{
-    //    // console.warn("test12");
-    //     this.setState({refreshing: true ,
+    _onRefresh = () => {  
+          console.info( "myRowCount" +this.state.myRowCount)
+           var  pageRow =   this.state.myRowCount;
+           var dataRC = this.state.dataRowCount;
+           //get   
+           if(this.state.search == ""){
+               if (this.state.offsetData > dataRC){         
+                   this.state.offsetData = 0; 
+              }else{    
+                   this.state.offsetData; 
+              }   
+           }else{
+               if (this.state.offsetData > pageRow){     //14 > 8        
+                   this.state.offsetData = 0; 
+             }else{    
+                 this.state.offsetData; 
+           } 
+           }
+   
+           this.setState(    {
+              offsetData: this.state.offsetData + this.state.pageItem,
+             },
+           );        
+           if(this.state.search != ""){
+               this.loadDataSearch( this.state.offsetData);
+           }else{
+               this.getDataVehiclePage(this.state.offsetData);
+           }
+          
+         };
 
-    //        // offsetData : this.state.offsetData + 5,
-    //     });
-       
-    //    console.warn( "test88" + this.state.search);
-	// 	// this.updateSearch().then(() =>{
-	// 	// 	this.setState({refreshing: false})
-    //     // });
-    //    setTimeout(() => this.setState({ refreshing: false,
-    //      // offsetData : this.state.offsetData + 5 ,
-    //     }), 5000);
-    //   this.updateSearch();
-    
-	// }
-
-    handleRefresh = () => {
-        var offsetData_  = this.state.offsetData != 0 ? 0 : this.state.offsetData -5;
-        this.setState(
-          {
-            offsetData: offsetData_,
-            refreshing: true,
-          },
-        //   () => {
-        //     this.updateSearch();
-        //   }
-        );
-      };
-    handleLoadMore = () => {  
-        this.setState(    {
-            offsetData: this.state.offsetData + 5
-          },
-          () => {
-            this.updateSearch();
-          }
-        );
-      };
+    // handleRefresh = () => {
+    //     var offsetData_  = this.state.offsetData != 0 ? 0 : this.state.offsetData -5;
+    //     this.setState(
+    //       {
+    //         offsetData: offsetData_,
+    //         refreshing: true,
+    //       },
+    //     //   () => {
+    //     //     this.updateSearch;
+    //     //   }
+    //     );
+    //   };
+    // handleLoadMore = () => {  
+    //     this.setState(    {
+    //         offsetData: this.state.offsetData + 5
+    //       },
+    //       () => {
+    //         this.updateSearch;
+    //       }
+    //     );
+    //   };
 
     // renderHeader = () => {
     //     return <SearchBar placeholder="Type Here..." lightTheme round />;
     //   };
-    renderSeparator = () => {
-        return (
-          <View
-            style={styles.renderSeparator}
-          />
-        );
-      };
-      renderFooter = () => {
-        if (!this.state.fetching_from_server) return null;  
-        return (
-          <View style={ styles.renderFooter }  >
-            <ActivityIndicator animating size="large"  style={{ margin: 15 }} />
-          </View>
-        );
-      };
+    // renderSeparator = () => {
+    //     return (
+    //       <View
+    //         style={styles.renderSeparator}
+    //       />
+    //     );
+    //   };
+    //   renderFooter = () => {
+    //     if (!this.state.fetching_from_server) return null;  
+    //     return (
+    //       <View style={ styles.renderFooter }  >
+    //         <ActivityIndicator animating size="large"  style={{ margin: 15 }} />
+    //       </View>
+    //     );
+    //   };
 
     render(){
         const { search } = this.state;
@@ -231,7 +315,10 @@ class ListVehicle extends Component{
         //   }
      console.disableYellowBox = true; //fix warn yellow
         return(
-            <ScrollView style={styles.mainContainer}  >
+            <ScrollView style={styles.mainContainer}
+              refreshControl={ <RefreshControl refreshing={this.state.refreshing} onRefresh={this._onRefresh.bind(this)} /> } 
+            >         
+            
                 <View style={styles.contentSearch}>
                     <View style={styles.contentChildSearch}>
                         <Image style={styles.iconInputSearch} source={SEARCH_IMAGE}/>
@@ -259,7 +346,7 @@ class ListVehicle extends Component{
                                             params: { 
                                                 item,
                                                 reFetchVehicle: (() => {
-                                                    this.getDataVehicle()
+                                                    this.getDataVehiclePage()
                                                 }).bind(this)
                                             } 
                                         }
@@ -282,7 +369,7 @@ class ListVehicle extends Component{
                                                 style={styles.imageStyle}
                                                 //  source={{ uri:  '../Photo/Customer/baby.jpg' }}
                                                  // source={{ uri:  'http://192.168.11.129:3333/image/vehicle/honda-wave-110.jpg' }}
-                                                  source={{ uri:  (item.vehicleimage === null? vehicleService + "/noimage.png": vehicleService + item.vehicleimage.toString())}}                                                                      
+                                                  source={{ uri:  (item.vehicleimage === null? vehicleService + "/noimage.png": vehicleService + item.vehicleimage.toString())}}                                                                   
                                                 //  style={{width: 140, height: 100}} 
                                             />
 

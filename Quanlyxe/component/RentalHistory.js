@@ -50,7 +50,7 @@ export default class RentalHistory extends Component {
                 phone          : item.phone,
                 price          : item.rentalprice,
                 rentDate       : item.rentaldate,
-                payDate        : item.payday.replace(/T/, ' ').replace(/\..+/, ''),
+                payDate        : item.payday,//.replace(/T/, ' ').replace(/\..+/, ''),
                 collectionDate : (payDate.getUTCDate()- nowDate.getUTCDate()).toString(),    
                 rentalCheck    : false,  
                 //
