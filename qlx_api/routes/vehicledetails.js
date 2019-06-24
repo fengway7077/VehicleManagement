@@ -263,16 +263,18 @@ router.get('/getVehicleStatus',function(req, res, next) {
     // console.log(req.body);
     // return;
     var  vehiclecode =  req.body.vehiclecode
+    var vehiclename = req.body.vehiclename
     pool.connect(function(err, client, done) {
       if(err) {
         return console.error('error fetching client from pool', err);
       }  
-      client.query(` SELECT vehiclecode ,vehiclename FROM  vehicledetails  WHERE vehiclecode = '${vehiclecode}'                           
+      client.query(` SELECT vehiclecode ,vehiclename FROM  vehicledetails  WHERE CAST(vehiclecode AS TEXT)  ILIKE  '%${vehiclecode}%' OR   vehiclename ILIKE '%${vehiclename}%'               
                         `,  function(err, result) {
        done(err);
         if(err) {
           return console.error('error running query', err);
         }        
+         // res.json(result.rows);  
           res.json(result.rows);  
     });
     });
