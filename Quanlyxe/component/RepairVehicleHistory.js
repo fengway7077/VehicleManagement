@@ -11,7 +11,7 @@ export default class RepairVehicleHistory extends Component{
         super(props);
         this._loadDataUser();
         params = this.props.navigation.getParam('params', null);
-        console.log(params);
+      //  console.log(params);
        if(params === null){
             this.state ={ 
                 vehicleCode    : '',
@@ -73,9 +73,9 @@ export default class RepairVehicleHistory extends Component{
             }),
         }).then((response) => response.json())
         .then((responseJson) => {
-            console.log(responseJson)
+           // console.log(responseJson)
             if(responseJson.rowCount === 1){
-                console.log(this.nowDate)
+              //  console.log(this.nowDate)
                 alert("Thêm Thành Công",params.reFetchVehicleStatus(),this.props.navigation.navigate('VehicleStatus'));
             }
             else
@@ -91,7 +91,7 @@ export default class RepairVehicleHistory extends Component{
     }
 
     updateRepairHistory(){
-     console.log(this.state.fixDate);
+     //console.log(this.state.fixDate);
          fetch(LinkUpdateRepairHistory, {
              method: "POST",
              headers: {
@@ -106,7 +106,7 @@ export default class RepairVehicleHistory extends Component{
              }),
          }).then((response) => response.json())
          .then((responseJson) => {
-             console.log(responseJson)
+          //   console.log(responseJson)
              if(responseJson.rowCount === 1){
                  alert("Sửa Thành Công",params.reFetchVehicleStatus(),this.props.navigation.navigate('VehicleStatus'));
              }
@@ -123,7 +123,7 @@ export default class RepairVehicleHistory extends Component{
      }
 
      deleteRepairHistory(){
-        console.log("this.state.fixDate");
+      //  console.log("this.state.fixDate");
             fetch(LinkDeleteRepairHistory, {
                 method: "POST",
                 headers: {
@@ -137,7 +137,7 @@ export default class RepairVehicleHistory extends Component{
                 }),
             }).then((response) => response.json())
             .then((responseJson) => {
-                console.log(responseJson)
+             //   console.log(responseJson)
                 if(responseJson.rowCount === 1){
                     alert("Xóa Thành Công",params.reFetchVehicleStatus(),this.props.navigation.navigate('VehicleStatus'));
                 }

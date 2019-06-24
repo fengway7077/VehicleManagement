@@ -129,7 +129,7 @@ export default class ManageCustomer extends Component{
     };
 
     DeleteCustomer(){
-        console.log("test");
+      //  console.log("test");
         fetch(LinkDeleteCustomer, {
             method: "POST",
             headers: {
@@ -141,7 +141,7 @@ export default class ManageCustomer extends Component{
             }),
         }).then((response) => response.json())
         .then((responseJson) => {
-            console.log(responseJson)
+          //  console.log(responseJson)
             if(responseJson.rowCount === 1){
                 alert("Delete Success",params.reFetchCustomer(),this.props.navigation.navigate('ListCustomer'));
             }

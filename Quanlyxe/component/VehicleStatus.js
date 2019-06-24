@@ -28,7 +28,7 @@ class VehicleStatus extends Component{
         return fetch(LinkVehicleStatus)
         .then((response) => response.json())
         .then((responseJson) => {
-            console.log(responseJson)
+           // console.log(responseJson)
         this.setState({
             isLoading: false,
             dataSource: responseJson,

@@ -26,9 +26,9 @@ export default class Login extends Component{
           }else if(type = 'password'){
             if((mediumRegex.test(text)) &&  ( text != null)){
                  this.setState({passwordValidate:true})
-                 console.log("ok");
+             //    console.log("ok");
              }else{
-                 console.log("ng");
+               //  console.log("ng");
                 this.setState({passwordValidate:false}); }       
         }   
     }
@@ -113,7 +113,7 @@ export default class Login extends Component{
             //   AsyncStorage.setItem('user',name);
             //   this.setState({ 'user': name });
              //   console.log("test" + JSON.parse(AsyncStorage.getItem('user')));
-                console.log( name + pass);
+            //    console.log( name + pass);
             } catch (error) {
                 console.log("Error saving data :" + error);
            }     
@@ -248,7 +248,7 @@ const styles = StyleSheet.create({
         textAlignVertical: "center",
         fontSize:20,
         height:50,
-        marginBottom:20
+        marginBottom:20,
     },
     error: {
         borderRadius:2,

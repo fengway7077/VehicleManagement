@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View,Text,StyleSheet,Image,FlatList,TextInput,Picker,TouchableOpacity ,AsyncStorage,Animated,RefreshControl} from 'react-native';
+import { View,Text,StyleSheet,Image,FlatList,TextInput,Picker,TouchableOpacity ,AsyncStorage,Animated,RefreshControl,KeyboardAvoidingView} from 'react-native';
 import { createAppContainer, createStackNavigator } from 'react-navigation';
 import { PanGestureHandler,State ,ScrollView } from 'react-native-gesture-handler';
 import { SEARCH_IMAGE } from './imageExport.js'
@@ -18,7 +18,7 @@ class ListCustomer extends Component{
             pageItem: 7, //
         };
     }
-
+    
     // getDataCustomer(){
     //     return fetch(LinkListCustomer)
     //     .then((response) => response.json())
@@ -96,7 +96,7 @@ class ListCustomer extends Component{
                 }),
             }).then((response) => response.json())
             .then((responseJson) => {
-                console.log("responseJson.RowCount" + responseJson.rowCount);
+              //  console.log("responseJson.RowCount" + responseJson.rowCount);
                 if( responseJson.rowCount !== 0 ){
                     this.setState({
                         isLoading: false,
@@ -211,7 +211,7 @@ class ListCustomer extends Component{
         const { search } = this.state;
         
         return(
-    
+
               <ScrollView style={styles.mainContainer}
                 refreshControl={ <RefreshControl refreshing={this.state.refreshing} onRefresh={this._onRefresh.bind(this)} /> }   
               //  contentOffset = {[-4, 4]} 
@@ -312,7 +312,8 @@ class ListCustomer extends Component{
                  
                 </View>
             </ScrollView>
-         
+
+
         );
     }
 }
@@ -361,7 +362,7 @@ export default class App extends React.Component {
     try{
      const isLoggedIn = await AsyncStorage.getItem('user');
      this.props.navigation.navigate( isLoggedIn !== null ? 'ListCustomer' : 'Login');  
-     console.log("test  "+ isLoggedIn);
+    // console.log("test  "+ isLoggedIn);
     }catch{
         console.log(error);
     }

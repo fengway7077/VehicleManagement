@@ -61,7 +61,7 @@ class AutoCompleteVehicle extends Component {
                 })
             }
           }
-          placeholder="Nhập Tên Xe"
+          placeholder="Nhập Tên Xe Hoặc Mã Xe"
           renderItem={({ vehiclecode, vehiclename }) => {
             return (
             <TouchableOpacity  

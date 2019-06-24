@@ -30,7 +30,10 @@ export default class RentalHistory extends Component {
                 collectionDate : '',
                 vehicleSuggest : '',
                 rentalCheck    : false,
-                
+
+                data : [],
+                urlApa: '',
+
                 phoneValidate: true,
                 priceValidate: true,
                 dateValidate: true,
@@ -62,6 +65,7 @@ export default class RentalHistory extends Component {
     }
 
     checkDataVehicle(query){
+        console.log( "test12" + query);
         fetch(LinkCheckDataVehicle, {
             method: "POST",
             headers: {
@@ -70,14 +74,17 @@ export default class RentalHistory extends Component {
             },
             body: JSON.stringify({
                 "vehiclecode" : query,
+                "vehiclename": query,
             }),
             
         }).then((response) => response.json())
         .then((responseJson) => {
-            if(responseJson.length === 1){
+            console.log( "test 3" + responseJson );
+            if(responseJson.length !== null){
                 this.setState({
                     vehicleName : responseJson[0].vehiclename,
-                    vehicleCode : query
+                    vehicleCode : query ,
+                    data : responseJson,
                 });
             }
             else{
@@ -106,7 +113,7 @@ export default class RentalHistory extends Component {
         }).then((response) => response.json())
         .then((responseJson) => {
             if(responseJson.length === 1){
-                console.log(responseJson)
+              //  console.log(responseJson)
                 this.setState({
                     customerName : responseJson[0].fullname,
                     customerCode : query
@@ -140,12 +147,12 @@ export default class RentalHistory extends Component {
         }).then((response) => response.json())
         .then((responseJson) => {
             if(responseJson.length === 1){
-                console.log(responseJson)
+              //  console.log(responseJson)
                 this.setState({
                     rentalCheck : true
                 }, () => {
                     if (callBack) {
-                        console.log(this.state.customerCode)
+                     //   console.log(this.state.customerCode)
                         callBack()
                     }
                 });
@@ -166,8 +173,8 @@ export default class RentalHistory extends Component {
         }
         else 
         {
-            console.log(this.state.rentDate)
-            console.log(this.state.payDate)
+         //   console.log(this.state.rentDate)
+         //   console.log(this.state.payDate)
             if(this.state.rentalCheck === true){
                 fetch(LinkUpdateRentalHistory, {
                     method: "POST",
@@ -183,7 +190,7 @@ export default class RentalHistory extends Component {
                     }),
                 }).then((response) => response.json())
                 .then((responseJson) => {
-                    console.log(responseJson)
+                  //  console.log(responseJson)
                     if(responseJson.rowCount === 1){
                         if(params.reFetchVehicleStatus){
                             alert("Sửa Thành Công",params.reFetchVehicleStatus(),this.props.navigation.navigate('VehicleStatus'));
@@ -235,7 +242,7 @@ export default class RentalHistory extends Component {
                     }),
                 }).then((response) => response.json())
                 .then((responseJson) => {
-                    console.log(responseJson)
+                  //  console.log(responseJson)
                     if(responseJson.rowCount === 1){
                         if(params.reFetchVehicleStatus){
                             alert("Thêm Thành Công",params.reFetchVehicleStatus(),this.props.navigation.navigate('VehicleStatus'));
@@ -272,7 +279,7 @@ export default class RentalHistory extends Component {
             }),
         }).then((response) => response.json())
         .then((responseJson) => {
-            console.log(responseJson)
+          //  console.log(responseJson)
             if(responseJson.rowCount === 1){
                 alert("Xóa Thành Công",params.reFetchVehicle(),this.props.navigation.navigate('ListVehicle'));
             }
@@ -335,13 +342,14 @@ export default class RentalHistory extends Component {
 
     render(){
         console.disableYellowBox = true; //fix warn yellow
+         
         return(
             <ScrollView style={styles.mainContainer}>
                 <View style={styles.bodyContent}>
                     <View style={styles.bodyView}>
                         <AutoCompleteVehicle
                             value={this.state.vehicleCode}
-                            link={LinkListVehicle}
+                             link={LinkListVehicle}
                             checkCode={
                                 ((code) => {
                                     this.checkDataVehicle(code)
@@ -368,7 +376,7 @@ export default class RentalHistory extends Component {
                     <View style={styles.bodyView}>
                         <AutoCompleteCustomer
                             value={this.state.customerCode}
-                            link={LinkListCustomer}
+                           link ={LinkListCustomer}
                             checkCode={
                                 ((code) => {
                                     this.checkDataCustomer(code)

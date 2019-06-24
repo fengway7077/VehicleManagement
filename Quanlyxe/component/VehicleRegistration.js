@@ -82,8 +82,7 @@ export default class VehicleRegistration extends Component{
     }
 
     InsertVehicle(){
-        console.warn(this.state.filePath);
-        console.log(this.state.filePath);
+      //  console.log(this.state.filePath);
         fetch(LinkInsertVehicle, {
             method: "POST",
             headers: {
@@ -101,7 +100,7 @@ export default class VehicleRegistration extends Component{
                 "vehiclecolor"       : this.state.vehicleColor,    
                 "purchaseprice"      : this.state.purchasePrice,
               //  "vehicleimage"       : this.state.filePath,                                         //type image
-                "vehicleimage"       : (this.state.filePath.fileName).slice(0, 6) + this.state.day + ".png", //get filename  image-a3fc2842-d7c2-4a25-8612-2d2c45d4c567.jpg'
+                "vehicleimage"       : this.state.filePath.fileName !== "" ? (this.state.filePath.fileName).slice(0, 6) + this.state.day + ".png" : null, //get filename  image-a3fc2842-d7c2-4a25-8612-2d2c45d4c567.jpg'
                 "describe"           : this.state.describe,
             }),
         }).then((response) => response.json())
@@ -168,7 +167,7 @@ export default class VehicleRegistration extends Component{
                 }),
             }).then((response) => response.json())
             .then((responseJson) => {
-                console.log(responseJson)
+           //     console.log(responseJson)
                 if(responseJson.rowCount === 1){
                     alert("Xóa Thành Công",params.reFetchVehicle(),this.props.navigation.navigate('ListVehicle'));
                 }
@@ -223,12 +222,12 @@ export default class VehicleRegistration extends Component{
          alphnum = /[0-9a-zA-Z]/;
         
         if (type = 'vehiclename'){       
-            if(text.value != null){
+            if(text.value != ""){
              // if(alph.test(text) ){
                 this.setState({namevalidate:true})
-            //   console.warn("ok");
+            //  console.warn("ok");
             }else{
-             //  console.warn("ng");
+             // console.warn("ng");
              this.setState({namevalidate:false})
             }
          //  } 
@@ -261,7 +260,7 @@ export default class VehicleRegistration extends Component{
     }
     
  uploadImage() {
-    console.warn("test" + this.state.filePath);
+   // console.warn("test" + this.state.filePath);
    // var xhr = new XMLHttpRequest();
    // var  apiUrl = 'http://192.168.11.129:3333/vehicledetails/upload'
     //  var uriParts = this.state.filePath.path.split('.');
@@ -289,13 +288,13 @@ export default class VehicleRegistration extends Component{
                 },
                  body:JSON.stringify({ base64image: this.state.filePath.data,
                                         path:  Platform.OS === 'android' ? this.state.filePath.path :this.state.filePath.path.replace('file://', ''),
-                                        fileName:(this.state.filePath.fileName).slice(0, 6),
+                                        fileName:this.state.filePath.fileName != "" ? (this.state.filePath.fileName).slice(0, 6) : null,
                                         type:  this.state.filePath.type,
                                         daytime: this.state.day, //set date
                                     }),
               //  // body:imageData //JSON.stringify({  image: this.state.filePath.data }),
                 }).then(response => {
-                    console.log(response.body);
+                  //  console.log(response.body);
                     console.log("imageData uploaded")
                 }).catch(err => {
                     console.log(err)
@@ -558,8 +557,8 @@ export default class VehicleRegistration extends Component{
 
 const styles = StyleSheet.create({
     mainContainer: {
-        marginTop:20,
-        flex: 1,
+       marginTop:20, //
+         flex: 1,
     },
     headerContent:
     {
@@ -604,12 +603,17 @@ const styles = StyleSheet.create({
     formInput: {    
         width:'100%',
         // borderBottomWidth: 1.5, 
-        borderColor: '#333',       
+        borderColor: '#333',  
+        marginTop : 1,     
+        //borderBottomWidth: 1.5, 
+        marginLeft: 10,
     },
     input: {
         borderColor: 'green',  
         borderRadius:5, //tron goc
-        borderWidth: 1
+        borderWidth: 1 ,
+        alignItems: 'center',
+    //  backgroundColor: "pink" ,
     },
     touchableContent:{
         width:'33%',
@@ -628,7 +632,7 @@ const styles = StyleSheet.create({
         alignItems:'center'
     },
     inputStyleFull: {
-        height: 40,
+        height: '100%', //70,
         width:'100%',
         borderWidth:1,
         borderColor: '#428AF8',
@@ -644,8 +648,9 @@ const styles = StyleSheet.create({
         borderColor: '#428AF8',
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom:10,
-        borderRadius:1
+        marginBottom:10,//
+        borderRadius:1,
+       
     },
     pickerContent:{
         paddingLeft:7,
